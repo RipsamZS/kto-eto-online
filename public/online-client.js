@@ -347,6 +347,14 @@
       }
 
       case "room-roster":
+      case "room-host-changed": {
+        if (event === "room-host-changed") API.isRoomHost = !!data.isHost;
+        dispatch(event, data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "word-round-reset":
       case "word-round-start":
       case "word-entry-turn":
       case "word-submitted":
