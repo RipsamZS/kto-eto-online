@@ -102,7 +102,7 @@ export class GameRoom {
   rosterData() {
     const players = [...this.players.keys()].map((id, index) => {
       const profile = this.playerProfiles.get(id) || {};
-      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", isHost: id === this.hostPlayerId };
+      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, isHost: id === this.hostPlayerId };
     });
     return { players, playersCount: players.length, maxPlayers: this.maxPlayers, hostPlayerId: this.hostPlayerId };
   }
@@ -591,7 +591,8 @@ export class GameRoom {
       this.players.set(playerId, socket);
       this.playerProfiles.set(playerId, {
         nickname: String(settings.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
-        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(settings.avatar) ? settings.avatar : "🙂"
+        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(settings.avatar) ? settings.avatar : "🙂",
+        seatIndex: null
       });
 
       await this.updateDirectory();
@@ -642,7 +643,8 @@ export class GameRoom {
       const profile = data.profile || {};
       this.playerProfiles.set(playerId, {
         nickname: String(profile.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
-        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(profile.avatar) ? profile.avatar : "🙂"
+        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(profile.avatar) ? profile.avatar : "🙂",
+        seatIndex: null
       });
       reply({
         ok: true,
@@ -676,6 +678,29 @@ export class GameRoom {
       return;
     }
 
+    if (event === "select-seat" && this.gameId === "who-am-i") {
+      if (this.gamePhase !== "lobby") {
+        reply({ ok:false, message:"Место можно выбрать только до начала игры." });
+        return;
+      }
+      const seatIndex = Number(data.seatIndex);
+      if (!Number.isInteger(seatIndex) || seatIndex < 0 || seatIndex >= this.maxPlayers) {
+        reply({ ok:false, message:"Это место недоступно." });
+        return;
+      }
+      const occupied = [...this.playerProfiles.entries()].find(([id, profile]) => id !== playerId && profile.seatIndex === seatIndex);
+      if (occupied) {
+        reply({ ok:false, message:"Это место уже занято. Выбери другое." });
+        return;
+      }
+      const profile = this.playerProfiles.get(playerId) || { nickname:"Игрок", avatar:"🙂" };
+      profile.seatIndex = seatIndex;
+      this.playerProfiles.set(playerId, profile);
+      this.broadcastRoster();
+      reply({ ok:true, seatIndex });
+      return;
+    }
+
     if (event === "update-room-settings") {
       if (playerId !== this.hostPlayerId || this.ready.size > 0 || (this.gameId === "who-am-i" && this.gamePhase !== "lobby")) {
         reply({ ok: false, message: "Настройки может менять создатель до начала игры." });
@@ -704,6 +729,11 @@ export class GameRoom {
     if (this.gameId === "who-am-i" && event === "start-word-round") {
       if (playerId !== this.hostPlayerId) {
         reply({ ok:false, message:"Начать игру может только создатель комнаты." });
+        return;
+      }
+      const seatsReady = [...this.playerProfiles.values()].filter(profile => Number.isInteger(profile.seatIndex)).length === this.players.size;
+      if (!seatsReady) {
+        reply({ ok:false, message:"Каждый игрок должен выбрать своё место за столом." });
         return;
       }
       if (this.gamePhase !== "lobby" || this.players.size !== this.maxPlayers) {
