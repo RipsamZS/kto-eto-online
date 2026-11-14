@@ -149,6 +149,7 @@
   document.addEventListener("who-am-i-question",e=>{$("srsAnswerPanel").classList.remove("hidden");$("srsQuestionText").textContent="Игрок №"+e.detail.askerNumber+" спрашивает: "+e.detail.question;$("srsQuestionForm").classList.add("hidden");$("srsGuessForm").classList.add("hidden");$("srsPassTurn").classList.add("hidden");});
   document.addEventListener("who-am-i-answer",e=>{status("Ответ игрока №"+e.detail.responderNumber+": "+({yes:"Да",no:"Нет",unknown:"Не знаю"}[e.detail.answer]));$("srsAnswerPanel").classList.add("hidden");});
   document.addEventListener("who-am-i-guess-result",e=>status(e.detail.message));
+  document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
   document.addEventListener("word-round-reset",e=>{started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
   document.addEventListener("online-room-left",()=>{show("srsHome");started=false;});
