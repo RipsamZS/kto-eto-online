@@ -56,7 +56,7 @@
         <button id="srsSave">Сохранить настройки</button><button id="srsCancelEdit" class="alt">Отмена</button>
       </div>
       <div id="srsWordStage" class="srs-card hidden"><h3 id="srsWordHeading">Раздача слов</h3><p id="srsWordInstruction"></p>
-        <div id="srsWordEntry"><label for="srsWordInput">Придумай слово для следующего игрока</label><input id="srsWordInput" maxlength="40" autocomplete="off" placeholder="Напиши слово…"><button id="srsSubmitWord" class="wide">Отправить слово</button></div>
+        <div id="srsWordEntry" class="hidden"><label for="srsWordInput">Придумай слово для следующего игрока</label><input id="srsWordInput" maxlength="40" autocomplete="off" placeholder="Напиши слово…"><button id="srsSubmitWord" class="wide">Отправить слово</button></div>
         <div id="srsWordWaiting" class="hidden status">Слово отправлено. Ждём остальных игроков. Ты не увидишь слово, которое отправил.</div>
         <div id="srsSecretWord" class="hidden"><p>Твоё слово:</p><div class="srs-word" id="srsSecretWordValue"></div><p>Не показывай экран другим игрокам. Теперь можно начинать угадывать!</p></div>
       </div>
@@ -130,7 +130,7 @@
   document.addEventListener("word-submission-progress",e=>status("Слова отправили "+e.detail.submitted+" из "+e.detail.total+" игроков."));
   document.addEventListener("your-secret-word",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
   document.addEventListener("word-round-complete",()=>{status("Все слова розданы. Игра начинается!");});
-  document.addEventListener("word-round-reset",e=>{started=false;$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
+  document.addEventListener("word-round-reset",e=>{started=false;$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
   document.addEventListener("online-room-left",()=>{show("srsHome");started=false;});
 })();
 (() => {
