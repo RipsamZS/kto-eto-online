@@ -5,6 +5,7 @@ export class GameRoom {
     this.env = env;
 
     this.players = new Map();
+    this.playerProfiles = new Map();
     this.pack = null;
     this.ready = new Set();
     this.secretCharacters = new Map();
@@ -96,6 +97,18 @@ export class GameRoom {
       timerSeconds: this.timerSeconds,
       createdAt: this.createdAt || Date.now()
     });
+  }
+
+  rosterData() {
+    const players = [...this.players.keys()].map((id, index) => {
+      const profile = this.playerProfiles.get(id) || {};
+      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", isHost: id === this.hostPlayerId };
+    });
+    return { players, playersCount: players.length, maxPlayers: this.maxPlayers, hostPlayerId: this.hostPlayerId };
+  }
+
+  broadcastRoster() {
+    this.broadcast("room-roster", this.rosterData());
   }
 
   async clearTurnTimer() {
@@ -206,6 +219,7 @@ export class GameRoom {
     if (!this.players.has(playerId)) return;
 
     this.players.delete(playerId);
+    this.playerProfiles.delete(playerId);
 
     const wordRoundWasActive = this.gameId === "who-am-i" && this.gamePhase !== "lobby";
     this.ready.clear();
@@ -224,6 +238,7 @@ export class GameRoom {
       playersCount: this.players.size,
       maxPlayers: this.maxPlayers
     });
+    this.broadcastRoster();
     if (wordRoundWasActive) {
       this.broadcast("word-round-reset", {
         message: "Игрок покинул комнату. Раздачу слов нужно начать заново."
@@ -574,6 +589,10 @@ export class GameRoom {
       this.createdAt = Date.now();
       this.hostPlayerId = playerId;
       this.players.set(playerId, socket);
+      this.playerProfiles.set(playerId, {
+        nickname: String(settings.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
+        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(settings.avatar) ? settings.avatar : "🙂"
+      });
 
       await this.updateDirectory();
 
@@ -588,6 +607,7 @@ export class GameRoom {
           cardCount: this.pack?.characters?.length || 0
         }
       });
+      this.broadcastRoster();
 
       return;
     }
@@ -619,6 +639,11 @@ export class GameRoom {
       }
 
       this.players.set(playerId, socket);
+      const profile = data.profile || {};
+      this.playerProfiles.set(playerId, {
+        nickname: String(profile.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
+        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(profile.avatar) ? profile.avatar : "🙂"
+      });
       reply({
         ok: true,
         pack: this.pack,
@@ -637,12 +662,7 @@ export class GameRoom {
         maxPlayers: this.maxPlayers,
         hostPlayerId: this.hostPlayerId
       }, socket);
-      this.send(socket, "room-roster", {
-        playersCount: this.players.size,
-        maxPlayers: this.maxPlayers,
-        hostPlayerId: this.hostPlayerId,
-        isHost: playerId === this.hostPlayerId
-      });
+      this.broadcastRoster();
 
       await this.updateDirectory();
       return;
