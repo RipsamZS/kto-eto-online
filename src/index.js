@@ -1,390 +1,316 @@
+
 export class GameRoom {
   constructor(ctx, env) {
     this.ctx = ctx;
     this.env = env;
+    this.players = new Map();
+    this.pack = null;
+    this.ready = new Set();
+    this.currentTurn = null;
+    this.pending = null;
+    this.ended = false;
   }
 
-  async getRoom() {
-    return await this.ctx.storage.get("room");
+  send(socket, event, data = {}) {
+    try {
+      socket.send(JSON.stringify({ event, data }));
+    } catch {}
   }
 
-  async saveRoom(room) {
-    await this.ctx.storage.put("room", room);
-  }
+  reply(socket, requestId, result) {
+    if (!requestId) return;
 
-  getPlayerId(socket) {
-    return socket.deserializeAttachment()?.playerId;
-  }
-
-  send(socket, event, data = {}, requestId = null) {
     try {
       socket.send(JSON.stringify({
-        event,
-        data,
-        requestId
+        ackId: requestId,
+        result
       }));
     } catch {}
   }
 
-  broadcast(event, data = {}) {
-    for (const socket of this.ctx.getWebSockets()) {
-      this.send(socket, event, data);
-    }
-  }
-
-  sendTo(playerId, event, data = {}) {
-    for (const socket of this.ctx.getWebSockets()) {
-      if (this.getPlayerId(socket) === playerId) {
+  broadcast(event, data = {}, except = null) {
+    for (const socket of this.players.values()) {
+      if (socket !== except) {
         this.send(socket, event, data);
       }
     }
   }
 
-  sendTurn(room) {
+  sendTurn() {
     this.broadcast("online-turn", {
-      currentTurn: room.currentTurn
+      currentTurn: this.currentTurn
     });
   }
 
   async fetch(request) {
-    const url = new URL(request.url);
-
-    // Инициализация новой комнаты
-    if (url.pathname === "/init" && request.method === "POST") {
-      const existing = await this.getRoom();
-
-      if (existing) {
-        return new Response("Комната уже существует", {
-          status: 409
-        });
-      }
-
-      const pack = await request.json();
-
-      await this.saveRoom({
-        pack,
-        players: [],
-        ready: [],
-        currentTurn: null,
-        pending: null,
-        ended: false
-      });
-
-      return Response.json({ ok: true });
-    }
-
-    // Подключение игрока
-    if (
-      url.pathname === "/room" &&
-      request.headers.get("Upgrade") === "websocket"
-    ) {
-      const room = await this.getRoom();
-
-      if (!room) {
-        return new Response("Комната не найдена", {
-          status: 404
-        });
-      }
-
-      if (room.players.length >= 2) {
-        return new Response("Комната уже заполнена", {
-          status: 403
-        });
-      }
-
-      const pair = new WebSocketPair();
-      const client = pair[0];
-      const server = pair[1];
-
-      server.accept();
-
-      const playerId = crypto.randomUUID();
-
-      server.serializeAttachment({ playerId });
-
-      room.players.push(playerId);
-      await this.saveRoom(room);
-
-      this.send(server, "connected", {
-        playerId,
-        players: room.players.length
-      });
-
-      if (room.players.length === 2) {
-        this.send(server, "room-joined", {
-          code: url.searchParams.get("id"),
-          pack: room.pack
-        });
-
-        this.broadcast("player-joined");
-      }
-
-      server.addEventListener("message", event => {
-        this.handleMessage(server, event.data);
-      });
-
-      server.addEventListener("close", () => {
-        this.removePlayer(server);
-      });
-
-      server.addEventListener("error", () => {
-        this.removePlayer(server);
-      });
-
-      return new Response(null, {
-        status: 101,
-        webSocket: client
+    if (request.headers.get("Upgrade") !== "websocket") {
+      return new Response("WebSocket connection required", {
+        status: 426
       });
     }
 
-    return new Response("Not found", { status: 404 });
-  }
+    const pair = new WebSocketPair();
+    const client = pair[0];
+    const server = pair[1];
 
-  async handleMessage(socket, rawMessage) {
-    let message;
+    server.accept();
 
-    try {
-      message = JSON.parse(rawMessage);
-    } catch {
-      return;
-    }
+    const playerId = crypto.randomUUID();
 
-    const event = message.event;
-    const data = message.data || {};
-    const requestId = message.requestId;
-    const playerId = this.getPlayerId(socket);
+    server.send(JSON.stringify({
+      event: "connected",
+      data: { playerId }
+    }));
 
-    const ack = (result) => {
-      this.send(socket, "ack", result, requestId);
-    };
+    server.addEventListener("message", event => {
+      let message;
 
-    const room = await this.getRoom();
-
-    if (!room || !room.players.includes(playerId)) {
-      ack({
-        ok: false,
-        message: "Комната не найдена."
-      });
-      return;
-    }
-
-    // Игрок выбрал тайного персонажа
-    if (event === "player-ready") {
-      if (room.players.length !== 2 || room.ended) {
-        ack({
-          ok: false,
-          message: "Ожидаем второго игрока."
-        });
+      try {
+        message = JSON.parse(event.data);
+      } catch {
         return;
       }
 
-      if (!room.ready.includes(playerId)) {
-        room.ready.push(playerId);
+      this.handleMessage(server, playerId, message);
+    });
+
+    const remove = () => {
+      if (!this.players.has(playerId)) return;
+
+      this.players.delete(playerId);
+      this.ready.delete(playerId);
+
+      this.broadcast("player-left");
+
+      if (this.players.size === 0) {
+        this.pack = null;
+        this.pending = null;
+        this.currentTurn = null;
+        this.ended = false;
+        this.ready.clear();
+      }
+    };
+
+    server.addEventListener("close", remove);
+    server.addEventListener("error", remove);
+
+    return new Response(null, {
+      status: 101,
+      webSocket: client
+    });
+  }
+
+  handleMessage(socket, playerId, message) {
+    const event = message.event;
+    const data = message.data ?? {};
+    const requestId = message.requestId;
+
+    const reply = result => this.reply(socket, requestId, result);
+
+    if (event === "create-room") {
+      const pack = data.pack;
+
+      if (
+        this.players.size !== 0 ||
+        !pack ||
+        !Array.isArray(pack.characters) ||
+        pack.characters.length < 2 ||
+        pack.characters.length > 100
+      ) {
+        return reply({
+          ok: false,
+          message: "Не удалось создать комнату или неверный набор персонажей."
+        });
       }
 
-      await this.saveRoom(room);
+      this.pack = pack;
+      this.players.set(playerId, socket);
 
-      for (const id of room.players) {
-        if (id !== playerId) {
-          this.sendTo(id, "player-ready");
-        }
-      }
-
-      if (room.ready.length === 2) {
-        room.currentTurn =
-          room.players[Math.floor(Math.random() * 2)];
-
-        this.broadcast("online-start");
-        this.sendTurn(room);
-      }
-
-      ack({ ok: true });
+      reply({ ok: true });
       return;
     }
 
-    // Задать вопрос
+    if (event === "join-room") {
+      if (!this.pack) {
+        return reply({
+          ok: false,
+          message: "Комната не найдена."
+        });
+      }
+
+      if (this.players.size >= 2) {
+        return reply({
+          ok: false,
+          message: "В комнате уже два игрока."
+        });
+      }
+
+      this.players.set(playerId, socket);
+
+      reply({
+        ok: true,
+        pack: this.pack
+      });
+
+      this.broadcast("player-joined", {}, socket);
+      return;
+    }
+
+    if (!this.players.has(playerId)) {
+      return reply({
+        ok: false,
+        message: "Сначала войдите в комнату."
+      });
+    }
+
+    if (event === "player-ready") {
+      if (this.players.size !== 2 || this.ended) {
+        return reply({
+          ok: false,
+          message: "Ожидаем второго игрока."
+        });
+      }
+
+      this.ready.add(playerId);
+      this.broadcast("player-ready", {}, socket);
+
+      if (this.ready.size === 2) {
+        const ids = [...this.players.keys()];
+        this.currentTurn = ids[Math.floor(Math.random() * 2)];
+
+        this.broadcast("online-start");
+        this.sendTurn();
+      }
+
+      return reply({ ok: true });
+    }
+
     if (event === "ask-question") {
       const question = String(data.question || "")
         .trim()
         .slice(0, 250);
 
       if (
-        room.ended ||
-        room.currentTurn !== playerId ||
-        room.pending ||
+        this.ended ||
+        this.currentTurn !== playerId ||
+        this.pending ||
         !question
       ) {
-        ack({
+        return reply({
           ok: false,
           message: "Сейчас нельзя задать вопрос."
         });
-        return;
       }
 
-      room.pending = {
+      this.pending = {
         type: "question",
         from: playerId
       };
 
-      await this.saveRoom(room);
-
-      const opponent = room.players.find(id => id !== playerId);
-
-      this.sendTo(opponent, "online-question", {
-        question
-      });
-
-      ack({ ok: true });
-      return;
+      this.broadcast("online-question", { question }, socket);
+      return reply({ ok: true });
     }
 
-    // Ответить на вопрос
     if (event === "answer-question") {
       if (
-        !room.pending ||
-        room.pending.type !== "question" ||
-        room.pending.from === playerId
+        !this.pending ||
+        this.pending.type !== "question" ||
+        this.pending.from === playerId
       ) {
-        ack({
+        return reply({
           ok: false,
           message: "Нет вопроса для ответа."
         });
-        return;
       }
 
-      const asker = room.pending.from;
+      const asker = this.players.get(this.pending.from);
 
-      this.sendTo(asker, "online-answer", {
-        answer: !!data.answer
-      });
+      if (asker) {
+        this.send(asker, "online-answer", {
+          answer: !!data.answer
+        });
+      }
 
-      room.pending = null;
-      room.currentTurn = playerId;
+      this.pending = null;
+      this.currentTurn = playerId;
 
-      await this.saveRoom(room);
-      this.sendTurn(room);
-
-      ack({ ok: true });
-      return;
+      this.sendTurn();
+      return reply({ ok: true });
     }
 
-    // Попытка угадать персонажа
     if (event === "make-guess") {
       const guess = String(data.guess || "")
         .trim()
         .slice(0, 120);
 
       if (
-        room.ended ||
-        room.currentTurn !== playerId ||
-        room.pending ||
+        this.ended ||
+        this.currentTurn !== playerId ||
+        this.pending ||
         !guess
       ) {
-        ack({
+        return reply({
           ok: false,
           message: "Сейчас нельзя угадывать."
         });
-        return;
       }
 
-      room.pending = {
+      this.pending = {
         type: "guess",
         from: playerId
       };
 
-      await this.saveRoom(room);
-
-      const opponent = room.players.find(id => id !== playerId);
-
-      this.sendTo(opponent, "online-guess", {
-        guess
-      });
-
-      ack({ ok: true });
-      return;
+      this.broadcast("online-guess", { guess }, socket);
+      return reply({ ok: true });
     }
 
-    // Ответить на попытку угадать
     if (event === "answer-guess") {
       if (
-        !room.pending ||
-        room.pending.type !== "guess" ||
-        room.pending.from === playerId
+        !this.pending ||
+        this.pending.type !== "guess" ||
+        this.pending.from === playerId
       ) {
-        ack({
+        return reply({
           ok: false,
           message: "Нет догадки для ответа."
         });
-        return;
       }
 
-      const guesser = room.pending.from;
-      const correct = !!data.correct;
+      const guesser = this.players.get(this.pending.from);
 
-      this.sendTo(guesser, "online-guess-result", {
-        correct
-      });
-
-      room.pending = null;
-
-      if (correct) {
-        room.ended = true;
-      } else {
-        room.currentTurn = playerId;
+      if (guesser) {
+        this.send(guesser, "online-guess-result", {
+          correct: !!data.correct
+        });
       }
 
-      await this.saveRoom(room);
+      this.pending = null;
 
-      if (correct) {
+      if (data.correct) {
+        this.ended = true;
+
         this.broadcast("online-ended", {
           message: "Игра окончена! Персонаж угадан."
         });
       } else {
-        this.sendTurn(room);
+        this.currentTurn = playerId;
+        this.sendTurn();
       }
 
-      ack({ ok: true });
-      return;
+      return reply({ ok: true });
     }
 
-    // Выход из комнаты
     if (event === "leave-room") {
-      await this.removePlayer(socket);
-      ack({ ok: true });
-      return;
+      this.players.delete(playerId);
+      this.ready.delete(playerId);
+      this.broadcast("player-left");
+      return reply({ ok: true });
     }
 
-    ack({
+    reply({
       ok: false,
-      message: "Неизвестная команда."
+      message: "Неизвестное действие."
     });
-  }
-
-  async removePlayer(socket) {
-    const playerId = this.getPlayerId(socket);
-    const room = await this.getRoom();
-
-    if (!room || !room.players.includes(playerId)) {
-      return;
-    }
-
-    room.players = room.players.filter(id => id !== playerId);
-    room.ready = room.ready.filter(id => id !== playerId);
-
-    if (room.players.length === 0) {
-      await this.ctx.storage.delete("room");
-      return;
-    }
-
-    if (room.currentTurn === playerId) {
-      room.currentTurn = null;
-    }
-
-    room.pending = null;
-
-    await this.saveRoom(room);
-
-    this.broadcast("player-left");
   }
 }
 
@@ -392,86 +318,20 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Создание комнаты
-    if (url.pathname === "/create-room" && request.method === "POST") {
-      let pack;
-
-      try {
-        pack = await request.json();
-      } catch {
-        return Response.json({
-          ok: false,
-          message: "Некорректные данные."
-        }, { status: 400 });
-      }
-
-      if (
-        !pack ||
-        !Array.isArray(pack.characters) ||
-        pack.characters.length < 2 ||
-        pack.characters.length > 100
-      ) {
-        return Response.json({
-          ok: false,
-          message: "В паке должно быть от 2 до 100 персонажей."
-        }, { status: 400 });
-      }
-
-      let code;
-      let room;
-
-      for (let attempt = 0; attempt < 5; attempt++) {
-        code = String(
-          Math.floor(100000 + Math.random() * 900000)
-        );
-
-        room = env.GAME_ROOM.get(
-          env.GAME_ROOM.idFromName(code)
-        );
-
-        const response = await room.fetch(
-          "https://internal/init",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(pack)
-          }
-        );
-
-        if (response.ok) {
-          return Response.json({
-            ok: true,
-            code
-          });
-        }
-      }
-
-      return Response.json({
-        ok: false,
-        message: "Не удалось создать комнату. Попробуй ещё раз."
-      }, { status: 500 });
-    }
-
-    // Подключение к комнате
     if (url.pathname === "/room") {
-      const code = url.searchParams.get("id");
+      const roomId = url.searchParams.get("id");
 
-      if (!code || !/^\d{6}$/.test(code)) {
-        return new Response("Укажи шестизначный код комнаты", {
+      if (!roomId || !/^\d{6}$/.test(roomId)) {
+        return new Response("Неверный код комнаты", {
           status: 400
         });
       }
 
       const room = env.GAME_ROOM.get(
-        env.GAME_ROOM.idFromName(code)
+        env.GAME_ROOM.idFromName(roomId)
       );
 
-      const roomUrl = new URL(request.url);
-      roomUrl.pathname = "/room";
-
-      return room.fetch(new Request(roomUrl, request));
+      return room.fetch(request);
     }
 
     return env.ASSETS.fetch(request);
