@@ -1136,7 +1136,9 @@
     if (editButton) editButton.style.display = API.isRoomHost ? "inline-block" : "none";
   });
 
-  createPanel();
+  // Старую панель используем только на страницах классической игры с #game.
+  // Страница «Кто я?» создаёт собственный интерфейс через room-system.js.
+  if (document.getElementById("game")) createPanel();
 
   window.onlineGame = {
     createRoom,
