@@ -1,48 +1,411 @@
+
 (() => {
-  let socket = null;
-  let roomCode = null;
-  let playerId = null;
-  let currentTurn = null;
-  let requestCounter = 0;
-  let readySent = false;
-  let opponentConnected = false;
-  let opponentReady = false;
+  "use strict";
 
-  const pending = new Map();
+  const API = {
+    socket: null,
+    roomCode: null,
+    playerId: null,
+    currentTurn: null,
+    opponentConnected: false,
+    opponentReady: false,
+    readySent: false,
+    roomActive: false,
+    roomSettings: null,
+    pack: null,
+    requestCounter: 0,
+    pending: new Map(),
+    timerInterval: null,
+    timerDeadline: null,
+    connectedPromise: null,
+    intentionalLeave: false
+  };
 
-  function dispatchState() {
-    document.dispatchEvent(new CustomEvent("online-state-change", {
-      detail: {
-        opponentConnected,
-        opponentReady,
-        readySent
+  function dispatch(name, detail = {}) {
+    document.dispatchEvent(new CustomEvent(name, { detail }));
+  }
+
+  function getSocketUrl(code) {
+    const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+    return `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`;
+  }
+
+  function randomRoomCode() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  function setStatus(message) {
+    const element = document.getElementById("onlineStatus");
+    if (element) element.textContent = message;
+  }
+
+  function setTimerDisplay(text) {
+    const element = document.getElementById("onlineTimer");
+    if (element) element.textContent = text;
+  }
+
+  function updateRoomCodeDisplay() {
+    const code = API.roomCode;
+    if (!code) return;
+
+    const value = document.getElementById("onlineRoomCodeValue");
+    const frame = document.getElementById("onlineRoomCodeFrame");
+
+    if (value) value.textContent = code;
+    if (frame) frame.style.display = "block";
+
+    const pickerValue = document.getElementById("pickerRoomCodeValue");
+    const pickerFrame = document.getElementById("pickerRoomCode");
+
+    if (pickerValue) pickerValue.textContent = code;
+    if (pickerFrame) pickerFrame.style.display = "block";
+  }
+
+  function clearTimer() {
+    if (API.timerInterval) {
+      clearInterval(API.timerInterval);
+      API.timerInterval = null;
+    }
+
+    API.timerDeadline = null;
+    setTimerDisplay("Без ограничения времени");
+  }
+
+  function startTimer(deadline, seconds) {
+    clearTimer();
+
+    if (!seconds || seconds <= 0 || !deadline) {
+      setTimerDisplay("Без ограничения времени");
+      return;
+    }
+
+    API.timerDeadline = deadline;
+
+    const update = () => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((API.timerDeadline - Date.now()) / 1000)
+      );
+
+      const minutes = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+
+      setTimerDisplay(
+        `⏱ Осталось: ${minutes}:${String(secs).padStart(2, "0")}`
+      );
+
+      if (remaining <= 0 && API.timerInterval) {
+        clearInterval(API.timerInterval);
+        API.timerInterval = null;
+        setTimerDisplay("⏱ Время вышло");
       }
-    }));
+    };
+
+    update();
+    API.timerInterval = setInterval(update, 250);
+  }
+
+  function clearPending(message = "Соединение закрыто.") {
+    for (const [, item] of API.pending) {
+      clearTimeout(item.timeout);
+      item.resolve({
+        ok: false,
+        message
+      });
+    }
+
+    API.pending.clear();
+  }
+
+  function send(event, data = {}) {
+    if (
+      !API.socket ||
+      API.socket.readyState !== WebSocket.OPEN
+    ) {
+      return Promise.resolve({
+        ok: false,
+        message: "Нет соединения с комнатой."
+      });
+    }
+
+    const requestId = String(++API.requestCounter);
+
+    return new Promise(resolve => {
+      const timeout = setTimeout(() => {
+        API.pending.delete(requestId);
+
+        resolve({
+          ok: false,
+          message: "Сервер не ответил вовремя."
+        });
+      }, 12000);
+
+      API.pending.set(requestId, {
+        resolve,
+        timeout
+      });
+
+      try {
+        API.socket.send(JSON.stringify({
+          event,
+          data,
+          requestId
+        }));
+      } catch {
+        clearTimeout(timeout);
+        API.pending.delete(requestId);
+
+        resolve({
+          ok: false,
+          message: "Не удалось отправить запрос."
+        });
+      }
+    });
+  }
+
+  function resetConnectionState() {
+    clearTimer();
+    clearPending();
+
+    API.socket = null;
+    API.roomCode = null;
+    API.playerId = null;
+    API.currentTurn = null;
+    API.opponentConnected = false;
+    API.opponentReady = false;
+    API.readySent = false;
+    API.roomActive = false;
+    API.roomSettings = null;
+    API.pack = null;
+    API.connectedPromise = null;
+
+    window.onlineRoomActive = false;
+
+    dispatch("online-state-change");
+  }
+
+  function handleMessage(message) {
+    if (!message || typeof message !== "object") return;
+
+    if (message.ackId) {
+      const pending = API.pending.get(String(message.ackId));
+
+      if (pending) {
+        clearTimeout(pending.timeout);
+        API.pending.delete(String(message.ackId));
+
+        const result = message.result || {
+          ok: false,
+          message: "Пустой ответ сервера."
+        };
+
+        pending.resolve(result);
+      }
+
+      return;
+    }
+
+    const event = message.event;
+    const data = message.data || {};
+
+    switch (event) {
+      case "connected": {
+        API.playerId = data.playerId || null;
+
+        dispatch("online-connected", data);
+        break;
+      }
+
+      case "player-joined": {
+        API.opponentConnected = true;
+
+        setStatus("Соперник подключился. Теперь оба игрока могут выбрать персонажей.");
+
+        dispatch("online-opponent-connected", data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "player-ready": {
+        API.opponentReady = true;
+
+        setStatus("Соперник выбрал персонажа. Ожидаем начала игры.");
+
+        dispatch("online-opponent-ready", data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "online-start": {
+        API.currentTurn = null;
+
+        setStatus("Оба игрока готовы. Игра начинается!");
+
+        dispatch("online-start", data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "online-turn": {
+        API.currentTurn = data.currentTurn || null;
+
+        startTimer(
+          data.deadline,
+          Number(data.timerSeconds || 0)
+        );
+
+        const myTurn = isMyTurn();
+
+        setStatus(
+          myTurn
+            ? "Твой ход! Задай вопрос или попробуй угадать персонажа."
+            : "Ход соперника. Ожидай его вопрос."
+        );
+
+        dispatch("online-turn", {
+          ...data,
+          isMyTurn: myTurn
+        });
+
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "turn-timeout": {
+        API.currentTurn = data.currentTurn || null;
+
+        clearTimer();
+
+        setStatus(
+          data.message ||
+          "Время на ход закончилось. Ход переходит сопернику."
+        );
+
+        dispatch("online-turn-timeout", data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "online-question": {
+        setStatus("Соперник задал вопрос. Ответь на него.");
+
+        dispatch("online-question", data);
+        break;
+      }
+
+      case "online-answer": {
+        setStatus(
+          data.answer
+            ? "Соперник ответил: Да."
+            : "Соперник ответил: Нет."
+        );
+
+        dispatch("online-answer", data);
+        break;
+      }
+
+      case "online-guess-result": {
+        dispatch("online-guess-result", data);
+        break;
+      }
+
+      case "online-guess-made": {
+        dispatch("online-guess-made", data);
+        break;
+      }
+
+      case "online-ended": {
+        API.currentTurn = null;
+        clearTimer();
+
+        setStatus(data.message || "Игра завершена.");
+
+        dispatch("online-ended", data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      case "player-left": {
+        API.opponentConnected = false;
+        API.opponentReady = false;
+        API.readySent = false;
+
+        API.currentTurn = null;
+
+        clearTimer();
+
+        setStatus(
+          "Соперник покинул комнату. Ожидаем нового игрока."
+        );
+
+        dispatch("online-opponent-left", data);
+        dispatch("online-state-change");
+        break;
+      }
+
+      default:
+        dispatch("online-unknown-event", message);
+    }
   }
 
   function connect(code) {
+    if (API.socket) {
+      try {
+        API.intentionalLeave = true;
+        API.socket.close();
+      } catch {}
+    }
+
+    clearTimer();
+    clearPending();
+
+    API.roomCode = code;
+    API.playerId = null;
+    API.currentTurn = null;
+    API.opponentConnected = false;
+    API.opponentReady = false;
+    API.readySent = false;
+    API.roomActive = false;
+    API.roomSettings = null;
+    API.pack = null;
+    API.intentionalLeave = false;
+
+    window.onlineRoomActive = false;
+
     return new Promise((resolve, reject) => {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.close();
+      let settled = false;
+
+      const finish = (success, value) => {
+        if (settled) return;
+        settled = true;
+
+        if (success) resolve(value);
+        else reject(value);
+      };
+
+      let socket;
+
+      try {
+        socket = new WebSocket(getSocketUrl(code));
+      } catch (error) {
+        finish(false, error);
+        return;
       }
 
-      const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+      API.socket = socket;
 
-      const ws = new WebSocket(
-        `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`
-      );
+      const connectionTimeout = setTimeout(() => {
+        finish(false, new Error("Время подключения истекло."));
+        try {
+          socket.close();
+        } catch {}
+      }, 12000);
 
-      socket = ws;
+      socket.addEventListener("open", () => {
+        setStatus("Соединение установлено. Проверяем комнату.");
+      });
 
-      ws.addEventListener("open", () => resolve(), { once: true });
-
-      ws.addEventListener("error", () => {
-        reject(new Error("Не удалось подключиться к серверу."));
-      }, { once: true });
-
-      ws.addEventListener("message", event => {
-        if (socket !== ws) return;
-
+      socket.addEventListener("message", event => {
         let message;
 
         try {
@@ -51,616 +414,576 @@
           return;
         }
 
-        if (message.ackId) {
-          const callback = pending.get(String(message.ackId));
+        handleMessage(message);
 
-          if (callback) {
-            pending.delete(String(message.ackId));
-            callback(message.result || { ok: false });
-          }
-
-          return;
+        if (
+          message.event === "connected" &&
+          message.data?.playerId
+        ) {
+          clearTimeout(connectionTimeout);
+          finish(true, message.data);
         }
-
-        if (message.event === "connected") {
-          playerId = message.data?.playerId || null;
-          return;
-        }
-
-        handleServerEvent(message.event, message.data || {});
       });
 
-      ws.addEventListener("close", () => {
-        if (socket !== ws) return;
+      socket.addEventListener("error", () => {
+        clearTimeout(connectionTimeout);
+        finish(false, new Error("Не удалось подключиться к серверу."));
+      });
 
-        pending.forEach(callback => {
-          callback({
-            ok: false,
-            message: "Соединение закрыто."
-          });
-        });
+      socket.addEventListener("close", () => {
+        clearTimeout(connectionTimeout);
 
-        pending.clear();
+        if (!settled) {
+          finish(false, new Error("Соединение было закрыто."));
+        }
 
-        socket = null;
-        currentTurn = null;
+        if (!API.intentionalLeave && API.socket === socket) {
+          clearTimer();
+          clearPending("Соединение с комнатой потеряно.");
 
-        if (roomCode) {
-          setStatus("Соединение с комнатой потеряно.");
-          roomCode = null;
-          playerId = null;
-          readySent = false;
-          opponentConnected = false;
-          opponentReady = false;
+          API.roomActive = false;
           window.onlineRoomActive = false;
-          dispatchState();
+
+          setStatus("Соединение с комнатой потеряно.");
+
+          dispatch("online-disconnected");
+          dispatch("online-state-change");
         }
       });
     });
   }
 
-  function send(event, data = {}) {
-    return new Promise(resolve => {
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        resolve({
-          ok: false,
-          message: "Нет соединения с сервером."
-        });
-        return;
-      }
-
-      const requestId = String(++requestCounter);
-      pending.set(requestId, resolve);
-
-      socket.send(JSON.stringify({
-        event,
-        data,
-        requestId
-      }));
-
-      setTimeout(() => {
-        if (pending.has(requestId)) {
-          pending.delete(requestId);
-
-          resolve({
-            ok: false,
-            message: "Сервер не ответил. Попробуй ещё раз."
-          });
-        }
-      }, 10000);
-    });
-  }
-
-  function setStatus(message) {
-    const el = document.getElementById("onlineStatus");
-    if (el) el.textContent = message;
-  }
-
-  function showPanel() {
-    let panel = document.getElementById("onlineGamePanel");
-
-    if (!panel) {
-      panel = document.createElement("div");
-      panel.id = "onlineGamePanel";
-
-      panel.style.cssText = `
-        background:#202b3d;
-        color:white;
-        padding:16px;
-        border-radius:16px;
-        margin:15px auto;
-        max-width:1100px;
-        font-family:Arial,sans-serif;
-        border:1px solid #ffffff25;
-      `;
-
-      panel.innerHTML = `
-        <h3 style="margin-top:0">🌐 Онлайн-игра</h3>
-
-        <div style="
-          max-width:350px;
-          margin:12px auto;
-          padding:14px 18px;
-          text-align:center;
-          border:2px solid #a98aff;
-          border-radius:15px;
-          background:linear-gradient(135deg,#7654d933,#a04de022);
-          box-shadow:0 0 20px #9870ff33;
-        ">
-          <div style="font-size:12px;color:#d4c8ff;margin-bottom:6px">
-            КОД КОМНАТЫ
-          </div>
-          <div id="onlineRoomCode" style="
-            font-size:30px;
-            font-weight:bold;
-            letter-spacing:7px;
-            color:#ffe477;
-          "></div>
-          <div style="font-size:12px;color:#c6c1e5;margin-top:6px">
-            Отправь код другу
-          </div>
-        </div>
-
-        <p id="onlineStatus" style="text-align:center">
-          Подключение...
-        </p>
-
-        <p id="onlineTurn" style="
-          text-align:center;
-          font-weight:bold;
-        "></p>
-
-        <div id="onlineAction" style="text-align:center"></div>
-
-        <div style="text-align:center;margin-top:12px">
-          <button id="onlineLeave" class="secondary" type="button">
-            Выйти из комнаты
-          </button>
-        </div>
-      `;
-
-      const game = document.getElementById("game");
-
-      if (game) {
-        game.insertBefore(panel, game.children[1] || null);
-      }
-
-      const leaveButton = document.getElementById("onlineLeave");
-
-      if (leaveButton) {
-        leaveButton.addEventListener("click", leaveRoom);
-      }
-    }
-
-    const codeElement = document.getElementById("onlineRoomCode");
-
-    if (codeElement) {
-      codeElement.textContent = roomCode || "";
-    }
-  }
-
-  function showAction(html) {
-    const el = document.getElementById("onlineAction");
-    if (el) el.innerHTML = html;
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[char]);
-  }
-
-  function showMyTurnActions() {
-    showAction(`
-      <p><strong>Твой ход!</strong></p>
-
-      <div style="
-        display:flex;
-        gap:8px;
-        justify-content:center;
-        flex-wrap:wrap;
-        margin:12px 0;
-      ">
-        <input
-          id="onlineQuestionInput"
-          type="text"
-          maxlength="250"
-          placeholder="Например: Твой персонаж человек?"
-          style="
-            flex:1;
-            min-width:200px;
-            max-width:450px;
-            padding:12px;
-            border-radius:10px;
-            border:1px solid #777;
-            background:#211e42;
-            color:white;
-          "
-        >
-
-        <button id="onlineAskButton" type="button">
-          ❓ Отправить вопрос
-        </button>
-      </div>
-
-      <p class="note">
-        Чтобы угадать персонажа, нажми правой кнопкой мыши на его карточку
-        или удерживай карточку на телефоне.
-      </p>
-    `);
-
-    const askButton = document.getElementById("onlineAskButton");
-    const input = document.getElementById("onlineQuestionInput");
-
-    if (askButton && input) {
-      const submit = async () => {
-        const value = input.value.trim();
-
-        if (!value) {
-          setStatus("Сначала введи вопрос.");
-          return;
-        }
-
-        await askQuestion(value);
-      };
-
-      askButton.onclick = submit;
-
-      input.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          submit();
-        }
-      });
-    }
-  }
-
-  function handleServerEvent(event, data) {
-    if (event === "player-joined") {
-      opponentConnected = true;
-      opponentReady = false;
-
-      setStatus("Второй игрок подключился! Теперь можно выбрать персонажа.");
-      dispatchState();
-
-      document.dispatchEvent(new CustomEvent("online-opponent-connected"));
-    }
-
-    if (event === "player-ready") {
-      opponentReady = true;
-      setStatus("Соперник выбрал персонажа. Ожидаем твоего выбора.");
-      dispatchState();
-    }
-
-    if (event === "online-start") {
-      setStatus("Оба игрока выбрали персонажей. Игра началась!");
-    }
-
-    if (event === "online-turn") {
-      currentTurn = data.currentTurn || null;
-
-      const myTurn = currentTurn === playerId;
-      const turnElement = document.getElementById("onlineTurn");
-
-      if (turnElement) {
-        turnElement.textContent = myTurn ? "Ваш ход" : "Ход соперника";
-      }
-
-      if (myTurn) {
-        setStatus("Твой ход. Задай вопрос или попробуй угадать персонажа.");
-        showMyTurnActions();
-      } else {
-        setStatus("Сейчас ход соперника. Ожидаем его действие.");
-        showAction("");
-      }
-    }
-
-    if (event === "online-question") {
-      setStatus("Соперник задал вопрос.");
-
-      showAction(`
-        <p><strong>${escapeHtml(data.question || "Вопрос")}</strong></p>
-        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-          <button id="answerYes" type="button">Да</button>
-          <button id="answerNo" type="button">Нет</button>
-        </div>
-      `);
-
-      const yes = document.getElementById("answerYes");
-      const no = document.getElementById("answerNo");
-
-      if (yes) yes.onclick = () => answerQuestion(true);
-      if (no) no.onclick = () => answerQuestion(false);
-    }
-
-    if (event === "online-answer") {
-      setStatus(
-        "Ответ на ваш вопрос: " + (data.answer ? "Да" : "Нет")
-      );
-
-      showAction("");
-    }
-
-    if (event === "online-guess-result") {
-      setStatus(
-        data.correct
-          ? "Победа! Ты угадал персонажа!"
-          : "Неверная догадка. Теперь ход соперника."
-      );
-
-      showAction("");
-    }
-
-    if (event === "online-guess-made") {
-      setStatus(
-        data.correct
-          ? "Соперник угадал твоего персонажа!"
-          : "Соперник не угадал. Теперь твой ход."
-      );
-
-      showAction("");
-    }
-
-    if (event === "online-ended") {
-      setStatus(data.message || "Игра окончена.");
-      currentTurn = null;
-      showAction("");
-    }
-
-    if (event === "player-left") {
-      opponentConnected = false;
-      opponentReady = false;
-      readySent = false;
-      currentTurn = null;
-
-      setStatus("Соперник покинул комнату. Ожидаем нового игрока.");
-      showAction("");
-      dispatchState();
-
-      document.dispatchEvent(new CustomEvent("online-opponent-left"));
-    }
-  }
-
-  async function answerQuestion(answer) {
-    const result = await send("answer-question", { answer });
-
-    if (!result.ok) {
-      setStatus(result.message || "Не удалось отправить ответ.");
-    } else {
-      showAction("");
-      setStatus("Ответ отправлен.");
-    }
-  }
-
-  async function createRoom(pack) {
-    if (!pack || !Array.isArray(pack.characters) || pack.characters.length < 2) {
-      setStatus("В паке должно быть хотя бы два персонажа.");
-      return { ok: false };
-    }
-
-    const code = String(
-      Math.floor(100000 + Math.random() * 900000)
-    );
-
-    try {
-      await connect(code);
-
-      const result = await send("create-room", { pack });
-
-      if (!result || !result.ok) {
-        setStatus(result?.message || "Не удалось создать комнату.");
-
-        if (socket) socket.close();
-
-        return { ok: false };
-      }
-
-      roomCode = code;
-      readySent = false;
-      opponentConnected = false;
-      opponentReady = false;
-      currentTurn = null;
-      window.onlineRoomActive = true;
-
-      showPanel();
-      setStatus("Комната создана! Отправь код другу. Выбор персонажа откроется после его подключения.");
-
-      dispatchState();
-
+  async function createRoom(pack, settings = {}) {
+    if (!pack || !Array.isArray(pack.characters)) {
       return {
-        ok: true,
-        code
+        ok: false,
+        message: "Неверный набор персонажей."
       };
-    } catch (error) {
-      setStatus(error.message || "Ошибка подключения.");
-      return { ok: false };
     }
-  }
 
-  async function joinRoom(code) {
-    code = String(code).trim();
+    const characters = pack.characters;
 
-    if (!/^\d{6}$/.test(code)) {
-      setStatus("Код должен состоять из 6 цифр.");
-      return { ok: false };
+    if (characters.length < 2 || characters.length > 60) {
+      return {
+        ok: false,
+        message: "В паке должно быть от 2 до 60 персонажей."
+      };
     }
+
+    const code = randomRoomCode();
 
     try {
       await connect(code);
-
-      const result = await send("join-room");
-
-      if (!result || !result.ok) {
-        setStatus(result?.message || "Не удалось войти в комнату.");
-
-        if (socket) socket.close();
-
-        return { ok: false };
-      }
-
-      roomCode = code;
-      readySent = false;
-      opponentConnected = true;
-      opponentReady = false;
-      currentTurn = null;
-      window.onlineRoomActive = true;
-      window.onlinePack = result.pack;
-
-      showPanel();
-      setStatus("Вы подключились к комнате. Выберите персонажа.");
-
-      dispatchState();
-
-      document.dispatchEvent(
-        new CustomEvent("online-pack-received", {
-          detail: result.pack
-        })
-      );
-
-      return { ok: true };
     } catch (error) {
-      setStatus(error.message || "Ошибка подключения.");
-      return { ok: false };
-    }
-  }
-
-  async function playerReady(secretCharacterId) {
-    if (!window.onlineRoomActive || readySent) {
-      return { ok: false };
+      return {
+        ok: false,
+        message: error.message
+      };
     }
 
-    if (!opponentConnected) {
-      setStatus("Подожди, пока подключится второй игрок.");
-      return { ok: false };
-    }
-
-    if (!secretCharacterId) {
-      setStatus("Сначала выбери персонажа.");
-      return { ok: false };
-    }
-
-    readySent = true;
-    dispatchState();
-
-    const result = await send("player-ready", {
-      secretCharacterId: String(secretCharacterId)
+    const result = await send("create-room", {
+      pack: {
+        name: String(pack.name || "Пак").slice(0, 60),
+        characters
+      },
+      settings: {
+        roomName: String(settings.roomName || "Комната").slice(0, 50),
+        cardCount: Number(settings.cardCount || characters.length),
+        timerSeconds: Number(settings.timerSeconds || 0),
+        access: settings.access === "public" ? "public" : "private"
+      }
     });
 
     if (!result.ok) {
-      readySent = false;
-      setStatus(result.message || "Не удалось подтвердить готовность.");
-      dispatchState();
+      leaveRoom();
       return result;
     }
 
-    if (result.waiting) {
-      setStatus("Ты готов! Ожидаем выбора персонажа соперником.");
-    } else {
-      setStatus("Вы оба готовы. Игра начинается!");
+    API.roomActive = true;
+    API.pack = pack;
+    API.roomSettings = result.settings || settings;
+
+    window.onlineRoomActive = true;
+
+    updateRoomCodeDisplay();
+
+    setStatus(
+      "Комната создана. Отправь код другу. Выбор персонажа откроется после его подключения."
+    );
+
+    dispatch("online-room-created", {
+      code,
+      settings: API.roomSettings
+    });
+
+    dispatch("online-state-change");
+
+    return {
+      ok: true,
+      code,
+      settings: API.roomSettings
+    };
+  }
+
+  async function joinRoom(code) {
+    code = String(code || "").trim();
+
+    if (!/^\d{6}$/.test(code)) {
+      return {
+        ok: false,
+        message: "Код должен состоять из шести цифр."
+      };
+    }
+
+    try {
+      await connect(code);
+    } catch (error) {
+      return {
+        ok: false,
+        message: error.message
+      };
+    }
+
+    const result = await send("join-room");
+
+    if (!result.ok) {
+      leaveRoom();
+      return result;
+    }
+
+    API.roomActive = true;
+    API.pack = result.pack;
+    API.roomSettings = result.settings || null;
+    API.opponentConnected = true;
+
+    window.onlineRoomActive = true;
+
+    updateRoomCodeDisplay();
+
+    dispatch("online-pack-received", result.pack);
+    dispatch("online-room-joined", {
+      code,
+      settings: result.settings || null
+    });
+
+    dispatch("online-state-change");
+
+    setStatus("Ты подключился к комнате. Выбери персонажа.");
+
+    return {
+      ok: true,
+      pack: result.pack,
+      settings: result.settings || null
+    };
+  }
+
+  async function playerReady(secretCharacterId) {
+    if (!canChooseCharacter()) {
+      return {
+        ok: false,
+        message: "Подожди, пока подключится второй игрок."
+      };
+    }
+
+    const result = await send("player-ready", {
+      secretCharacterId
+    });
+
+    if (result.ok) {
+      API.readySent = true;
+
+      setStatus(
+        "Персонаж выбран. Ожидаем, пока соперник подтвердит свой выбор."
+      );
+
+      dispatch("online-local-ready", {
+        secretCharacterId
+      });
+
+      dispatch("online-state-change");
     }
 
     return result;
   }
 
   async function askQuestion(question) {
+    question = String(question || "").trim();
+
+    if (!question) {
+      return {
+        ok: false,
+        message: "Введи вопрос."
+      };
+    }
+
     if (!isMyTurn()) {
-      setStatus("Сейчас не твой ход.");
-      return;
+      return {
+        ok: false,
+        message: "Сейчас не твой ход."
+      };
     }
 
-    const value = String(question || "").trim();
-
-    if (!value) return;
-
-    const result = await send("ask-question", {
-      question: value
+    return send("ask-question", {
+      question
     });
+  }
 
-    if (!result.ok) {
-      setStatus(result.message || "Не удалось отправить вопрос.");
-    } else {
-      setStatus("Ожидаем ответ соперника.");
-      showAction("");
-    }
+  async function answerQuestion(answer) {
+    return send("answer-question", {
+      answer: !!answer
+    });
   }
 
   async function makeGuess(guessId) {
     if (!isMyTurn()) {
-      setStatus("Сейчас не твой ход.");
-      return;
+      return {
+        ok: false,
+        message: "Сейчас не твой ход."
+      };
     }
 
-    const value = String(guessId || "").trim();
-
-    if (!value) return;
-
-    const result = await send("make-guess", {
-      guessId: value
+    return send("make-guess", {
+      guessId: String(guessId)
     });
+  }
 
-    if (!result.ok) {
-      setStatus(result.message || "Не удалось отправить догадку.");
-    } else {
-      setStatus(
-        result.correct
-          ? "Ты угадал персонажа!"
-          : "Неверная догадка. Теперь ход соперника."
+  async function listPublicRooms() {
+    try {
+      const response = await fetch("/api/public-rooms", {
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          rooms: []
+        };
+      }
+
+      const rooms = await response.json();
+
+      return {
+        ok: true,
+        rooms: Array.isArray(rooms) ? rooms : []
+      };
+    } catch {
+      return {
+        ok: false,
+        rooms: []
+      };
+    }
+  }
+
+  async function listPacks() {
+    try {
+      const response = await fetch("/api/packs", {
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          packs: []
+        };
+      }
+
+      const packs = await response.json();
+
+      return {
+        ok: true,
+        packs: Array.isArray(packs) ? packs : []
+      };
+    } catch {
+      return {
+        ok: false,
+        packs: []
+      };
+    }
+  }
+
+  async function publishPack(pack, author) {
+    try {
+      const response = await fetch("/api/packs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          pack,
+          author
+        })
+      });
+
+      const result = await response.json();
+
+      return {
+        ok: response.ok && !!result.ok,
+        ...result
+      };
+    } catch {
+      return {
+        ok: false,
+        message: "Не удалось опубликовать пак."
+      };
+    }
+  }
+
+  async function deletePublishedPack(id) {
+    try {
+      const response = await fetch(
+        "/api/packs/" + encodeURIComponent(id),
+        {
+          method: "DELETE"
+        }
       );
 
-      showAction("");
+      return {
+        ok: response.ok
+      };
+    } catch {
+      return {
+        ok: false
+      };
     }
   }
 
   function isMyTurn() {
     return !!(
-      window.onlineRoomActive &&
-      playerId &&
-      currentTurn &&
-      currentTurn === playerId
+      API.roomActive &&
+      API.playerId &&
+      API.currentTurn === API.playerId
     );
   }
 
   function canChooseCharacter() {
     return !!(
-      window.onlineRoomActive &&
-      opponentConnected &&
-      !readySent
+      API.roomActive &&
+      API.opponentConnected &&
+      !API.readySent &&
+      API.socket &&
+      API.socket.readyState === WebSocket.OPEN
     );
   }
 
   function getRoomCode() {
-    return roomCode;
+    return API.roomCode;
+  }
+
+  function getSettings() {
+    return API.roomSettings;
+  }
+
+  function getPlayerId() {
+    return API.playerId;
+  }
+
+  function getPack() {
+    return API.pack;
   }
 
   function leaveRoom() {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({
-        event: "leave-room",
-        data: {}
-      }));
+    if (API.socket) {
+      const socket = API.socket;
 
-      socket.close();
+      API.intentionalLeave = true;
+
+      if (socket.readyState === WebSocket.OPEN) {
+        try {
+          socket.send(JSON.stringify({
+            event: "leave-room",
+            data: {}
+          }));
+        } catch {}
+      }
+
+      try {
+        socket.close();
+      } catch {}
     }
 
-    socket = null;
-    roomCode = null;
-    playerId = null;
-    currentTurn = null;
-    readySent = false;
-    opponentConnected = false;
-    opponentReady = false;
-    window.onlineRoomActive = false;
+    resetConnectionState();
 
-    pending.forEach(callback => {
-      callback({
-        ok: false,
-        message: "Вы вышли из комнаты."
-      });
-    });
-
-    pending.clear();
-
-    const panel = document.getElementById("onlineGamePanel");
-
-    if (panel) {
-      panel.remove();
-    }
-
-    dispatchState();
+    setStatus("Ты покинул комнату.");
+    dispatch("online-room-left");
   }
+
+  function createPanel() {
+    if (document.getElementById("onlineGamePanel")) return;
+
+    const panel = document.createElement("div");
+
+    panel.id = "onlineGamePanel";
+    panel.style.cssText = [
+      "max-width:900px",
+      "margin:12px auto",
+      "padding:15px",
+      "border:1px solid #a98aff",
+      "border-radius:16px",
+      "background:#ffffff12",
+      "text-align:center"
+    ].join(";");
+
+    panel.innerHTML = `
+      <div id="onlineRoomCodeFrame" class="room-code-frame">
+        <div style="font-size:12px;color:#d4c8ff">КОД КОМНАТЫ</div>
+        <strong id="onlineRoomCodeValue"></strong>
+        <button id="onlineCopyCodeButton" class="small secondary" type="button">
+          Скопировать код
+        </button>
+      </div>
+
+      <div id="onlineStatus" class="note">
+        Онлайн-игра
+      </div>
+
+      <div id="onlineTimer" class="info-pill" style="display:inline-block;margin-top:10px">
+        Без ограничения времени
+      </div>
+
+      <div id="onlineTurnLabel" style="margin-top:10px;font-weight:bold"></div>
+
+      <div id="onlineQuestionPanel" style="display:none;margin-top:15px">
+        <p id="onlineQuestionText"></p>
+        <div class="card-actions">
+          <button id="onlineAnswerYes" type="button">Да</button>
+          <button id="onlineAnswerNo" class="secondary" type="button">Нет</button>
+        </div>
+      </div>
+
+      <div id="onlineAskPanel" style="display:none;margin-top:15px">
+        <input
+          id="onlineQuestionInput"
+          type="text"
+          maxlength="250"
+          placeholder="Напиши вопрос сопернику"
+        >
+        <button id="onlineAskButton" type="button">Отправить вопрос</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <button id="onlineLeaveButton" class="danger small" type="button">
+          Покинуть комнату
+        </button>
+      </div>
+    `;
+
+    const game = document.getElementById("game");
+
+    if (game) {
+      const info = game.querySelector(".game-info");
+
+      if (info) {
+        info.insertAdjacentElement("afterend", panel);
+      } else {
+        game.prepend(panel);
+      }
+    }
+
+    document.getElementById("onlineCopyCodeButton").onclick = () => {
+      if (API.roomCode && navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(API.roomCode);
+        setStatus("Код комнаты скопирован.");
+      }
+    };
+
+    document.getElementById("onlineLeaveButton").onclick = () => {
+      leaveRoom();
+
+      if (typeof returnToMenu === "function") {
+        returnToMenu();
+      }
+    };
+
+    document.getElementById("onlineAskButton").onclick = async () => {
+      const input = document.getElementById("onlineQuestionInput");
+      const question = input.value.trim();
+
+      if (!question) {
+        setStatus("Сначала напиши вопрос.");
+        return;
+      }
+
+      const result = await askQuestion(question);
+
+      if (result.ok) {
+        input.value = "";
+        setStatus("Вопрос отправлен. Ждём ответ.");
+      } else {
+        setStatus(result.message || "Не удалось отправить вопрос.");
+      }
+    };
+
+    document.getElementById("onlineAnswerYes").onclick = () => {
+      answerQuestion(true);
+      document.getElementById("onlineQuestionPanel").style.display = "none";
+    };
+
+    document.getElementById("onlineAnswerNo").onclick = () => {
+      answerQuestion(false);
+      document.getElementById("onlineQuestionPanel").style.display = "none";
+    };
+  }
+
+  function updateTurnControls() {
+    const askPanel = document.getElementById("onlineAskPanel");
+    const turnLabel = document.getElementById("onlineTurnLabel");
+
+    if (!askPanel || !turnLabel) return;
+
+    const myTurn = isMyTurn();
+
+    askPanel.style.display = myTurn ? "block" : "none";
+
+    turnLabel.textContent = myTurn
+      ? "Твой ход"
+      : "Ход соперника";
+  }
+
+  document.addEventListener("online-turn", updateTurnControls);
+
+  document.addEventListener("online-question", event => {
+    const panel = document.getElementById("onlineQuestionPanel");
+    const text = document.getElementById("onlineQuestionText");
+
+    if (!panel || !text) return;
+
+    text.textContent = "Вопрос соперника: " + event.detail.question;
+    panel.style.display = "block";
+  });
+
+  document.addEventListener("online-answer", event => {
+    const panel = document.getElementById("onlineQuestionPanel");
+
+    if (panel) panel.style.display = "none";
+
+    dispatch("online-answer-visible", event.detail);
+  });
+
+  document.addEventListener("online-state-change", () => {
+    updateTurnControls();
+  });
+
+  createPanel();
 
   window.onlineGame = {
     createRoom,
     joinRoom,
     playerReady,
     askQuestion,
+    answerQuestion,
     makeGuess,
+    listPublicRooms,
+    listPacks,
+    publishPack,
+    deletePublishedPack,
     isMyTurn,
     canChooseCharacter,
     getRoomCode,
+    getSettings,
+    getPlayerId,
+    getPack,
     leaveRoom
   };
+
+  window.onlineRoomActive = false;
 })();
