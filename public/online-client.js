@@ -354,6 +354,11 @@
         break;
       }
 
+      case "who-am-i-chat-history":
+      case "who-am-i-chat-message":
+        dispatch(event, data);
+        break;
+
       case "word-round-reset":
       case "word-round-start":
       case "word-entry-turn":
@@ -725,6 +730,7 @@
   function answerWhoAmIQuestion(answer) { return send("who-am-i-answer", {answer}); }
   function guessWhoAmI(guess) { return send("who-am-i-guess", {guess}); }
   function passWhoAmITurn() { return send("who-am-i-pass"); }
+  function sendWhoAmIChat(message) { return send("who-am-i-chat", {message:String(message||"").trim().slice(0,300)}); }
 
   async function listPublicRooms(gameId = "who-is-it") {
     try {
@@ -1154,6 +1160,7 @@
     answerWhoAmIQuestion,
     guessWhoAmI,
     passWhoAmITurn,
+    sendWhoAmIChat,
     joinRoom,
     playerReady,
     askQuestion,
