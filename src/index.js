@@ -203,12 +203,18 @@ export class GameRoom {
 
   async broadcastWhoAmITurn() {
     const ids = [...this.players.keys()];
-    ids.forEach((id,i) => this.send(this.players.get(id), "who-am-i-turn", {playerNumber:i+1,totalPlayers:ids.length,isYourTurn:id===this.currentTurn,timerSeconds:this.timerSeconds}));
     await this.clearTurnTimer();
     if (this.timerSeconds > 0 && this.currentTurn && this.gamePhase === "playing") {
       this.turnDeadline = Date.now() + this.timerSeconds * 1000;
       await this.ctx.storage.setAlarm(this.turnDeadline);
     }
+    ids.forEach((id,i) => this.send(this.players.get(id), "who-am-i-turn", {
+      playerNumber:i+1,
+      totalPlayers:ids.length,
+      isYourTurn:id===this.currentTurn,
+      timerSeconds:this.timerSeconds,
+      deadline:this.turnDeadline
+    }));
   }
   async advanceWhoAmITurn() {
     const ids = [...this.players.keys()];
