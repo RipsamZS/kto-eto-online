@@ -5,6 +5,7 @@
   const API = {
     socket: null,
     roomCode: null,
+    gameId: "who-is-it",
     playerId: null,
     currentTurn: null,
     opponentConnected: false,
@@ -25,9 +26,9 @@
     document.dispatchEvent(new CustomEvent(name, { detail }));
   }
 
-  function getSocketUrl(code) {
+  function getSocketUrl(code, gameId = "who-is-it") {
     const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-    return `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`;
+    return `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}&game=${encodeURIComponent(gameId)}`;
   }
 
   function randomRoomCode() {
@@ -348,7 +349,7 @@
     }
   }
 
-  function connect(code) {
+  function connect(code, gameId = "who-is-it") {
     if (API.socket) {
       try {
         API.intentionalLeave = true;
@@ -360,6 +361,7 @@
     clearPending();
 
     API.roomCode = code;
+    API.gameId = gameId;
     API.playerId = null;
     API.currentTurn = null;
     API.opponentConnected = false;
@@ -386,7 +388,7 @@
       let socket;
 
       try {
-        socket = new WebSocket(getSocketUrl(code));
+        socket = new WebSocket(getSocketUrl(code, gameId));
       } catch (error) {
         finish(false, error);
         return;
@@ -470,10 +472,13 @@
       };
     }
 
-    const code = randomRoomCode();
+    const code = String(settings.roomCode || randomRoomCode()).trim().toUpperCase();
+    if (!/^[A-Z0-9_-]{3,16}$/.test(code)) {
+      return { ok:false, message:"Код комнаты: от 3 до 16 символов — латинские буквы, цифры, дефис или подчёркивание." };
+    }
 
     try {
-      await connect(code);
+      await connect(code, "who-is-it");
     } catch (error) {
       return {
         ok: false,
@@ -488,8 +493,10 @@
       },
       settings: {
         roomName: String(settings.roomName || "Комната").slice(0, 50),
+        roomCode: code,
+        maxPlayers: 2,
         cardCount: Number(settings.cardCount || characters.length),
-        timerSeconds: Number(settings.timerSeconds || 0),
+        timerSeconds: Number(settings.timerSeconds ?? 0),
         access: settings.access === "public" ? "public" : "private"
       }
     });
@@ -525,18 +532,15 @@
     };
   }
 
-  async function joinRoom(code) {
-    code = String(code || "").trim();
+  async function joinRoom(code, gameId = "who-is-it") {
+    code = String(code || "").trim().toUpperCase();
 
-    if (!/^\d{6}$/.test(code)) {
-      return {
-        ok: false,
-        message: "Код должен состоять из шести цифр."
-      };
+    if (!/^[A-Z0-9_-]{3,16}$/.test(code)) {
+      return { ok:false, message:"Введи код длиной от 3 до 16 символов." };
     }
 
     try {
-      await connect(code);
+      await connect(code, gameId);
     } catch (error) {
       return {
         ok: false,
@@ -647,9 +651,37 @@
     });
   }
 
-  async function listPublicRooms() {
+  async function createLobby(settings = {}, gameId = "who-am-i") {
+    const code = String(settings.roomCode || "").trim().toUpperCase();
+    if (!/^[A-Z0-9_-]{3,16}$/.test(code)) return { ok:false, message:"Код комнаты должен содержать от 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание." };
+    try { await connect(code, gameId); }
+    catch (error) { return { ok:false, message:error.message }; }
+    const result = await send("create-lobby", { settings:{
+      roomCode:code,
+      roomName:String(settings.roomName || "Комната").trim().slice(0,50),
+      access:settings.access === "public" ? "public" : "private",
+      maxPlayers:gameId === "who-is-it" ? 2 : Number(settings.maxPlayers || 2),
+      timerSeconds:Number(settings.timerSeconds ?? 0)
+    }});
+    if (!result.ok) { leaveRoom(); return result; }
+    API.roomActive = true;
+    API.roomSettings = result.settings || settings;
+    window.onlineRoomActive = true;
+    updateRoomCodeDisplay();
+    dispatch("online-room-created",{code,settings:API.roomSettings});
+    dispatch("online-state-change");
+    return {ok:true,code,settings:API.roomSettings};
+  }
+
+  async function updateRoomSettings(settings = {}) {
+    const result = await send("update-room-settings",{settings});
+    if (result.ok) API.roomSettings = result.settings || settings;
+    return result;
+  }
+
+  async function listPublicRooms(gameId = "who-is-it") {
     try {
-      const response = await fetch("/api/public-rooms", {
+      const response = await fetch("/api/public-rooms?game=" + encodeURIComponent(gameId), {
         cache: "no-store"
       });
 
@@ -967,6 +999,8 @@
 
   window.onlineGame = {
     createRoom,
+    createLobby,
+    updateRoomSettings,
     joinRoom,
     playerReady,
     askQuestion,
