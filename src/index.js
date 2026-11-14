@@ -1,4 +1,3 @@
-
 export class GameRoom {
   constructor(ctx, env) {
     this.ctx = ctx;
