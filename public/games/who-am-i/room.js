@@ -16,19 +16,19 @@
   .srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}.srs-menu{position:relative;display:inline-block}
   .srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
-  .srs-profile{display:grid;grid-template-columns:1fr 130px;gap:10px;margin:16px 0}.srs-profile label{margin:0}.srs-profile input,.srs-profile select{margin-top:6px}
+  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}
   .srs-table-wrap{position:relative;min-height:350px;margin:18px 0 8px;border:1px solid #ffffff20;border-radius:22px;background:radial-gradient(ellipse at center,#392a58 0%,#211a38 65%);overflow:hidden}
   .srs-table-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;height:42%;border:2px solid #a78bfa66;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;color:#d9ccf5;background:#171329;font-weight:700}
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(88px,24%,150px);min-height:76px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
   .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
   .srs-seat-0{left:50%;top:12%}.srs-seat-1{left:82%;top:28%}.srs-seat-2{left:82%;top:72%}.srs-seat-3{left:50%;top:88%}.srs-seat-4{left:18%;top:72%}.srs-seat-5{left:18%;top:28%}
-  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:27%;min-height:68px}.srs-table-center{width:30%;height:34%}.srs-profile{grid-template-columns:1fr 105px}}
+  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:27%;min-height:68px}.srs-table-center{width:30%;height:34%}.srs-code-field{margin-top:8px}}
   </style>
   <section class="srs">
     <div id="srsHome">
       <h2>Кто я?</h2><p>Создай свою комнату или подключись к друзьям по коду.</p>
-      <div class="srs-profile"><label for="srsNickname">Твой никнейм<input id="srsNickname" maxlength="20" placeholder="Как тебя зовут?"></label><label for="srsAvatar">Аватар<select id="srsAvatar"><option>🙂</option><option>😎</option><option>🐱</option><option>🐼</option><option>🦊</option><option>🐸</option><option>🐵</option><option>🐯</option><option>🐧</option><option>🐨</option><option>🦄</option><option>🐙</option></select></label></div>
+      
       <div class="srs-grid">
         <button id="srsShowCreate" class="wide">Создать комнату</button>
         <button id="srsShowJoin" class="wide alt">Подключиться</button>
@@ -37,8 +37,7 @@
     <div id="srsCreateView" class="hidden">
       <button id="srsBackCreate" class="alt">← Назад</button><h2>Создать комнату</h2>
       <label for="srsName">Название комнаты</label><input id="srsName" maxlength="50" placeholder="Например, Вечерняя игра">
-      <label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код">
-      <div class="muted">3–16 символов: латинские буквы, цифры, дефис или подчёркивание</div>
+      <div id="srsCodeField" class="srs-code-field"><label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код"><div class="muted">3–16 символов: латинские буквы, цифры, дефис или подчёркивание</div></div>
       <label for="srsAccess">Доступ</label><select id="srsAccess"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
       <label for="srsPlayers">Количество игроков</label><select id="srsPlayers"><option value="2">2 игрока</option><option value="3">3 игрока</option><option value="4">4 игрока</option><option value="5">5 игроков</option><option value="6">6 игроков</option></select>
       <label for="srsTimer">Время на вопрос</label><select id="srsTimer"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option><option value="0">Без ограничения</option></select>
@@ -86,7 +85,9 @@
   const status = message => $("srsStatus").textContent = message;
   let playersCount=0,maxPlayers=2,started=false,roster=[];
   const show = id => ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
-  const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:($("srsNickname").value.trim()||"Игрок"),avatar:$("srsAvatar").value});
+  function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
+  const profile=getProfile();
+  const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:profile.nickname,avatar:profile.avatar});
   function syncRoom(settings){
     settings=settings||window.onlineGame.getSettings()||{};
     $("srsRoomTitle").textContent=settings.roomName||"Комната";
@@ -126,11 +127,12 @@
     syncRoom(result.settings);renderSeats();status(host?"Комната создана. Отправь код друзьям и выбери место за столом.":"Ты подключился к комнате. Выбери место за столом.");
   }
   $("srsShowCreate").onclick=()=>show("srsCreateView");
+  $("srsAccess").addEventListener("change",()=>{$("srsCodeField").classList.toggle("hidden",$("srsAccess").value==="public");});
   $("srsShowJoin").onclick=()=>show("srsJoinView");
   $("srsBackCreate").onclick=()=>show("srsHome");
   $("srsBackJoin").onclick=()=>show("srsHome");
   $("srsCreate").onclick=async()=>{
-    const settings=settingsFrom("srs");settings.roomCode=$("srsCode").value.trim().toUpperCase();
+    const settings=settingsFrom("srs");settings.roomCode=settings.access==="public"?("PUB"+Math.random().toString(36).slice(2,9).toUpperCase()):$("srsCode").value.trim().toUpperCase();
     if(!settings.roomName)return status("Введи название комнаты.");
     if(!settings.roomCode)return status("Придумай код комнаты.");
     $("srsCreate").disabled=true;const result=await window.onlineGame.createLobby(settings,gameId);$("srsCreate").disabled=false;
@@ -138,7 +140,7 @@
     enterLobby(result,true);
   };
   async function join(code){
-    const result=await window.onlineGame.joinRoom(code,gameId,{nickname:($("srsNickname").value.trim()||"Игрок"),avatar:$("srsAvatar").value});
+    const result=await window.onlineGame.joinRoom(code,gameId,profile);
     if(!result.ok){status(result.message||"Не удалось подключиться.");return;}
     enterLobby(result,false);
   }
