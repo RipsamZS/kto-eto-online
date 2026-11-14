@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -42,6 +43,7 @@ input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #77
 .game-card .emoji{font-size:55px;height:105px;display:grid;place-items:center;pointer-events:none}
 .game-card.eliminated{opacity:.25;filter:grayscale(1)}
 .game-card.selected{border-color:#ffe477;background:#ffe47722}
+.game-card.guess-target{border-color:#ffbd55;background:#ffbd5522;box-shadow:0 0 15px #ffbd5566}
 .game-card p{margin:7px 0 2px;font-size:14px;overflow-wrap:anywhere;pointer-events:none}
 .secret-box{max-width:350px;margin:15px auto;padding:12px;background:#ffffff16;border-radius:15px;text-align:center}
 .secret-box img{height:100px;max-width:100%;object-fit:contain}
@@ -94,6 +96,25 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
 .picker-card .emoji{font-size:45px;height:85px;display:grid;place-items:center}
 .picker-card p{font-size:13px;overflow-wrap:anywhere}
 .picker-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+
+.room-code-frame{
+ display:none;
+ max-width:350px;
+ margin:12px auto 20px;
+ padding:14px 18px;
+ text-align:center;
+ border:2px solid #a98aff;
+ border-radius:15px;
+ background:linear-gradient(135deg,#7654d933,#a04de022);
+ box-shadow:0 0 20px #9870ff33;
+}
+.room-code-frame strong{
+ display:block;
+ font-size:30px;
+ letter-spacing:7px;
+ color:#ffe477;
+ margin:5px 0;
+}
 
 @media(max-width:600px){
  h1{font-size:32px}
@@ -211,6 +232,13 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
 <div id="characterPicker" class="character-picker">
  <div class="picker-window">
   <h2>🌟 Выбери своего персонажа</h2>
+
+  <div id="pickerRoomCode" class="room-code-frame">
+   <div style="font-size:12px;color:#d4c8ff">КОД КОМНАТЫ</div>
+   <strong id="pickerRoomCodeValue"></strong>
+   <div class="note">Отправь этот код другу, чтобы он подключился</div>
+  </div>
+
   <p class="subtitle">Нажми на персонажа, за которого будешь играть</p>
   <div id="pickerGrid" class="picker-grid"></div>
   <div class="picker-actions">
@@ -492,8 +520,8 @@ document.addEventListener("paste",e=>{
 });
 
 function playEditedPack(){
- if(pack.length<2){
-  alert("Для игры нужно хотя бы два персонажа!");
+ if(pack.length===0){
+  alert("Сначала добавь персонажей!");
   return;
  }
 
@@ -540,6 +568,20 @@ function startGameFromCharacters(characters,name){
 
 function openPicker(){
  pickerSelected=null;
+
+ const codeBox=document.getElementById("pickerRoomCode");
+ const codeValue=document.getElementById("pickerRoomCodeValue");
+
+ const roomCode=window.onlineRoomActive && window.onlineGame
+  ? window.onlineGame.getRoomCode()
+  : null;
+
+ if(codeBox && codeValue && roomCode){
+  codeValue.textContent=roomCode;
+  codeBox.style.display="block";
+ }else if(codeBox){
+  codeBox.style.display="none";
+ }
 
  const grid=document.getElementById("pickerGrid");
  grid.innerHTML="";
@@ -641,7 +683,6 @@ function renderGame(){
 
   card.querySelector("p").textContent=c.name;
 
-  // Левая кнопка мыши: зачеркнуть или восстановить карточку.
   card.addEventListener("click",()=>{
    if(suppressNextClick){
     suppressNextClick=false;
@@ -654,20 +695,11 @@ function renderGame(){
    renderGame();
   });
 
-  // Правая кнопка мыши: угадать персонажа.
   card.addEventListener("contextmenu",e=>{
    e.preventDefault();
-
-   // Не допускаем повторного угадывания после долгого нажатия.
-   if(longPressTriggered){
-    longPressTriggered=false;
-    return;
-   }
-
    confirmGuess(c);
   });
 
-  // Долгое нажатие на телефоне.
   card.addEventListener("touchstart",()=>{
    longPressTriggered=false;
    clearTimeout(longPressTimer);
@@ -764,14 +796,14 @@ function onlineCreateMenu(){
   name:packChoice.name,
   characters:packChoice.characters
  }).then(result=>{
-  if(result && result.ok){
-   window.onlineRoomActive=true;
+  if(!result || !result.ok)return;
 
-   startGameFromCharacters(
-    packChoice.characters,
-    packChoice.name
-   );
-  }
+  window.onlineRoomActive=true;
+
+  startGameFromCharacters(
+   packChoice.characters,
+   packChoice.name
+  );
  });
 }
 
