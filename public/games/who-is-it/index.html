@@ -269,6 +269,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <input id="roomName" maxlength="40" placeholder="Например, Наша игра">
       </div>
       <div class="field">
+        <label for="roomCode">Код комнаты — придумай сам</label>
+        <input id="roomCode" maxlength="16" placeholder="Например, FRIENDS7" autocomplete="off">
+        <span class="muted small">От 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.</span>
+      </div>
+      <div class="field">
         <label>Пак персонажей</label>
         <div id="selectedRoomPack" class="notice">Пак не выбран</div>
         <button class="secondary" onclick="openRoomPackPicker()">Выбрать пак</button>
@@ -282,7 +287,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         </select>
       </div>
       <div class="field">
-        <label for="roomTimer">Время на ход</label>
+        <label for="roomTimer">Время на вопрос</label>
         <select id="roomTimer">
           <option value="15">15 секунд</option><option value="30">30 секунд</option>
           <option value="45">45 секунд</option><option value="60" selected>60 секунд</option>
@@ -292,7 +297,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="field">
         <label for="roomAccess">Тип комнаты</label>
         <select id="roomAccess">
-          <option value="private">Закрытая</option><option value="public">Публичная</option>
+          <option value="private">Закрытая</option><option value="public">Открытая</option>
         </select>
       </div>
       <button class="primary full" onclick="createConfiguredRoom()">Создать комнату</button>
@@ -307,7 +312,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="panel stack">
       <div class="field">
         <label for="joinCode">Код комнаты</label>
-        <input id="joinCode" maxlength="6" inputmode="numeric" placeholder="Например, 123456">
+        <input id="joinCode" maxlength="16" placeholder="Введи код комнаты" autocomplete="off">
       </div>
       <button class="primary full" onclick="submitJoinRoom()">Подключиться</button>
     </div>
@@ -928,6 +933,7 @@ function openPackSelectionModal(onChoose){
 function openRoomSettings(access='private'){
   roomAccessDefault=access;selectedRoomPack=null;
   document.getElementById('roomName').value='';
+  document.getElementById('roomCode').value='';
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
   document.getElementById('roomAccess').value=access;
   document.getElementById('roomCardCount').value='20';
@@ -940,8 +946,14 @@ async function createConfiguredRoom(){
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
   if(!window.onlineGame?.createRoom){toast('Онлайн-игра пока недоступна.');return}
+  const roomName=document.getElementById('roomName').value.trim();
+  const roomCode=document.getElementById('roomCode').value.trim().toUpperCase();
+  if(!roomName){toast('Введи название комнаты.');return}
+  if(!/^[A-Z0-9_-]{3,16}$/.test(roomCode)){toast('Придумай код длиной от 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.');return}
   const settings={
-    name:document.getElementById('roomName').value.trim()||'Комната',
+    roomName,
+    roomCode,
+    maxPlayers:2,
     cardCount,
     timerSeconds:Number(document.getElementById('roomTimer').value),
     access:document.getElementById('roomAccess').value,
@@ -959,11 +971,11 @@ function openJoinPicker(type='private'){
   showScreen('joinScreen');document.getElementById('joinCode').value='';
 }
 async function submitJoinRoom(){
-  const code=document.getElementById('joinCode').value.trim();
-  if(!/^\d{6}$/.test(code)){toast('Введи шестизначный код комнаты.');return}
+  const code=document.getElementById('joinCode').value.trim().toUpperCase();
+  if(!/^[A-Za-z0-9_-]{3,16}$/.test(code)){toast('Введи код длиной от 3 до 16 символов.');return}
   if(!window.onlineGame?.joinRoom){toast('Онлайн-игра пока недоступна.');return}
   try{
-    await window.onlineGame.joinRoom(code);currentGameMode='online';toast('Подключение выполнено.');
+    await window.onlineGame.joinRoom(code,'who-is-it');currentGameMode='online';toast('Подключение выполнено.');
   }catch(error){toast(error.message||'Не удалось подключиться к комнате.')}
 }
 async function openPublicRooms(){
@@ -981,11 +993,11 @@ async function openPublicRooms(){
       const card=document.createElement('div');card.className='pack-card';
       const title=document.createElement('h3');title.textContent=room.name||'Публичная комната';
       const info=document.createElement('p');info.className='muted small';
-      info.textContent=`Код: ${room.code||room.id||'—'} · Игроков: ${room.players??1}/2`;
+      info.textContent=`Код: ${room.roomId||room.code||room.id||'—'} · Игроков: ${room.playersCount??room.players??1}/${room.maxPlayers||2}`;
       const join=document.createElement('button');join.className='primary full';join.textContent='Войти';
       join.onclick=async()=>{
         try{
-          await window.onlineGame.joinRoom(String(room.code||room.id));
+          await window.onlineGame.joinRoom(String(room.roomId||room.code||room.id),'who-is-it');
           currentGameMode='online';toast('Подключение выполнено.');
         }catch(error){toast(error.message||'Не удалось войти в комнату.')}
       };

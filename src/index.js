@@ -14,8 +14,12 @@ export class GameRoom {
     this.ended = false;
 
     this.roomId = null;
+    this.gameId = "who-is-it";
     this.roomName = "Комната";
     this.access = "private";
+    this.maxPlayers = 2;
+    this.hostPlayerId = null;
+    this.createdAt = null;
     this.timerSeconds = 0;
     this.turnDeadline = null;
 
@@ -67,11 +71,11 @@ export class GameRoom {
   }
 
   async updateDirectory() {
-    if (!this.roomId || this.access !== "public") return;
+    if (!this.roomId) return;
 
-    if (this.players.size === 0 || this.ended) {
+    if (this.access !== "public" || this.players.size === 0 || this.ended) {
       await this.directoryRequest(
-        "/internal/room-delete/" + this.roomId,
+        "/internal/room-delete/" + this.gameId + "/" + this.roomId,
         "DELETE"
       );
       return;
@@ -79,9 +83,11 @@ export class GameRoom {
 
     await this.directoryRequest("/internal/room-upsert", "POST", {
       roomId: this.roomId,
+      gameId: this.gameId,
       name: this.roomName,
       access: this.access,
       playersCount: this.players.size,
+      maxPlayers: this.maxPlayers,
       cardCount: this.pack?.characters?.length || 0,
       packName: this.pack?.name || "Пак",
       timerSeconds: this.timerSeconds,
@@ -187,11 +193,17 @@ export class GameRoom {
     this.broadcast("player-left");
 
     if (this.players.size === 0) {
+      await this.updateDirectory();
       this.pack = null;
       this.roomId = null;
+      this.createdAt = null;
+      this.hostPlayerId = null;
+    } else {
+      if (this.hostPlayerId && !this.players.has(this.hostPlayerId)) {
+        this.hostPlayerId = this.players.keys().next().value;
+      }
+      await this.updateDirectory();
     }
-
-    await this.updateDirectory();
   }
 
   json(data, status = 200) {
@@ -213,7 +225,8 @@ export class GameRoom {
 
       return this.json(
         rooms.filter(room =>
-          room.playersCount < 2 &&
+          room.playersCount < (Number(room.maxPlayers) || 2) &&
+          (!url.searchParams.get("game") || room.gameId === url.searchParams.get("game")) &&
           Date.now() - room.createdAt < 12 * 60 * 60 * 1000
         )
       );
@@ -351,12 +364,12 @@ export class GameRoom {
         return this.json({ ok: false }, 400);
       }
 
-      if (!room?.roomId || !/^\d{6}$/.test(room.roomId)) {
+      if (!room?.roomId || !/^[A-Z0-9_-]{3,16}$/.test(room.roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium"].includes(room.gameId)) {
         return this.json({ ok: false }, 400);
       }
 
       const rooms = await this.ctx.storage.get("publicRooms") || [];
-      const updated = rooms.filter(item => item.roomId !== room.roomId);
+      const updated = rooms.filter(item => !(item.roomId === room.roomId && item.gameId === room.gameId));
 
       updated.push(room);
 
@@ -369,12 +382,14 @@ export class GameRoom {
       path.startsWith("/internal/room-delete/") &&
       request.method === "DELETE"
     ) {
-      const roomId = path.slice("/internal/room-delete/".length);
+      const key = path.slice("/internal/room-delete/".length).split("/");
+      const gameId = key[0];
+      const roomId = key[1];
       const rooms = await this.ctx.storage.get("publicRooms") || [];
 
       await this.ctx.storage.put(
         "publicRooms",
-        rooms.filter(room => room.roomId !== roomId)
+        rooms.filter(room => !(room.roomId === roomId && room.gameId === gameId))
       );
 
       return this.json({ ok: true });
@@ -396,6 +411,7 @@ export class GameRoom {
 
     const url = new URL(request.url);
     this.roomId = url.searchParams.get("id");
+    this.gameId = url.searchParams.get("game") || "who-is-it";
 
     const pair = new WebSocketPair();
     const client = pair[0];
@@ -444,17 +460,29 @@ export class GameRoom {
       this.reply(socket, requestId, result);
     };
 
-    if (event === "create-room") {
+    if (event === "create-room" || event === "create-lobby") {
+      const isGameWithPack = event === "create-room";
       const pack = data.pack;
       const settings = data.settings || {};
 
-      if (
-        this.players.size !== 0 ||
-        !pack ||
-        !Array.isArray(pack.characters) ||
-        pack.characters.length < 2 ||
-        pack.characters.length > 60
-      ) {
+      const requestedMaxPlayers = this.gameId === "who-is-it" ? 2 : Number(settings.maxPlayers || 2);
+      const allowedTimers = [0, 15, 30, 45, 60, 90, 120];
+      const timerSeconds = Number(settings.timerSeconds ?? 0);
+      const requestedCode = String(settings.roomCode || this.roomId || "").trim().toUpperCase();
+      if (!/^[A-Z0-9_-]{3,16}$/.test(requestedCode) || requestedCode !== this.roomId || ![2,3,4,5,6].includes(requestedMaxPlayers) || !allowedTimers.includes(timerSeconds)) {
+        reply({ ok: false, message: "Проверь код комнаты, количество игроков и время на вопрос." });
+        return;
+      }
+      if (isGameWithPack && (!pack || !Array.isArray(pack.characters) || pack.characters.length < 2 || pack.characters.length > 60)) {
+        reply({ ok: false, message: "Не удалось создать комнату или неверный набор персонажей." });
+        return;
+      }
+      if (!isGameWithPack && this.gameId === "who-is-it") {
+        reply({ ok: false, message: "Для игры «Кто это?» нужен выбранный пак." });
+        return;
+      }
+
+      if (this.players.size !== 0 || this.createdAt) {
         reply({
           ok: false,
           message: "Не удалось создать комнату или неверный набор персонажей."
@@ -462,13 +490,13 @@ export class GameRoom {
         return;
       }
 
-      const requestedCount = Number(settings.cardCount || pack.characters.length);
+      const requestedCount = isGameWithPack ? Number(settings.cardCount || pack.characters.length) : 0;
       const allowedCounts = [20, 30, 40, 50, 60];
 
-      if (
+      if (isGameWithPack && (
         !allowedCounts.includes(requestedCount) ||
         pack.characters.length < requestedCount
-      ) {
+      )) {
         reply({
           ok: false,
           message: "В выбранном паке недостаточно карточек."
@@ -476,10 +504,7 @@ export class GameRoom {
         return;
       }
 
-      const allowedTimers = [0, 15, 30, 45, 60, 90];
-      const timerSeconds = Number(settings.timerSeconds ?? 0);
-
-      if (!allowedTimers.includes(timerSeconds)) {
+      if (isGameWithPack && ![0, 15, 30, 45, 60, 90, 120].includes(timerSeconds)) {
         reply({
           ok: false,
           message: "Неверное значение таймера."
@@ -489,19 +514,21 @@ export class GameRoom {
 
       const access = settings.access === "public" ? "public" : "private";
 
-      this.pack = {
+      this.pack = isGameWithPack ? {
         name: String(pack.name || "Пак").slice(0, 60),
         characters: pack.characters.slice(0, requestedCount)
-      };
+      } : null;
 
       this.roomName = String(settings.roomName || "Комната")
         .trim()
         .slice(0, 50) || "Комната";
 
       this.access = access;
+      this.maxPlayers = requestedMaxPlayers;
       this.timerSeconds = timerSeconds;
+      this.roomId = requestedCode;
       this.createdAt = Date.now();
-
+      this.hostPlayerId = playerId;
       this.players.set(playerId, socket);
 
       await this.updateDirectory();
@@ -510,9 +537,11 @@ export class GameRoom {
         ok: true,
         settings: {
           roomName: this.roomName,
+          roomCode: this.roomId,
           access: this.access,
+          maxPlayers: this.maxPlayers,
           timerSeconds: this.timerSeconds,
-          cardCount: this.pack.characters.length
+          cardCount: this.pack?.characters?.length || 0
         }
       });
 
@@ -520,18 +549,19 @@ export class GameRoom {
     }
 
     if (event === "join-room") {
-      if (!this.pack) {
-        reply({
-          ok: false,
-          message: "Комната не найдена."
-        });
+      if (!this.createdAt) {
+        reply({ ok: false, message: "Комната не найдена." });
         return;
       }
 
-      if (this.players.size >= 2) {
+      if (this.access === "private" && data.accessByCode !== true) {
+        // Private rooms are joinable only when the player supplies the exact code.
+      }
+
+      if (this.players.size >= this.maxPlayers) {
         reply({
           ok: false,
-          message: "В комнате уже два игрока."
+          message: "В комнате уже достигнут лимит игроков."
         });
         return;
       }
@@ -551,9 +581,11 @@ export class GameRoom {
         pack: this.pack,
         settings: {
           roomName: this.roomName,
+          roomCode: this.roomId,
           access: this.access,
+          maxPlayers: this.maxPlayers,
           timerSeconds: this.timerSeconds,
-          cardCount: this.pack.characters.length
+          cardCount: this.pack?.characters?.length || 0
         }
       });
 
@@ -570,6 +602,31 @@ export class GameRoom {
         ok: false,
         message: "Сначала войдите в комнату."
       });
+      return;
+    }
+
+    if (event === "update-room-settings") {
+      if (playerId !== this.hostPlayerId || this.ready.size > 0) {
+        reply({ ok: false, message: "Настройки может менять создатель до начала игры." });
+        return;
+      }
+      const next = data.settings || {};
+      const nextName = String(next.roomName || "").trim().slice(0, 50);
+      const nextAccess = next.access === "public" ? "public" : "private";
+      const nextMax = this.gameId === "who-is-it" ? 2 : Number(next.maxPlayers || this.maxPlayers);
+      const nextTimer = Number(next.timerSeconds ?? this.timerSeconds);
+      if (!nextName || ![2,3,4,5,6].includes(nextMax) || ![0,15,30,45,60,90,120].includes(nextTimer) || this.players.size > nextMax) {
+        reply({ ok: false, message: "Некорректные настройки комнаты." });
+        return;
+      }
+      this.roomName = nextName;
+      this.access = nextAccess;
+      this.maxPlayers = nextMax;
+      this.timerSeconds = nextTimer;
+      await this.updateDirectory();
+      const settings = { roomName:this.roomName, roomCode:this.roomId, access:this.access, maxPlayers:this.maxPlayers, timerSeconds:this.timerSeconds };
+      this.broadcast("room-settings-updated", settings);
+      reply({ ok:true, settings });
       return;
     }
 
@@ -784,16 +841,17 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/room") {
-      const roomId = url.searchParams.get("id");
+      const roomId = String(url.searchParams.get("id") || "").trim().toUpperCase();
+      const gameId = url.searchParams.get("game") || "who-is-it";
 
-      if (!roomId || !/^\d{6}$/.test(roomId)) {
+      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium"].includes(gameId)) {
         return new Response("Неверный код комнаты", {
           status: 400
         });
       }
 
       const room = env.GAME_ROOM.get(
-        env.GAME_ROOM.idFromName(roomId)
+        env.GAME_ROOM.idFromName(gameId + ":" + roomId)
       );
 
       return room.fetch(request);

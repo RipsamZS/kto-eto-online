@@ -5,6 +5,7 @@
   const API = {
     socket: null,
     roomCode: null,
+    gameId: "who-is-it",
     playerId: null,
     currentTurn: null,
     opponentConnected: false,
@@ -18,16 +19,17 @@
     timerInterval: null,
     timerDeadline: null,
     connectedPromise: null,
-    intentionalLeave: false
+    intentionalLeave: false,
+    isRoomHost: false
   };
 
   function dispatch(name, detail = {}) {
     document.dispatchEvent(new CustomEvent(name, { detail }));
   }
 
-  function getSocketUrl(code) {
+  function getSocketUrl(code, gameId = "who-is-it") {
     const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-    return `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`;
+    return `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}&game=${encodeURIComponent(gameId)}`;
   }
 
   function randomRoomCode() {
@@ -177,6 +179,7 @@
     API.roomActive = false;
     API.roomSettings = null;
     API.pack = null;
+    API.isRoomHost = false;
     API.connectedPromise = null;
 
     window.onlineRoomActive = false;
@@ -343,12 +346,18 @@
         break;
       }
 
+      case "room-settings-updated": {
+        API.roomSettings = data;
+        dispatch("online-room-settings-updated", data);
+        break;
+      }
+
       default:
         dispatch("online-unknown-event", message);
     }
   }
 
-  function connect(code) {
+  function connect(code, gameId = "who-is-it") {
     if (API.socket) {
       try {
         API.intentionalLeave = true;
@@ -360,6 +369,7 @@
     clearPending();
 
     API.roomCode = code;
+    API.gameId = gameId;
     API.playerId = null;
     API.currentTurn = null;
     API.opponentConnected = false;
@@ -368,6 +378,7 @@
     API.roomActive = false;
     API.roomSettings = null;
     API.pack = null;
+    API.isRoomHost = false;
     API.intentionalLeave = false;
 
     window.onlineRoomActive = false;
@@ -386,7 +397,7 @@
       let socket;
 
       try {
-        socket = new WebSocket(getSocketUrl(code));
+        socket = new WebSocket(getSocketUrl(code, gameId));
       } catch (error) {
         finish(false, error);
         return;
@@ -470,10 +481,13 @@
       };
     }
 
-    const code = randomRoomCode();
+    const code = String(settings.roomCode || randomRoomCode()).trim().toUpperCase();
+    if (!/^[A-Z0-9_-]{3,16}$/.test(code)) {
+      return { ok:false, message:"Код комнаты: от 3 до 16 символов — латинские буквы, цифры, дефис или подчёркивание." };
+    }
 
     try {
-      await connect(code);
+      await connect(code, "who-is-it");
     } catch (error) {
       return {
         ok: false,
@@ -488,8 +502,10 @@
       },
       settings: {
         roomName: String(settings.roomName || "Комната").slice(0, 50),
+        roomCode: code,
+        maxPlayers: 2,
         cardCount: Number(settings.cardCount || characters.length),
-        timerSeconds: Number(settings.timerSeconds || 0),
+        timerSeconds: Number(settings.timerSeconds ?? 0),
         access: settings.access === "public" ? "public" : "private"
       }
     });
@@ -500,6 +516,7 @@
     }
 
     API.roomActive = true;
+    API.isRoomHost = true;
     API.pack = pack;
     API.roomSettings = result.settings || settings;
 
@@ -525,18 +542,15 @@
     };
   }
 
-  async function joinRoom(code) {
-    code = String(code || "").trim();
+  async function joinRoom(code, gameId = "who-is-it") {
+    code = String(code || "").trim().toUpperCase();
 
-    if (!/^\d{6}$/.test(code)) {
-      return {
-        ok: false,
-        message: "Код должен состоять из шести цифр."
-      };
+    if (!/^[A-Z0-9_-]{3,16}$/.test(code)) {
+      return { ok:false, message:"Введи код длиной от 3 до 16 символов." };
     }
 
     try {
-      await connect(code);
+      await connect(code, gameId);
     } catch (error) {
       return {
         ok: false,
@@ -552,6 +566,7 @@
     }
 
     API.roomActive = true;
+    API.isRoomHost = false;
     API.pack = result.pack;
     API.roomSettings = result.settings || null;
     API.opponentConnected = true;
@@ -647,9 +662,38 @@
     });
   }
 
-  async function listPublicRooms() {
+  async function createLobby(settings = {}, gameId = "who-am-i") {
+    const code = String(settings.roomCode || "").trim().toUpperCase();
+    if (!/^[A-Z0-9_-]{3,16}$/.test(code)) return { ok:false, message:"Код комнаты должен содержать от 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание." };
+    try { await connect(code, gameId); }
+    catch (error) { return { ok:false, message:error.message }; }
+    const result = await send("create-lobby", { settings:{
+      roomCode:code,
+      roomName:String(settings.roomName || "Комната").trim().slice(0,50),
+      access:settings.access === "public" ? "public" : "private",
+      maxPlayers:gameId === "who-is-it" ? 2 : Number(settings.maxPlayers || 2),
+      timerSeconds:Number(settings.timerSeconds ?? 0)
+    }});
+    if (!result.ok) { leaveRoom(); return result; }
+    API.roomActive = true;
+    API.isRoomHost = true;
+    API.roomSettings = result.settings || settings;
+    window.onlineRoomActive = true;
+    updateRoomCodeDisplay();
+    dispatch("online-room-created",{code,settings:API.roomSettings});
+    dispatch("online-state-change");
+    return {ok:true,code,settings:API.roomSettings};
+  }
+
+  async function updateRoomSettings(settings = {}) {
+    const result = await send("update-room-settings",{settings});
+    if (result.ok) API.roomSettings = result.settings || settings;
+    return result;
+  }
+
+  async function listPublicRooms(gameId = "who-is-it") {
     try {
-      const response = await fetch("/api/public-rooms", {
+      const response = await fetch("/api/public-rooms?game=" + encodeURIComponent(gameId), {
         cache: "no-store"
       });
 
@@ -773,6 +817,10 @@
     return API.roomSettings;
   }
 
+  function isRoomHost() {
+    return API.isRoomHost;
+  }
+
   function getPlayerId() {
     return API.playerId;
   }
@@ -808,7 +856,61 @@
   }
 
   function createPanel() {
-    if (document.getElementById("onlineGamePanel")) return;
+    const existingPanel = document.getElementById("onlineGamePanel");
+    if (existingPanel) {
+      if (!document.getElementById("onlineRoomCodeFrame")) {
+        const codeFrame = document.createElement("div");
+        codeFrame.id = "onlineRoomCodeFrame";
+        codeFrame.style.cssText = "display:none;padding:12px;margin:8px 0;border:1px solid #a78bfa;border-radius:12px";
+        codeFrame.innerHTML = '<div style="font-size:12px;color:#d4c8ff">КОД КОМНАТЫ</div><strong id="onlineRoomCodeValue" style="font-size:24px;letter-spacing:2px"></strong><button id="onlineCopyCodeButton" type="button" class="secondary small" style="margin-left:10px">Скопировать</button>';
+        existingPanel.appendChild(codeFrame);
+        document.getElementById("onlineCopyCodeButton").onclick = () => {
+          if (API.roomCode && navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(API.roomCode);
+            setStatus("Код комнаты скопирован.");
+          }
+        };
+      }
+      if (!document.getElementById("onlineEditRoomButton")) {
+        const editButton = document.createElement("button");
+        editButton.id = "onlineEditRoomButton";
+        editButton.type = "button";
+        editButton.className = "secondary small";
+        editButton.textContent = "Изменить настройки комнаты";
+        editButton.style.cssText = "display:none;margin:10px auto";
+        existingPanel.appendChild(editButton);
+        const editModal = document.createElement("div");
+        editModal.id = "onlineEditRoomModal";
+        editModal.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;background:#080612dd;align-items:center;justify-content:center;padding:16px";
+        editModal.innerHTML = `<div style="width:min(440px,100%);padding:22px;border:1px solid #a78bfa;border-radius:18px;background:#1c1732;color:#fff">
+          <h3 style="margin-top:0">Настройки комнаты</h3>
+          <label>Название</label><input id="onlineEditRoomName" maxlength="50" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30">
+          <label>Доступ</label><select id="onlineEditRoomAccess" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
+          <label>Время на вопрос</label><select id="onlineEditRoomTimer" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60">60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option><option value="0">Без ограничения</option></select>
+          <div style="display:flex;gap:8px;margin-top:16px"><button id="onlineSaveRoomSettings" type="button">Сохранить</button><button id="onlineCancelRoomSettings" type="button">Отмена</button></div>
+        </div>`;
+        document.body.appendChild(editModal);
+        editButton.onclick = () => {
+          const settings = API.roomSettings || {};
+          document.getElementById("onlineEditRoomName").value = settings.roomName || "Комната";
+          document.getElementById("onlineEditRoomAccess").value = settings.access || "private";
+          document.getElementById("onlineEditRoomTimer").value = String(settings.timerSeconds ?? 60);
+          editModal.style.display = "flex";
+        };
+        document.getElementById("onlineCancelRoomSettings").onclick = () => { editModal.style.display = "none"; };
+        document.getElementById("onlineSaveRoomSettings").onclick = async () => {
+          const result = await updateRoomSettings({
+            roomName: document.getElementById("onlineEditRoomName").value.trim(),
+            access: document.getElementById("onlineEditRoomAccess").value,
+            timerSeconds: Number(document.getElementById("onlineEditRoomTimer").value),
+            maxPlayers: 2
+          });
+          if (result.ok) editModal.style.display = "none";
+          setStatus(result.ok ? "Настройки комнаты сохранены." : (result.message || "Не удалось сохранить настройки."));
+        };
+      }
+      return;
+    }
 
     const panel = document.createElement("div");
 
@@ -827,6 +929,7 @@
       <div id="onlineRoomCodeFrame" class="room-code-frame">
         <div style="font-size:12px;color:#d4c8ff">КОД КОМНАТЫ</div>
         <strong id="onlineRoomCodeValue"></strong>
+        <button id="onlineEditRoomButton" class="small secondary" type="button" style="display:none;margin-left:8px">Изменить настройки</button>
         <button id="onlineCopyCodeButton" class="small secondary" type="button">
           Скопировать код
         </button>
@@ -878,6 +981,42 @@
         game.prepend(panel);
       }
     }
+
+    const editModal = document.createElement("div");
+    editModal.id = "onlineEditRoomModal";
+    editModal.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;background:#080612dd;align-items:center;justify-content:center;padding:16px";
+    editModal.innerHTML = `
+      <div style="width:min(440px,100%);padding:22px;border:1px solid #a78bfa;border-radius:18px;background:#1c1732;color:#fff">
+        <h3 style="margin-top:0">Настройки комнаты</h3>
+        <label style="display:block;margin:10px 0 5px">Название</label>
+        <input id="onlineEditRoomName" maxlength="50" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30">
+        <label style="display:block;margin:10px 0 5px">Доступ</label>
+        <select id="onlineEditRoomAccess" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
+        <label style="display:block;margin:10px 0 5px">Время на вопрос</label>
+        <select id="onlineEditRoomTimer" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60">60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option><option value="0">Без ограничения</option></select>
+        <div style="display:flex;gap:8px;margin-top:16px"><button id="onlineSaveRoomSettings" type="button">Сохранить</button><button id="onlineCancelRoomSettings" class="secondary" type="button">Отмена</button></div>
+      </div>`;
+    document.body.appendChild(editModal);
+    document.getElementById("onlineEditRoomButton").onclick = () => {
+      const settings = API.roomSettings || {};
+      document.getElementById("onlineEditRoomName").value = settings.roomName || "Комната";
+      document.getElementById("onlineEditRoomAccess").value = settings.access || "private";
+      document.getElementById("onlineEditRoomTimer").value = String(settings.timerSeconds ?? 60);
+      editModal.style.display = "flex";
+    };
+    document.getElementById("onlineCancelRoomSettings").onclick = () => { editModal.style.display = "none"; };
+    document.getElementById("onlineSaveRoomSettings").onclick = async () => {
+      const result = await updateRoomSettings({
+        roomName: document.getElementById("onlineEditRoomName").value.trim(),
+        access: document.getElementById("onlineEditRoomAccess").value,
+        timerSeconds: Number(document.getElementById("onlineEditRoomTimer").value),
+        maxPlayers: 2
+      });
+      if (result.ok) {
+        editModal.style.display = "none";
+        setStatus("Настройки комнаты сохранены.");
+      } else setStatus(result.message || "Не удалось сохранить настройки.");
+    };
 
     document.getElementById("onlineCopyCodeButton").onclick = () => {
       if (API.roomCode && navigator.clipboard?.writeText) {
@@ -961,12 +1100,16 @@
 
   document.addEventListener("online-state-change", () => {
     updateTurnControls();
+    const editButton = document.getElementById("onlineEditRoomButton");
+    if (editButton) editButton.style.display = API.isRoomHost ? "inline-block" : "none";
   });
 
   createPanel();
 
   window.onlineGame = {
     createRoom,
+    createLobby,
+    updateRoomSettings,
     joinRoom,
     playerReady,
     askQuestion,
@@ -980,6 +1123,7 @@
     canChooseCharacter,
     getRoomCode,
     getSettings,
+    isRoomHost,
     getPlayerId,
     getPack,
     leaveRoom
