@@ -75,7 +75,7 @@ export class GameRoom {
 
     if (this.players.size === 0 || this.ended) {
       await this.directoryRequest(
-        "/internal/room-delete/" + this.roomId,
+        "/internal/room-delete/" + this.gameId + "/" + this.roomId,
         "DELETE"
       );
       return;
@@ -362,12 +362,12 @@ export class GameRoom {
         return this.json({ ok: false }, 400);
       }
 
-      if (!room?.roomId || !/^\d{6}$/.test(room.roomId)) {
+      if (!room?.roomId || !/^[A-Z0-9_-]{3,16}$/.test(room.roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium"].includes(room.gameId)) {
         return this.json({ ok: false }, 400);
       }
 
       const rooms = await this.ctx.storage.get("publicRooms") || [];
-      const updated = rooms.filter(item => item.roomId !== room.roomId);
+      const updated = rooms.filter(item => !(item.roomId === room.roomId && item.gameId === room.gameId));
 
       updated.push(room);
 
@@ -380,12 +380,14 @@ export class GameRoom {
       path.startsWith("/internal/room-delete/") &&
       request.method === "DELETE"
     ) {
-      const roomId = path.slice("/internal/room-delete/".length);
+      const key = path.slice("/internal/room-delete/".length).split("/");
+      const gameId = key[0];
+      const roomId = key[1];
       const rooms = await this.ctx.storage.get("publicRooms") || [];
 
       await this.ctx.storage.put(
         "publicRooms",
-        rooms.filter(room => room.roomId !== roomId)
+        rooms.filter(room => !(room.roomId === roomId && room.gameId === gameId))
       );
 
       return this.json({ ok: true });
