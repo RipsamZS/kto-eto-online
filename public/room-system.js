@@ -48,6 +48,7 @@
         <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
       </div>
       <button id="srsStart" class="wide hidden">Начать игру</button>
+      <button id="srsLeave" class="wide alt">Покинуть комнату</button>
       <div id="srsEdit" class="srs-card hidden"><h3>Редактирование комнаты</h3>
         <label for="srsEditName">Название</label><input id="srsEditName" maxlength="50">
         <label for="srsEditAccess">Доступ</label><select id="srsEditAccess"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
@@ -66,7 +67,7 @@
           <div id="srsGuessForm" class="hidden"><label for="srsGuessInput">Попробуй угадать своё слово</label><input id="srsGuessInput" maxlength="40" placeholder="Твоя догадка"><button id="srsGuessButton">Проверить</button></div>
           <button id="srsPassTurn" class="alt">Передать ход</button>
         </div>
-        <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В новую комнату</button></div>
+        <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       </div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
@@ -125,6 +126,7 @@
   $("srsEditAction").onclick=()=>{$("srsMenuPanel").classList.add("hidden");$("srsEdit").classList.remove("hidden");};
   $("srsCancelEdit").onclick=()=>$("srsEdit").classList.add("hidden");
   $("srsSave").onclick=async()=>{const result=await window.onlineGame.updateRoomSettings(settingsFrom("srsEdit"));if(!result.ok)return status(result.message||"Не удалось сохранить настройки.");$("srsEdit").classList.add("hidden");syncRoom(result.settings);status("Настройки комнаты сохранены.");};
+  $("srsLeave").onclick=()=>window.onlineGame.leaveRoom();
   $("srsStart").onclick=async()=>{const result=await window.onlineGame.startWordRound();if(!result.ok)status(result.message||"Не удалось начать игру.");};
   $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");$("srsWordInput").value="";};
   $("srsAskQuestion").onclick=async()=>{const result=await window.onlineGame.askWhoAmIQuestion($("srsQuestionInput").value.trim());if(!result.ok)return status(result.message||"Не удалось задать вопрос.");$("srsQuestionForm").classList.add("hidden");$("srsQuestionInput").value="";status("Вопрос отправлен. Ждём ответ.");};
