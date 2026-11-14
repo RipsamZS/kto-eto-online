@@ -13,6 +13,7 @@ export class GameRoom {
     this.wordSubmitted = new Set();
     this.wordWriterOrder = [];
     this.wordRecipients = new Map();
+    this.chatMessages = [];
     this.gamePhase = "lobby";
 
     this.currentTurn = null;
@@ -583,6 +584,7 @@ export class GameRoom {
 
       const access = settings.access === "public" ? "public" : "private";
 
+      if (this.players.size === 0) this.chatMessages = [];
       this.pack = isGameWithPack ? {
         name: String(pack.name || "Пак").slice(0, 60),
         characters: pack.characters.slice(0, requestedCount)
@@ -675,6 +677,7 @@ export class GameRoom {
         hostPlayerId: this.hostPlayerId
       }, socket);
       this.broadcastRoster();
+      if (this.gameId === "who-am-i") this.send(socket, "who-am-i-chat-history", {messages:this.chatMessages.slice(-100)});
 
       await this.updateDirectory();
       return;
@@ -685,6 +688,22 @@ export class GameRoom {
         ok: false,
         message: "Сначала войдите в комнату."
       });
+      return;
+    }
+
+    if (event === "who-am-i-chat" && this.gameId === "who-am-i") {
+      const message = String(data.message || "").trim().replace(/\\s+/g," ").slice(0,300);
+      if (!message) { reply({ok:false,message:"Напиши сообщение."}); return; }
+      const profile = this.playerProfiles.get(playerId) || {};
+      const entry = {
+        nickname:String(profile.nickname || "Игрок").slice(0,20),
+        message,
+        timestamp:Date.now()
+      };
+      this.chatMessages.push(entry);
+      this.chatMessages = this.chatMessages.slice(-100);
+      this.broadcast("who-am-i-chat-message", entry);
+      reply({ok:true});
       return;
     }
 
