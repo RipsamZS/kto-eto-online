@@ -690,6 +690,49 @@ function resetCards(){
 }
 
 renderMyPacks();
+
+function onlineCreateMenu(){
+ const options = [
+  {id:"default", name:"Minecraft", characters:defaultCharacters},
+  ...myPacks.map(p=>({
+   id:p.id,
+   name:p.name,
+   characters:p.characters
+  }))
+ ];
+
+ const choice = prompt(
+  "Выбери номер пака:\n" +
+  options.map((p,i)=>(i+1)+". "+p.name).join("\n")
+ );
+
+ if(choice===null)return;
+
+ const pack=options[Number(choice)-1];
+
+ if(!pack){
+  alert("Неверный номер пака.");
+  return;
+ }
+
+ onlineGame.createRoom({
+  name:pack.name,
+  characters:pack.characters
+ });
+}
+
+function onlineJoinMenu(){
+ const code=prompt("Введи шестизначный код комнаты:");
+
+ if(!code)return;
+
+ onlineGame.joinRoom(code).then(result=>{
+  if(result && result.ok===false){
+   alert(result.message);
+  }
+ });
+}
+
 </script>
 
 <script src="/online-client.js"></script>
