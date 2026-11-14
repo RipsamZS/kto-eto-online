@@ -71,9 +71,9 @@ export class GameRoom {
   }
 
   async updateDirectory() {
-    if (!this.roomId || this.access !== "public") return;
+    if (!this.roomId) return;
 
-    if (this.players.size === 0 || this.ended) {
+    if (this.access !== "public" || this.players.size === 0 || this.ended) {
       await this.directoryRequest(
         "/internal/room-delete/" + this.gameId + "/" + this.roomId,
         "DELETE"
