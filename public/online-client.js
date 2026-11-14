@@ -1,3 +1,4 @@
+
 (() => {
   let socket = null;
   let roomCode = null;
@@ -15,6 +16,7 @@
       }
 
       const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+
       const ws = new WebSocket(
         `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`
       );
@@ -128,66 +130,58 @@
       panel.id = "onlineGamePanel";
 
       panel.style.cssText = `
-        background:linear-gradient(135deg,#202b43,#29234c);
+        background:#202b3d;
         color:white;
-        padding:18px;
-        border:1px solid #a58af0;
-        border-radius:18px;
+        padding:16px;
+        border-radius:16px;
         margin:15px auto;
         max-width:1100px;
         font-family:Arial,sans-serif;
-        box-shadow:0 8px 30px #0004;
+        border:1px solid #ffffff25;
       `;
 
       panel.innerHTML = `
-        <h3 style="margin:0 0 15px">🌐 Онлайн-игра</h3>
+        <h3 style="margin-top:0">🌐 Онлайн-игра</h3>
 
         <div style="
-          background:#ffffff0c;
-          border:2px solid #a58af0;
-          border-radius:15px;
-          padding:14px;
+          max-width:350px;
+          margin:12px auto;
+          padding:14px 18px;
           text-align:center;
-          margin-bottom:14px;
+          border:2px solid #a98aff;
+          border-radius:15px;
+          background:linear-gradient(135deg,#7654d933,#a04de022);
+          box-shadow:0 0 20px #9870ff33;
         ">
-          <div style="
-            font-size:12px;
-            color:#c9c0f4;
-            margin-bottom:6px;
-          ">КОД КОМНАТЫ</div>
-
+          <div style="font-size:12px;color:#d4c8ff;margin-bottom:6px">
+            КОД КОМНАТЫ
+          </div>
           <div id="onlineRoomCode" style="
             font-size:30px;
             font-weight:bold;
             letter-spacing:7px;
             color:#ffe477;
-            margin-bottom:10px;
           "></div>
-
-          <button
-            id="onlineCopyCode"
-            type="button"
-            class="small"
-          >📋 Скопировать код</button>
+          <div style="font-size:12px;color:#c6c1e5;margin-top:6px">
+            Отправь код другу
+          </div>
         </div>
 
         <p id="onlineStatus" style="text-align:center">
           Подключение...
         </p>
 
-        <p
-          id="onlineTurn"
-          style="text-align:center;font-weight:bold"
-        ></p>
+        <p id="onlineTurn" style="
+          text-align:center;
+          font-weight:bold;
+        "></p>
 
-        <div id="onlineAction"></div>
+        <div id="onlineAction" style="text-align:center"></div>
 
         <div style="text-align:center;margin-top:12px">
-          <button
-            id="onlineLeave"
-            class="secondary"
-            type="button"
-          >Выйти из комнаты</button>
+          <button id="onlineLeave" class="secondary" type="button">
+            Выйти из комнаты
+          </button>
         </div>
       `;
 
@@ -202,41 +196,12 @@
       if (leaveButton) {
         leaveButton.addEventListener("click", leaveRoom);
       }
-
-      const copyButton = document.getElementById("onlineCopyCode");
-
-      if (copyButton) {
-        copyButton.addEventListener("click", copyRoomCode);
-      }
     }
 
     const codeElement = document.getElementById("onlineRoomCode");
 
     if (codeElement) {
       codeElement.textContent = roomCode || "";
-    }
-  }
-
-  async function copyRoomCode() {
-    if (!roomCode) return;
-
-    try {
-      await navigator.clipboard.writeText(roomCode);
-      setStatus("Код комнаты скопирован!");
-    } catch {
-      const input = document.createElement("textarea");
-      input.value = roomCode;
-      document.body.appendChild(input);
-      input.select();
-
-      try {
-        document.execCommand("copy");
-        setStatus("Код комнаты скопирован!");
-      } catch {
-        setStatus("Не удалось скопировать код. Запиши его вручную.");
-      }
-
-      input.remove();
     }
   }
 
@@ -257,16 +222,14 @@
 
   function showMyTurnActions() {
     showAction(`
-      <div style="text-align:center">
-        <p><strong>Твой ход!</strong></p>
-        <button id="onlineAskButton" type="button">
-          ❓ Задать вопрос
-        </button>
-        <p class="note">
-          Чтобы угадать персонажа, нажми правой кнопкой мыши
-          на его карточку или удерживай карточку на телефоне.
-        </p>
-      </div>
+      <p><strong>Твой ход!</strong></p>
+      <button id="onlineAskButton" type="button">
+        ❓ Задать вопрос
+      </button>
+      <p class="note">
+        Чтобы угадать персонажа, нажми правой кнопкой мыши на его карточку
+        или удерживай карточку на телефоне.
+      </p>
     `);
 
     const askButton = document.getElementById("onlineAskButton");
@@ -296,7 +259,7 @@
       setStatus(
         readySent
           ? "Второй игрок подключился. Ожидаем его готовности."
-          : "Второй игрок подключился. Выберите персонажа."
+          : "Второй игрок подключился. Ожидаем выбора персонажей."
       );
     }
 
@@ -315,16 +278,14 @@
       const turnElement = document.getElementById("onlineTurn");
 
       if (turnElement) {
-        turnElement.textContent = myTurn
-          ? "⭐ Твой ход"
-          : "Ход соперника";
+        turnElement.textContent = myTurn ? "Ваш ход" : "Ход соперника";
       }
 
       if (myTurn) {
-        setStatus("Твой ход. Задай вопрос или угадай персонажа.");
+        setStatus("Твой ход. Задай вопрос или попробуй угадать персонажа.");
         showMyTurnActions();
       } else {
-        setStatus("Сейчас ход соперника.");
+        setStatus("Сейчас ход соперника. Ожидаем его действие.");
         showAction("");
       }
     }
@@ -333,13 +294,10 @@
       setStatus("Соперник задал вопрос.");
 
       showAction(`
-        <div style="text-align:center">
-          <p><strong>${escapeHtml(data.question || "Вопрос")}</strong></p>
-
-          <div style="display:flex;gap:8px;justify-content:center">
-            <button id="answerYes" type="button">Да</button>
-            <button id="answerNo" type="button">Нет</button>
-          </div>
+        <p><strong>${escapeHtml(data.question || "Вопрос")}</strong></p>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button id="answerYes" type="button">Да</button>
+          <button id="answerNo" type="button">Нет</button>
         </div>
       `);
 
@@ -352,33 +310,35 @@
 
     if (event === "online-answer") {
       setStatus(
-        data.answer
-          ? "Соперник ответил: Да."
-          : "Соперник ответил: Нет."
+        "Ответ на ваш вопрос: " + (data.answer ? "Да" : "Нет")
       );
 
       showAction("");
     }
 
     if (event === "online-guess-result") {
-      if (data.correct) {
-        setStatus("🎉 Ты угадал персонажа!");
-      } else {
-        setStatus("Не угадал! Теперь ход соперника.");
-      }
+      setStatus(
+        data.correct
+          ? "Победа! Ты угадал персонажа!"
+          : "Неверная догадка. Теперь ход соперника."
+      );
+
+      showAction("");
+    }
+
+    if (event === "online-guess-made") {
+      setStatus(
+        data.correct
+          ? "Соперник угадал твоего персонажа!"
+          : "Соперник не угадал. Теперь твой ход."
+      );
 
       showAction("");
     }
 
     if (event === "online-ended") {
+      setStatus(data.message || "Игра окончена.");
       currentTurn = null;
-
-      if (data.winnerId === playerId) {
-        setStatus("🏆 Победа! Ты угадал персонажа!");
-      } else {
-        setStatus("Игра окончена. Соперник угадал твоего персонажа.");
-      }
-
       showAction("");
     }
 
@@ -429,7 +389,6 @@
       window.onlineRoomActive = true;
 
       showPanel();
-
       setStatus("Комната создана. Отправь код другу и выбери персонажа.");
 
       return {
@@ -496,14 +455,14 @@
     readySent = true;
 
     const result = await send("player-ready", {
-      secretCharacterId
+      secretCharacterId: String(secretCharacterId)
     });
 
     if (!result.ok) {
       readySent = false;
       setStatus(result.message || "Не удалось подтвердить готовность.");
     } else if (result.waiting) {
-      setStatus("Ты готов! Ожидаем готовности соперника.");
+      setStatus("Ты готов. Ожидаем готовности соперника.");
     } else {
       setStatus("Вы оба готовы. Игра начинается!");
     }
@@ -537,12 +496,24 @@
       return;
     }
 
+    const value = String(guessId || "").trim();
+
+    if (!value) return;
+
     const result = await send("make-guess", {
-      guessId: String(guessId)
+      guessId: value
     });
 
     if (!result.ok) {
       setStatus(result.message || "Не удалось отправить догадку.");
+    } else {
+      setStatus(
+        result.correct
+          ? "Ты угадал персонажа!"
+          : "Неверная догадка. Теперь ход соперника."
+      );
+
+      showAction("");
     }
   }
 
@@ -553,6 +524,10 @@
       currentTurn &&
       currentTurn === playerId
     );
+  }
+
+  function getRoomCode() {
+    return roomCode;
   }
 
   function leaveRoom() {
@@ -595,6 +570,7 @@
     askQuestion,
     makeGuess,
     isMyTurn,
+    getRoomCode,
     leaveRoom
   };
 })();
