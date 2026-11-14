@@ -752,17 +752,20 @@ export class GameRoom {
       this.wordAssignments.clear();
       this.wordSubmitted.clear();
       const ids = [...this.players.keys()];
+      // Keep the writing turn in the original player order; only randomize recipients.
       this.wordWriterOrder = [...ids];
-      for (let i = this.wordWriterOrder.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [this.wordWriterOrder[i], this.wordWriterOrder[j]] = [this.wordWriterOrder[j], this.wordWriterOrder[i]];
-      }
       this.wordRecipients.clear();
-      for (let i = 0; i < this.wordWriterOrder.length; i++) {
-        this.wordRecipients.set(
-          this.wordWriterOrder[i],
-          this.wordWriterOrder[(i + 1) % this.wordWriterOrder.length]
-        );
+      const shuffledRecipients = [...ids];
+      let hasSelfAssignment = true;
+      while (hasSelfAssignment) {
+        for (let i = shuffledRecipients.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledRecipients[i], shuffledRecipients[j]] = [shuffledRecipients[j], shuffledRecipients[i]];
+        }
+        hasSelfAssignment = ids.some((writerId, index) => writerId === shuffledRecipients[index]);
+      }
+      for (let i = 0; i < ids.length; i++) {
+        this.wordRecipients.set(ids[i], shuffledRecipients[i]);
       }
       const firstWriter = this.wordWriterOrder[0];
       const firstRecipient = this.wordRecipients.get(firstWriter);
