@@ -271,24 +271,31 @@
   let turnTimerInterval=null;
   const turnTimerDuration=2*Math.PI*91;
   $("srsTurnTimerProgress").style.strokeDasharray=String(turnTimerDuration);
-  function stopTurnCountdown(){if(turnTimerInterval!==null){clearInterval(turnTimerInterval);turnTimerInterval=null;}$("srsTurnTimer").classList.add("hidden");$("srsTurnTimer").classList.remove("warning","urgent");$("srsTurnTimerProgress").style.strokeDashoffset="0";}
+  function stopTurnCountdown(){if(turnTimerInterval!==null){cancelAnimationFrame(turnTimerInterval);turnTimerInterval=null;}$("srsTurnTimer").classList.add("hidden");$("srsTurnTimer").classList.remove("warning","urgent");$("srsTurnTimerProgress").style.strokeDashoffset="0";}
   function startTurnCountdown(deadline,timerSeconds){
     stopTurnCountdown();
     const total=Number(timerSeconds);
-    if(!total||total<=0||!Number(deadline))return;
+    const endAt=Number(deadline);
+    if(!total||total<=0||!endAt)return;
+    let lastDisplayedSecond=-1;
+    $("srsTurnTimer").classList.remove("hidden");
     const update=()=>{
-      const remaining=Math.max(0,Math.ceil((Number(deadline)-Date.now())/1000));
-      const minutes=String(Math.floor(remaining/60)).padStart(2,"0");
-      const seconds=String(remaining%60).padStart(2,"0");
-      $("srsTurnTimerValue").textContent=minutes+":"+seconds;
-      $("srsTurnTimerProgress").style.strokeDashoffset=String(turnTimerDuration*(1-Math.min(1,remaining/total)));
-      $("srsTurnTimer").classList.remove("hidden");
+      const millisecondsLeft=Math.max(0,endAt-Date.now());
+      const remaining=Math.ceil(millisecondsLeft/1000);
+      if(remaining!==lastDisplayedSecond){
+        lastDisplayedSecond=remaining;
+        const minutes=String(Math.floor(remaining/60)).padStart(2,"0");
+        const seconds=String(remaining%60).padStart(2,"0");
+        $("srsTurnTimerValue").textContent=minutes+":"+seconds;
+      }
+      const progress=Math.min(1,millisecondsLeft/(total*1000));
+      $("srsTurnTimerProgress").style.strokeDashoffset=String(turnTimerDuration*(1-progress));
       $("srsTurnTimer").classList.toggle("warning",remaining<=15&&remaining>5);
       $("srsTurnTimer").classList.toggle("urgent",remaining<=5);
-      if(remaining<=0){clearInterval(turnTimerInterval);turnTimerInterval=null;}
+      if(millisecondsLeft>0){turnTimerInterval=requestAnimationFrame(update);}
+      else{turnTimerInterval=null;}
     };
     update();
-    turnTimerInterval=setInterval(update,250);
   }
   document.addEventListener("who-am-i-turn",e=>{$("srsPlayPanel").classList.remove("hidden");$("srsQuestionWaiting").classList.add("hidden");$("srsTurnStatus").textContent=e.detail.isYourTurn?"Твой ход — игрок №"+e.detail.playerNumber:"Ход игрока №"+e.detail.playerNumber+" из "+e.detail.totalPlayers;$("srsQuestionForm").classList.toggle("hidden",!e.detail.isYourTurn);$("srsGuessForm").classList.toggle("hidden",!e.detail.isYourTurn);$("srsPassTurn").classList.toggle("hidden",!e.detail.isYourTurn);startTurnCountdown(e.detail.deadline,e.detail.timerSeconds);});
   document.addEventListener("who-am-i-question",e=>{appendChatMessage({nickname:"Вопрос • Игрок №"+e.detail.askerNumber,message:e.detail.question});$("srsChatPanel").classList.remove("hidden");$("srsChatToggle").setAttribute("aria-expanded","true");const isAsker=e.detail.isYourQuestion===true;if(isAsker){$("srsPlayPanel").classList.remove("hidden");$("srsQuestionForm").classList.add("hidden");$("srsGuessForm").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");$("srsTurnStatus").textContent="Твой вопрос — ответы в чате";}else{$("srsPlayPanel").classList.add("hidden");$("srsPassTurn").classList.add("hidden");}});
