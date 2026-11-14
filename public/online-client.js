@@ -1,9 +1,10 @@
-
 (() => {
   let socket = null;
   let roomCode = null;
   let playerId = null;
   let requestCounter = 0;
+  let readySent = false;
+
   const pending = new Map();
 
   function connect(code) {
@@ -13,17 +14,21 @@
       }
 
       const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-      socket = new WebSocket(
+      const ws = new WebSocket(
         `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`
       );
 
-      socket.addEventListener("open", () => resolve(), { once: true });
+      socket = ws;
 
-      socket.addEventListener("error", () => {
+      ws.addEventListener("open", () => resolve(), { once: true });
+
+      ws.addEventListener("error", () => {
         reject(new Error("Не удалось подключиться к серверу."));
       }, { once: true });
 
-      socket.addEventListener("message", event => {
+      ws.addEventListener("message", event => {
+        if (socket !== ws) return;
+
         let message;
 
         try {
@@ -33,35 +38,43 @@
         }
 
         if (message.ackId) {
-          const item = pending.get(message.ackId);
+          const callback = pending.get(String(message.ackId));
 
-          if (item) {
-            pending.delete(message.ackId);
-            item(message.result);
+          if (callback) {
+            pending.delete(String(message.ackId));
+            callback(message.result || { ok: false });
           }
 
           return;
         }
 
         if (message.event === "connected") {
-          playerId = message.data.playerId;
+          playerId = message.data?.playerId || null;
           return;
         }
 
         handleServerEvent(message.event, message.data || {});
       });
 
-      socket.addEventListener("close", () => {
-        pending.forEach(resolve => resolve({
-          ok: false,
-          message: "Соединение закрыто."
-        }));
+      ws.addEventListener("close", () => {
+        if (socket !== ws) return;
+
+        pending.forEach(callback => {
+          callback({
+            ok: false,
+            message: "Соединение закрыто."
+          });
+        });
 
         pending.clear();
 
+        socket = null;
+
         if (roomCode) {
-          setStatus("Соединение потеряно.");
+          setStatus("Соединение с комнатой потеряно.");
           roomCode = null;
+          playerId = null;
+          readySent = false;
           window.onlineRoomActive = false;
         }
       });
@@ -93,7 +106,7 @@
 
           resolve({
             ok: false,
-            message: "Сервер не ответил."
+            message: "Сервер не ответил. Попробуй ещё раз."
           });
         }
       }, 10000);
@@ -123,8 +136,15 @@
       panel = document.createElement("div");
       panel.id = "onlineGamePanel";
 
-      panel.style.cssText =
-        "background:#202b3d;color:white;padding:16px;border-radius:12px;margin:15px 0;font-family:Arial";
+      panel.style.cssText = `
+        background:#202b3d;
+        color:white;
+        padding:16px;
+        border-radius:12px;
+        margin:15px auto;
+        max-width:1100px;
+        font-family:Arial,sans-serif;
+      `;
 
       panel.innerHTML = `
         <h3>🌐 Онлайн-игра</h3>
@@ -132,21 +152,33 @@
         <p>Код комнаты: <strong id="onlineRoomCode"></strong></p>
         <p id="onlineTurn"></p>
         <div id="onlineAction"></div>
-        <div id="onlineLog" style="max-height:150px;overflow:auto;margin:10px 0"></div>
-        <button id="onlineLeave" type="button">Выйти из комнаты</button>
+        <div
+          id="onlineLog"
+          style="max-height:150px;overflow:auto;margin:10px 0;padding:8px;background:#ffffff10;border-radius:8px"
+        ></div>
+        <button id="onlineLeave" class="secondary" type="button">
+          Выйти из комнаты
+        </button>
       `;
 
       const game = document.getElementById("game");
 
       if (game) {
-        game.prepend(panel);
+        game.insertBefore(panel, game.children[1] || null);
       }
 
-      document.getElementById("onlineLeave").onclick = leaveRoom;
+      const leaveButton = document.getElementById("onlineLeave");
+
+      if (leaveButton) {
+        leaveButton.addEventListener("click", leaveRoom);
+      }
     }
 
-    document.getElementById("onlineRoomCode").textContent =
-      roomCode || "";
+    const codeElement = document.getElementById("onlineRoomCode");
+
+    if (codeElement) {
+      codeElement.textContent = roomCode || "";
+    }
   }
 
   function showAction(html) {
@@ -162,6 +194,55 @@
       '"': "&quot;",
       "'": "&#39;"
     })[char]);
+  }
+
+  function showMyTurnActions() {
+    showAction(`
+      <p><strong>Твой ход. Что хочешь сделать?</strong></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="onlineAskButton" type="button">❓ Задать вопрос</button>
+        <button id="onlineGuessButton" type="button">🎯 Угадать персонажа</button>
+      </div>
+    `);
+
+    const askButton = document.getElementById("onlineAskButton");
+    const guessButton = document.getElementById("onlineGuessButton");
+
+    if (askButton) {
+      askButton.onclick = async () => {
+        const question = prompt(
+          "Задай вопрос сопернику. Например: «Твой персонаж человек?»"
+        );
+
+        if (question === null) return;
+
+        const value = question.trim();
+
+        if (!value) {
+          alert("Введи вопрос.");
+          return;
+        }
+
+        await askQuestion(value);
+      };
+    }
+
+    if (guessButton) {
+      guessButton.onclick = async () => {
+        const guess = prompt("Какого персонажа ты хочешь угадать?");
+
+        if (guess === null) return;
+
+        const value = guess.trim();
+
+        if (!value) {
+          alert("Введи имя персонажа.");
+          return;
+        }
+
+        await makeGuess(value);
+      };
+    }
   }
 
   function handleServerEvent(event, data) {
@@ -181,10 +262,18 @@
 
     if (event === "online-turn") {
       const myTurn = data.currentTurn === playerId;
-      const el = document.getElementById("onlineTurn");
+      const turnElement = document.getElementById("onlineTurn");
 
-      if (el) {
-        el.textContent = myTurn ? "Ваш ход" : "Ход соперника";
+      if (turnElement) {
+        turnElement.textContent = myTurn ? "Ваш ход" : "Ход соперника";
+      }
+
+      if (myTurn) {
+        setStatus("Твой ход. Задай вопрос или попробуй угадать персонажа.");
+        showMyTurnActions();
+      } else {
+        setStatus("Сейчас ход соперника. Ожидаем его действие.");
+        showAction("");
       }
     }
 
@@ -193,16 +282,18 @@
       addLog("Вопрос соперника: " + data.question);
 
       showAction(`
-        <p>${escapeHtml(data.question)}</p>
-        <button id="answerYes" type="button">Да</button>
-        <button id="answerNo" type="button">Нет</button>
+        <p><strong>${escapeHtml(data.question || "Вопрос")}</strong></p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="answerYes" type="button">Да</button>
+          <button id="answerNo" type="button">Нет</button>
+        </div>
       `);
 
-      document.getElementById("answerYes").onclick =
-        () => answerQuestion(true);
+      const yes = document.getElementById("answerYes");
+      const no = document.getElementById("answerNo");
 
-      document.getElementById("answerNo").onclick =
-        () => answerQuestion(false);
+      if (yes) yes.onclick = () => answerQuestion(true);
+      if (no) no.onclick = () => answerQuestion(false);
     }
 
     if (event === "online-answer") {
@@ -211,7 +302,7 @@
         (data.answer ? "Да" : "Нет")
       );
 
-      setStatus("Получен ответ.");
+      setStatus("Получен ответ от соперника.");
       showAction("");
     }
 
@@ -220,18 +311,19 @@
       addLog("Догадка соперника: " + data.guess);
 
       showAction(`
-        <p>Соперник угадывает:
-          <strong>${escapeHtml(data.guess)}</strong>
-        </p>
-        <button id="guessYes" type="button">Угадал</button>
-        <button id="guessNo" type="button">Не угадал</button>
+        <p>Соперник угадывает: <strong>${escapeHtml(data.guess || "")}</strong></p>
+        <p>Это твой загаданный персонаж?</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="guessYes" type="button">Угадал</button>
+          <button id="guessNo" type="button">Не угадал</button>
+        </div>
       `);
 
-      document.getElementById("guessYes").onclick =
-        () => answerGuess(true);
+      const yes = document.getElementById("guessYes");
+      const no = document.getElementById("guessNo");
 
-      document.getElementById("guessNo").onclick =
-        () => answerGuess(false);
+      if (yes) yes.onclick = () => answerGuess(true);
+      if (no) no.onclick = () => answerGuess(false);
     }
 
     if (event === "online-guess-result") {
@@ -242,7 +334,7 @@
       );
 
       setStatus(
-        data.correct ? "Победа!" : "Неверная догадка."
+        data.correct ? "Победа! Вы угадали персонажа." : "Догадка неверная."
       );
 
       showAction("");
@@ -257,6 +349,7 @@
     if (event === "player-left") {
       setStatus("Соперник покинул комнату.");
       addLog("Соперник отключился.");
+      showAction("");
     }
   }
 
@@ -264,9 +357,10 @@
     const result = await send("answer-question", { answer });
 
     if (!result.ok) {
-      setStatus(result.message);
+      setStatus(result.message || "Не удалось отправить ответ.");
     } else {
       showAction("");
+      setStatus("Ответ отправлен.");
     }
   }
 
@@ -274,15 +368,16 @@
     const result = await send("answer-guess", { correct });
 
     if (!result.ok) {
-      setStatus(result.message);
+      setStatus(result.message || "Не удалось отправить ответ.");
     } else {
       showAction("");
+      setStatus("Ответ отправлен.");
     }
   }
 
   async function createRoom(pack) {
-    if (!pack || !Array.isArray(pack.characters)) {
-      alert("Не удалось получить набор персонажей.");
+    if (!pack || !Array.isArray(pack.characters) || pack.characters.length < 2) {
+      alert("В паке должно быть хотя бы два персонажа.");
       return { ok: false };
     }
 
@@ -297,22 +392,25 @@
 
       if (!result || !result.ok) {
         alert(result?.message || "Не удалось создать комнату.");
-        socket.close();
+
+        if (socket) socket.close();
+
         return { ok: false };
       }
 
       roomCode = code;
+      readySent = false;
       window.onlineRoomActive = true;
 
       showPanel();
-      setStatus("Комната создана. Ожидаем второго игрока.");
+      setStatus("Комната создана. Отправь код другу и дождись его подключения.");
 
       return {
         ok: true,
         code
       };
     } catch (error) {
-      alert(error.message);
+      alert(error.message || "Ошибка подключения.");
       return { ok: false };
     }
   }
@@ -339,12 +437,12 @@
       }
 
       roomCode = code;
+      readySent = false;
       window.onlineRoomActive = true;
+      window.onlinePack = result.pack;
 
       showPanel();
-      setStatus("Вы подключились к комнате.");
-
-      window.onlinePack = result.pack;
+      setStatus("Вы подключились к комнате. Выберите персонажа.");
 
       document.dispatchEvent(
         new CustomEvent("online-pack-received", {
@@ -354,40 +452,59 @@
 
       return { ok: true };
     } catch (error) {
-      alert(error.message);
+      alert(error.message || "Ошибка подключения.");
       return { ok: false };
     }
   }
 
   async function playerReady() {
+    if (!window.onlineRoomActive || readySent) return;
+
+    readySent = true;
+
     const result = await send("player-ready");
 
     if (!result.ok) {
-      setStatus(result.message);
+      readySent = false;
+      setStatus(result.message || "Не удалось подтвердить готовность.");
     } else {
       setStatus("Вы готовы. Ожидаем соперника.");
     }
   }
 
   async function askQuestion(question) {
-    const result = await send("ask-question", { question });
+    const value = String(question || "").trim();
+
+    if (!value) return;
+
+    const result = await send("ask-question", {
+      question: value
+    });
 
     if (!result.ok) {
-      setStatus(result.message);
+      setStatus(result.message || "Не удалось отправить вопрос.");
     } else {
-      addLog("Вы спросили: " + question);
+      addLog("Вы спросили: " + value);
       setStatus("Ожидаем ответ соперника.");
+      showAction("");
     }
   }
 
   async function makeGuess(guess) {
-    const result = await send("make-guess", { guess });
+    const value = String(guess || "").trim();
+
+    if (!value) return;
+
+    const result = await send("make-guess", {
+      guess: value
+    });
 
     if (!result.ok) {
-      setStatus(result.message);
+      setStatus(result.message || "Не удалось отправить догадку.");
     } else {
-      addLog("Ваша догадка: " + guess);
+      addLog("Ваша догадка: " + value);
       setStatus("Ожидаем ответ соперника.");
+      showAction("");
     }
   }
 
@@ -404,7 +521,17 @@
     socket = null;
     roomCode = null;
     playerId = null;
+    readySent = false;
     window.onlineRoomActive = false;
+
+    pending.forEach(callback => {
+      callback({
+        ok: false,
+        message: "Вы вышли из комнаты."
+      });
+    });
+
+    pending.clear();
 
     const panel = document.getElementById("onlineGamePanel");
 
