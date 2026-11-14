@@ -11,6 +11,7 @@ body{margin:0;min-height:100vh;color:white;font-family:Arial,sans-serif;backgrou
 button,input{font:inherit}
 button{border:0;border-radius:13px;padding:12px 20px;cursor:pointer;color:white;font-weight:bold;background:linear-gradient(135deg,#7955e8,#a04de0);transition:.2s}
 button:hover{filter:brightness(1.15);transform:translateY(-2px)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:none}
 button.secondary{background:#42446e}
 button.danger{background:#b84462}
 button.small{padding:8px 12px;font-size:13px}
@@ -52,7 +53,7 @@ input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #77
 .note{font-size:13px;color:#c6c1e5;line-height:1.5}
 hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
 
-.character-picker{
+.character-picker,.pack-picker,.join-picker{
  position:fixed;
  inset:0;
  z-index:1000;
@@ -63,7 +64,7 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
  padding:15px;
  overflow-y:auto;
 }
-.character-picker.active{display:flex}
+.character-picker.active,.pack-picker.active,.join-picker.active{display:flex}
 .picker-window{
  width:100%;
  max-width:850px;
@@ -96,7 +97,6 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
 .picker-card .emoji{font-size:45px;height:85px;display:grid;place-items:center}
 .picker-card p{font-size:13px;overflow-wrap:anywhere}
 .picker-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-
 .room-code-frame{
  display:none;
  max-width:350px;
@@ -115,6 +115,28 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
  color:#ffe477;
  margin:5px 0;
 }
+.pack-choice-card{
+ background:#ffffff12;
+ border:2px solid #ffffff25;
+ border-radius:15px;
+ padding:15px;
+ text-align:center;
+ cursor:pointer;
+ transition:.2s;
+}
+.pack-choice-card:hover{border-color:#b79aff;transform:translateY(-2px)}
+.pack-choice-card img{width:100%;height:100px;object-fit:contain}
+.pack-choice-card .pack-emoji{font-size:55px;height:100px;display:grid;place-items:center}
+.pack-choice-card h3{margin:10px 0 5px}
+.pack-choice-card p{font-size:13px;color:#c6c1e5}
+.pack-choice-card button{width:100%;margin-top:8px}
+.pack-picker-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+ gap:13px;
+ margin:20px 0;
+}
+.modal-error{color:#ff9eae;text-align:center;min-height:20px}
 
 @media(max-width:600px){
  h1{font-size:32px}
@@ -127,6 +149,7 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
  .game-card .emoji{font-size:38px}
  .game-card p{font-size:11px}
  .picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .pack-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
@@ -223,7 +246,7 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
  <div class="secret-box">
   <strong>Твой загаданный персонаж</strong>
   <div id="secretDisplay" style="margin-top:8px">Сначала выбери персонажа</div>
-  <button class="small secondary" onclick="chooseSecret()">Выбрать персонажа</button>
+  <button id="chooseSecretButton" class="small secondary" onclick="chooseSecret()">Выбрать персонажа</button>
  </div>
  <p class="subtitle">Левая кнопка мыши — зачеркнуть карточку. Правая — угадать персонажа. На телефоне удерживай карточку.</p>
  <div id="gameGrid" class="game-grid"></div>
@@ -242,8 +265,33 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
   <p class="subtitle">Нажми на персонажа, за которого будешь играть</p>
   <div id="pickerGrid" class="picker-grid"></div>
   <div class="picker-actions">
-   <button onclick="confirmCharacter()">Подтвердить выбор</button>
+   <button id="confirmCharacterButton" onclick="confirmCharacter()">Подтвердить выбор</button>
    <button class="secondary" onclick="closePicker()">Отмена</button>
+  </div>
+ </div>
+</div>
+
+<div id="packPicker" class="pack-picker">
+ <div class="picker-window">
+  <h2>🌐 Создание онлайн-комнаты</h2>
+  <p class="subtitle">Выбери пак, с которым хочешь играть</p>
+  <div id="onlinePackChoices" class="pack-picker-grid"></div>
+  <p id="packPickerError" class="modal-error"></p>
+  <div class="picker-actions">
+   <button class="secondary" onclick="closePackPicker()">Отмена</button>
+  </div>
+ </div>
+</div>
+
+<div id="joinPicker" class="join-picker">
+ <div class="picker-window" style="max-width:430px">
+  <h2>🔑 Войти в комнату</h2>
+  <p class="subtitle">Введи шестизначный код, который прислал друг</p>
+  <input id="joinRoomCodeInput" type="text" inputmode="numeric" maxlength="6" placeholder="Например: 123456">
+  <p id="joinPickerError" class="modal-error"></p>
+  <div class="picker-actions">
+   <button onclick="submitJoinRoom()">Подключиться</button>
+   <button class="secondary" onclick="closeJoinPicker()">Отмена</button>
   </div>
  </div>
 </div>
@@ -520,8 +568,8 @@ document.addEventListener("paste",e=>{
 });
 
 function playEditedPack(){
- if(pack.length===0){
-  alert("Сначала добавь персонажей!");
+ if(pack.length<2){
+  alert("Добавь хотя бы двух персонажей!");
   return;
  }
 
@@ -562,11 +610,56 @@ function startGameFromCharacters(characters,name){
  document.getElementById("gamePackLabel").textContent="Пак: "+name;
 
  renderGame();
+ renderSecret();
  showScreen("game");
- openPicker();
+
+ updateCharacterButton();
+
+ if(
+  !window.onlineRoomActive ||
+  !window.onlineGame ||
+  window.onlineGame.canChooseCharacter()
+ ){
+  openPicker();
+ }else{
+  document.getElementById("onlineStatus").textContent=
+   "Комната создана. Отправь код другу. Выбор персонажа откроется после его подключения.";
+ }
+}
+
+function updateCharacterButton(){
+ const button=document.getElementById("chooseSecretButton");
+
+ if(!button)return;
+
+ if(window.onlineRoomActive && window.onlineGame){
+  const canChoose=window.onlineGame.canChooseCharacter();
+
+  button.disabled=!canChoose;
+  button.textContent=canChoose
+   ? "Выбрать персонажа"
+   : "Ожидание второго игрока";
+ }else{
+  button.disabled=false;
+  button.textContent="Выбрать персонажа";
+ }
 }
 
 function openPicker(){
+ if(
+  window.onlineRoomActive &&
+  window.onlineGame &&
+  !window.onlineGame.canChooseCharacter()
+ ){
+  const status=document.getElementById("onlineStatus");
+
+  if(status){
+   status.textContent="Сначала дождись подключения второго игрока.";
+  }
+
+  return;
+ }
+
  pickerSelected=null;
 
  const codeBox=document.getElementById("pickerRoomCode");
@@ -614,7 +707,7 @@ function openPicker(){
  document.getElementById("characterPicker").classList.add("active");
 }
 
-function confirmCharacter(){
+async function confirmCharacter(){
  if(!pickerSelected){
   alert("Сначала выбери персонажа!");
   return;
@@ -624,17 +717,31 @@ function confirmCharacter(){
 
  if(!secretCharacter)return;
 
+ if(window.onlineRoomActive && window.onlineGame){
+  if(!window.onlineGame.canChooseCharacter()){
+   alert("Подожди, пока подключится второй игрок.");
+   return;
+  }
+
+  const result=await window.onlineGame.playerReady(secretCharacter.id);
+
+  if(!result || !result.ok){
+   return;
+  }
+ }
+
  document.getElementById("characterPicker").classList.remove("active");
 
  renderGame();
  renderSecret();
-
- if(window.onlineRoomActive && window.onlineGame){
-  window.onlineGame.playerReady(secretCharacter.id);
- }
+ updateCharacterButton();
 }
 
 function closePicker(){
+ if(window.onlineRoomActive && window.onlineGame){
+  if(!window.onlineGame.canChooseCharacter())return;
+ }
+
  document.getElementById("characterPicker").classList.remove("active");
 }
 
@@ -697,6 +804,12 @@ function renderGame(){
 
   card.addEventListener("contextmenu",e=>{
    e.preventDefault();
+
+   if(longPressTriggered){
+    longPressTriggered=false;
+    return;
+   }
+
    confirmGuess(c);
   });
 
@@ -758,54 +871,100 @@ function resetCards(){
  renderGame();
 }
 
+/* МЕНЮ ВЫБОРА ПАКА */
+
+function openOnlinePackMenu(){
+ const modal=document.getElementById("packPicker");
+ const grid=document.getElementById("onlinePackChoices");
+ const error=document.getElementById("packPickerError");
+
+ error.textContent="";
+ grid.innerHTML="";
+
+ const options=[
+  {
+   id:"default",
+   name:"Minecraft",
+   characters:defaultCharacters,
+   emoji:"⛏️"
+  },
+  ...myPacks.map(p=>({
+   id:p.id,
+   name:p.name,
+   characters:p.characters,
+   emoji:p.characters[0]?.emoji||"📦"
+  }))
+ ];
+
+ options.forEach(option=>{
+  const card=document.createElement("div");
+  card.className="pack-choice-card";
+
+  const preview=option.characters.find(c=>c.image);
+
+  card.innerHTML=`
+   ${preview
+    ? `<img src="${preview.image}">`
+    : `<div class="pack-emoji">${option.emoji}</div>`}
+   <h3></h3>
+   <p>${option.characters.length} персонажей</p>
+   <button type="button">Создать комнату</button>
+  `;
+
+  card.querySelector("h3").textContent=option.name;
+
+  card.querySelector("button").onclick=()=>{
+   createOnlineRoom(option);
+  };
+
+  grid.appendChild(card);
+ });
+
+ modal.classList.add("active");
+}
+
+function closePackPicker(){
+ document.getElementById("packPicker").classList.remove("active");
+}
+
+async function createOnlineRoom(option){
+ const error=document.getElementById("packPickerError");
+
+ if(!option || option.characters.length<2){
+  error.textContent="В паке должно быть хотя бы два персонажа.";
+  return;
+ }
+
+ error.textContent="Создаём комнату...";
+
+ const result=await window.onlineGame.createRoom({
+  name:option.name,
+  characters:option.characters
+ });
+
+ if(!result || !result.ok){
+  error.textContent="Не удалось создать комнату. Попробуй ещё раз.";
+  return;
+ }
+
+ closePackPicker();
+
+ startGameFromCharacters(
+  option.characters,
+  option.name
+ );
+}
+
 function onlineCreateMenu(){
  if(!window.onlineGame){
   alert("Онлайн-клиент ещё не загрузился. Обнови страницу.");
   return;
  }
 
- const options=[
-  {id:"default",name:"Minecraft",characters:defaultCharacters},
-  ...myPacks.map(p=>({
-   id:p.id,
-   name:p.name,
-   characters:p.characters
-  }))
- ];
-
- const choice=prompt(
-  "Выбери номер пака:\n"+
-  options.map((p,i)=>(i+1)+". "+p.name).join("\n")
- );
-
- if(choice===null)return;
-
- const packChoice=options[Number(choice)-1];
-
- if(!packChoice){
-  alert("Неверный номер пака.");
-  return;
- }
-
- if(packChoice.characters.length<2){
-  alert("В паке должно быть хотя бы два персонажа.");
-  return;
- }
-
- window.onlineGame.createRoom({
-  name:packChoice.name,
-  characters:packChoice.characters
- }).then(result=>{
-  if(!result || !result.ok)return;
-
-  window.onlineRoomActive=true;
-
-  startGameFromCharacters(
-   packChoice.characters,
-   packChoice.name
-  );
- });
+ openOnlinePackMenu();
 }
+
+/* МЕНЮ ВХОДА ПО КОДУ */
 
 function onlineJoinMenu(){
  if(!window.onlineGame){
@@ -813,12 +972,44 @@ function onlineJoinMenu(){
   return;
  }
 
- const code=prompt("Введи шестизначный код комнаты:");
-
- if(!code)return;
-
- window.onlineGame.joinRoom(code);
+ document.getElementById("joinRoomCodeInput").value="";
+ document.getElementById("joinPickerError").textContent="";
+ document.getElementById("joinPicker").classList.add("active");
 }
+
+function closeJoinPicker(){
+ document.getElementById("joinPicker").classList.remove("active");
+}
+
+async function submitJoinRoom(){
+ const input=document.getElementById("joinRoomCodeInput");
+ const error=document.getElementById("joinPickerError");
+ const code=input.value.trim();
+
+ if(!/^\d{6}$/.test(code)){
+  error.textContent="Введи ровно шесть цифр.";
+  return;
+ }
+
+ error.textContent="Подключаемся...";
+
+ const result=await window.onlineGame.joinRoom(code);
+
+ if(!result || !result.ok){
+  error.textContent="Не удалось подключиться. Проверь код комнаты.";
+  return;
+ }
+
+ closeJoinPicker();
+}
+
+document.getElementById("joinRoomCodeInput").addEventListener("keydown",event=>{
+ if(event.key==="Enter"){
+  submitJoinRoom();
+ }
+});
+
+/* СОБЫТИЯ ОНЛАЙН-ИГРЫ */
 
 document.addEventListener("online-pack-received",event=>{
  const receivedPack=event.detail;
@@ -831,6 +1022,31 @@ document.addEventListener("online-pack-received",event=>{
    receivedPack.name||"Онлайн-пак"
   );
  }
+});
+
+document.addEventListener("online-opponent-connected",()=>{
+ updateCharacterButton();
+
+ if(
+  window.onlineRoomActive &&
+  window.onlineGame &&
+  window.onlineGame.canChooseCharacter() &&
+  !secretCharacter
+ ){
+  openPicker();
+ }
+});
+
+document.addEventListener("online-opponent-left",()=>{
+ document.getElementById("characterPicker").classList.remove("active");
+ updateCharacterButton();
+
+ secretCharacter=null;
+ renderSecret();
+});
+
+document.addEventListener("online-state-change",()=>{
+ updateCharacterButton();
 });
 
 renderMyPacks();
