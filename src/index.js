@@ -47,22 +47,16 @@ export class GameRoom {
     if (!this.players.has(playerId)) return;
 
     this.players.delete(playerId);
-    this.ready.delete(playerId);
-    this.secretCharacters.delete(playerId);
+    this.ready.clear();
+    this.secretCharacters.clear();
+    this.currentTurn = null;
+    this.pending = null;
+    this.ended = false;
 
     this.broadcast("player-left");
 
     if (this.players.size === 0) {
       this.pack = null;
-      this.pending = null;
-      this.currentTurn = null;
-      this.ended = false;
-      this.ready.clear();
-      this.secretCharacters.clear();
-    } else {
-      this.currentTurn = null;
-      this.pending = null;
-      this.ended = false;
     }
   }
 
@@ -191,13 +185,24 @@ export class GameRoom {
 
       if (
         this.ended ||
+        this.players.size !== 2 ||
         !this.pack ||
         !secretCharacterId ||
         !characterExists
       ) {
         reply({
           ok: false,
-          message: "Не удалось сохранить выбранного персонажа."
+          message: this.players.size !== 2
+            ? "Подожди, пока подключится второй игрок."
+            : "Не удалось сохранить выбранного персонажа."
+        });
+        return;
+      }
+
+      if (this.ready.has(playerId)) {
+        reply({
+          ok: false,
+          message: "Ты уже выбрал персонажа."
         });
         return;
       }
@@ -238,6 +243,7 @@ export class GameRoom {
 
       if (
         this.ended ||
+        this.ready.size !== 2 ||
         this.currentTurn !== playerId ||
         this.pending ||
         !question
@@ -293,6 +299,7 @@ export class GameRoom {
 
       if (
         this.ended ||
+        this.ready.size !== 2 ||
         this.currentTurn !== playerId ||
         this.pending ||
         !guessId
