@@ -3,6 +3,10 @@ name = "kto-eto-online"
 main = "src/index.js"
 compatibility_date = "2026-11-15"
 
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
 [[durable_objects.bindings]]
 name = "GAME_ROOM"
 class_name = "GameRoom"
