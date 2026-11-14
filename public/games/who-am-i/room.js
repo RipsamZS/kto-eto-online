@@ -21,10 +21,14 @@
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(112px,27%,166px);min-height:90px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-seat .word-tag{display:block;max-width:100%;min-width:54px;padding:3px 7px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:12px;line-height:1.2;font-weight:800;overflow-wrap:anywhere;text-align:center}.srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
   .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
-  .srs-turn-timer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;padding:14px 16px;border:1px solid #a78bfa;border-radius:14px;background:#171329;color:#e9ddff;font-size:14px}
-  .srs-turn-timer strong{font-size:clamp(25px,6vw,34px);font-variant-numeric:tabular-nums;letter-spacing:1px;color:#fff}
-  .srs-turn-timer.warning{border-color:#f59e0b;background:#3a2512}.srs-turn-timer.warning strong{color:#fbbf24}
-  .srs-turn-timer.urgent{border-color:#ef4444;background:#3b151b}.srs-turn-timer.urgent strong{color:#fca5a5}
+  .srs-turn-ring{position:absolute;top:50%;left:50%;z-index:55;width:clamp(170px,24vmin,220px);height:clamp(170px,24vmin,220px);transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
+  .srs-turn-ring svg{display:block;width:100%;height:100%;overflow:visible}
+  .srs-turn-ring circle{fill:none;stroke-width:7}
+  .srs-turn-ring-track{stroke:#ffffff28}
+  .srs-turn-ring-progress{stroke:#a78bfa;stroke-linecap:round;stroke-dasharray:572.6;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:100px 100px;transition:stroke-dashoffset .22s linear,stroke .2s}
+  .srs-turn-ring strong{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);padding:3px 8px;border:1px solid #a78bfa;border-radius:8px;background:#171329;color:#f4eaff;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.5px;box-shadow:0 2px 8px #0008}
+  .srs-turn-ring.warning .srs-turn-ring-progress{stroke:#f59e0b}.srs-turn-ring.warning strong{border-color:#f59e0b;color:#fbbf24}
+  .srs-turn-ring.urgent .srs-turn-ring-progress{stroke:#ef4444}.srs-turn-ring.urgent strong{border-color:#ef4444;color:#fca5a5}
   #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
   .srs-seat-0{left:50%;top:12%}.srs-seat-1{left:82%;top:28%}.srs-seat-2{left:82%;top:72%}.srs-seat-3{left:50%;top:88%}.srs-seat-4{left:18%;top:72%}.srs-seat-5{left:18%;top:28%}
   @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}.srs-code-field{margin-top:8px}}
@@ -56,6 +60,13 @@
       <h2 id="srsRoomTitle">Комната</h2><p id="srsRoomInfo">Ожидаем игроков…</p>
       <div class="status" id="srsRoomCode">Код комнаты: —</div>
       <div id="srsSeating"><div id="srsTable" class="srs-table-wrap"></div><div id="srsSeatStatus" class="muted"></div></div>
+      <div id="srsTurnTimer" class="srs-turn-ring hidden" aria-label="Оставшееся время хода">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="srs-turn-ring-track" cx="100" cy="100" r="91"></circle>
+          <circle id="srsTurnTimerProgress" class="srs-turn-ring-progress" cx="100" cy="100" r="91"></circle>
+        </svg>
+        <strong id="srsTurnTimerValue">01:00</strong>
+      </div>
       <div id="srsHostMenu" class="srs-menu hidden">
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
         <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
@@ -73,7 +84,6 @@
         <div id="srsSecretWord" class="hidden"><p>Твоё слово:</p><div class="srs-word" id="srsSecretWordValue"></div><p>Не показывай экран другим игрокам. Теперь можно начинать угадывать!</p></div>
         <div id="srsPlayPanel" class="hidden">
           <div class="status" id="srsTurnStatus">Ожидаем ход…</div>
-          <div id="srsTurnTimer" class="srs-turn-timer hidden" aria-live="off"><span>Осталось времени</span><strong id="srsTurnTimerValue">01:00</strong></div>
           <div id="srsQuestionForm" class="hidden"><label for="srsQuestionInput">Задай вопрос всем игрокам</label><input id="srsQuestionInput" maxlength="180" placeholder="Например: Я живое существо?"><button id="srsAskQuestion" class="wide">Задать вопрос</button></div>
           <div id="srsAnswerPanel" class="hidden"><p id="srsQuestionText"></p><button data-answer="yes">Да</button><button data-answer="no" class="alt">Нет</button><button data-answer="unknown" class="alt">Не знаю</button></div>
           <div id="srsGuessForm" class="hidden"><label for="srsGuessInput">Попробуй угадать своё слово</label><input id="srsGuessInput" maxlength="40" placeholder="Твоя догадка"><button id="srsGuessButton">Проверить</button></div>
@@ -196,15 +206,19 @@
   document.addEventListener("your-secret-word",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
   document.addEventListener("word-round-complete",()=>{status("Все слова розданы. Игра начинается!");$("srsPlayPanel").classList.remove("hidden");});
   let turnTimerInterval=null;
-  function stopTurnCountdown(){if(turnTimerInterval!==null){clearInterval(turnTimerInterval);turnTimerInterval=null;}$("srsTurnTimer").classList.add("hidden");$("srsTurnTimer").classList.remove("warning","urgent");}
+  const turnTimerDuration=2*Math.PI*91;
+  $("srsTurnTimerProgress").style.strokeDasharray=String(turnTimerDuration);
+  function stopTurnCountdown(){if(turnTimerInterval!==null){clearInterval(turnTimerInterval);turnTimerInterval=null;}$("srsTurnTimer").classList.add("hidden");$("srsTurnTimer").classList.remove("warning","urgent");$("srsTurnTimerProgress").style.strokeDashoffset="0";}
   function startTurnCountdown(deadline,timerSeconds){
     stopTurnCountdown();
-    if(!Number(timerSeconds)||Number(timerSeconds)<=0||!Number(deadline))return;
+    const total=Number(timerSeconds);
+    if(!total||total<=0||!Number(deadline))return;
     const update=()=>{
       const remaining=Math.max(0,Math.ceil((Number(deadline)-Date.now())/1000));
       const minutes=String(Math.floor(remaining/60)).padStart(2,"0");
       const seconds=String(remaining%60).padStart(2,"0");
       $("srsTurnTimerValue").textContent=minutes+":"+seconds;
+      $("srsTurnTimerProgress").style.strokeDashoffset=String(turnTimerDuration*(1-Math.min(1,remaining/total)));
       $("srsTurnTimer").classList.remove("hidden");
       $("srsTurnTimer").classList.toggle("warning",remaining<=15&&remaining>5);
       $("srsTurnTimer").classList.toggle("urgent",remaining<=5);
