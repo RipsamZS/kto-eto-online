@@ -567,7 +567,7 @@
     };
   }
 
-  async function joinRoom(code, gameId = "who-is-it") {
+  async function joinRoom(code, gameId = "who-is-it", profile = {}) {
     code = String(code || "").trim().toUpperCase();
 
     if (!/^[A-Z0-9_-]{3,16}$/.test(code)) {
@@ -583,7 +583,7 @@
       };
     }
 
-    const result = await send("join-room");
+    const result = await send("join-room", { profile: { nickname: String(profile.nickname || "Игрок").trim().slice(0,20), avatar: profile.avatar || "🙂" } });
 
     if (!result.ok) {
       leaveRoom();
@@ -697,7 +697,9 @@
       roomName:String(settings.roomName || "Комната").trim().slice(0,50),
       access:settings.access === "public" ? "public" : "private",
       maxPlayers:gameId === "who-is-it" ? 2 : Number(settings.maxPlayers || 2),
-      timerSeconds:Number(settings.timerSeconds ?? 0)
+      timerSeconds:Number(settings.timerSeconds ?? 0),
+      nickname:String(settings.nickname || "Игрок").trim().slice(0,20),
+      avatar:settings.avatar || "🙂"
     }});
     if (!result.ok) { leaveRoom(); return result; }
     API.roomActive = true;
