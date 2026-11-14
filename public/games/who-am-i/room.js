@@ -33,6 +33,17 @@
   .srs-turn-ring.warning .srs-turn-ring-progress{stroke:#f59e0b}.srs-turn-ring.warning strong{border-color:#f59e0b;color:#fbbf24}
   .srs-turn-ring.urgent .srs-turn-ring-progress{stroke:#ef4444}.srs-turn-ring.urgent strong{border-color:#ef4444;color:#fca5a5}
   .srs.lobby-active.playing-active #srsWordStage{display:block!important;position:fixed;left:50%;bottom:82px;top:auto;z-index:66;width:min(380px,calc(100vw - 36px));max-height:58vh;overflow:auto;transform:translateX(-50%);margin:0;padding:14px;box-shadow:0 8px 28px #000b}\n  .srs.lobby-active.playing-active #srsPlayPanel:not(.hidden){display:block!important;position:fixed;left:50%;bottom:76px;z-index:67;transform:translateX(-50%);width:min(380px,calc(100vw - 36px));max-height:48vh;overflow:auto;margin:0;padding:12px;border:1px solid #a78bfa;border-radius:14px;background:#171329;box-shadow:0 8px 28px #000b}\n  #srsPassTurn{position:fixed;left:50%;bottom:18px;z-index:78;transform:translateX(-50%);width:min(260px,calc(100vw - 36px));margin:0;padding:14px 20px;border:1px solid #c4b5fd;background:#7c3aed;box-shadow:0 5px 22px #0008;font-size:15px}\n  #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
+  .srs-side-toggle{position:fixed;top:50%;z-index:82;transform:translateY(-50%);margin:0;padding:13px 12px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}
+  #srsNotebookToggle{left:12px}#srsChatToggle{right:12px}
+  .srs-side-panel{position:fixed;top:50%;z-index:83;width:min(300px,calc(100vw - 64px));max-height:70vh;overflow:auto;padding:14px;border:1px solid #a78bfa;border-radius:15px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b;transform:translateY(-50%)}
+  #srsNotebookPanel{left:58px}#srsChatPanel{right:58px}
+  .srs-side-panel h3{margin:0 0 10px}.srs-side-panel textarea{box-sizing:border-box;width:100%;min-height:220px;resize:vertical;padding:10px;border:1px solid #ffffff30;border-radius:10px;background:#100d20;color:#fff;font:14px/1.45 Arial,sans-serif}
+  #srsChatMessages{display:flex;flex-direction:column;gap:8px;max-height:42vh;overflow:auto;margin:8px 0}
+  .srs-chat-message{padding:8px 10px;border-radius:10px;background:#ffffff0d;overflow-wrap:anywhere}
+  .srs-chat-message strong{display:block;margin-bottom:3px;color:#c4b5fd;font-size:12px}
+  #srsChatInput{box-sizing:border-box;width:100%;padding:10px;border:1px solid #ffffff30;border-radius:9px;background:#100d20;color:#fff;font:inherit}
+  .srs-side-panel .srs-panel-close{margin-top:10px;width:100%;background:#35294f}
+  @media(max-width:600px){.srs-side-toggle{top:auto;bottom:84px;transform:none;padding:11px 9px;font-size:12px}#srsNotebookToggle{left:8px}#srsChatToggle{right:8px}.srs-side-panel{top:auto;bottom:132px;transform:none;max-height:55vh;width:min(310px,calc(100vw - 54px))}#srsNotebookPanel{left:8px}#srsChatPanel{right:8px}#srsNotebookPanel textarea{min-height:140px}}
   .srs-seat-0{left:50%;top:14%}.srs-seat-1{left:81%;top:32%}.srs-seat-2{left:81%;top:68%}.srs-seat-3{left:50%;top:86%}.srs-seat-4{left:19%;top:68%}.srs-seat-5{left:19%;top:32%}
   @media(max-width:480px){#srsPassTurn{bottom:14px;width:calc(100vw - 36px)}.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}#srsHostMenu{left:13%}.srs-turn-ring{left:60%}.srs-code-field{margin-top:8px}}
   </style>
@@ -92,6 +103,21 @@
         <div id="srsAnswerPanel" class="hidden"><p id="srsQuestionText"></p><button data-answer="yes">Да</button><button data-answer="no" class="alt">Нет</button><button data-answer="unknown" class="alt">Не знаю</button></div>
         <div id="srsGuessForm" class="hidden"><label for="srsGuessInput">Попробуй угадать своё слово</label><input id="srsGuessInput" maxlength="40" placeholder="Твоя догадка"><button id="srsGuessButton">Проверить</button></div>
       </div>
+      <button id="srsNotebookToggle" class="srs-side-toggle" type="button">📓 Блокнот</button>
+      <section id="srsNotebookPanel" class="srs-side-panel hidden" aria-label="Личный блокнот">
+        <h3>📓 Мой блокнот</h3>
+        <p class="muted">Записывай сюда свои вопросы и догадки. Эти заметки видишь только ты.</p>
+        <textarea id="srsNotebookText" maxlength="5000" placeholder="Например:\n— Я живое?\n— Я существую сейчас?"></textarea>
+        <button id="srsNotebookClose" class="srs-panel-close" type="button">Закрыть</button>
+      </section>
+      <button id="srsChatToggle" class="srs-side-toggle" type="button">💬 Чат</button>
+      <section id="srsChatPanel" class="srs-side-panel hidden" aria-label="Общий чат комнаты">
+        <h3>💬 Общий чат</h3>
+        <div id="srsChatMessages" aria-live="polite"><div class="muted">Сообщений пока нет.</div></div>
+        <input id="srsChatInput" maxlength="300" autocomplete="off" placeholder="Напиши сообщение…">
+        <button id="srsChatSend" class="wide" type="button">Отправить</button>
+        <button id="srsChatClose" class="srs-panel-close" type="button">Закрыть</button>
+      </section>
       <button id="srsPassTurn" class="alt hidden" type="button">Завершить ход</button>
       <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       <div id="srsLobbyActions"></div>
@@ -160,6 +186,31 @@
     syncRoom(result.settings);renderSeats();status("");
   }
   $("srsHelpToggle").onclick=()=>{const open=$("srsHelpPanel").classList.contains("hidden");$("srsHelpPanel").classList.toggle("hidden",!open);$("srsHelpToggle").setAttribute("aria-expanded",String(open));};
+  const setSidePanel=(panel,button,open)=>{ $(panel).classList.toggle("hidden",!open); $(button).setAttribute("aria-expanded",String(open)); };
+  $("srsNotebookToggle").onclick=()=>setSidePanel("srsNotebookPanel","srsNotebookToggle",$("srsNotebookPanel").classList.contains("hidden"));
+  $("srsNotebookClose").onclick=()=>setSidePanel("srsNotebookPanel","srsNotebookToggle",false);
+  $("srsChatToggle").onclick=()=>setSidePanel("srsChatPanel","srsChatToggle",$("srsChatPanel").classList.contains("hidden"));
+  $("srsChatClose").onclick=()=>setSidePanel("srsChatPanel","srsChatToggle",false);
+  function appendChatMessage(item){
+    const list=$("srsChatMessages");
+    if(list.querySelector(".muted"))list.innerHTML="";
+    const row=document.createElement("div");row.className="srs-chat-message";
+    const name=document.createElement("strong");name.textContent=String(item.nickname||"Игрок");
+    const body=document.createElement("span");body.textContent=String(item.message||"");
+    row.append(name,body);list.append(row);list.scrollTop=list.scrollHeight;
+    while(list.children.length>100)list.firstElementChild.remove();
+  }
+  function sendChatMessage(){
+    const message=$("srsChatInput").value.trim();if(!message)return;
+    $("srsChatSend").disabled=true;
+    window.onlineGame.sendWhoAmIChat(message).then(result=>{
+      $("srsChatSend").disabled=false;
+      if(!result.ok){status(result.message||"Не удалось отправить сообщение.");return;}
+      $("srsChatInput").value="";
+    });
+  }
+  $("srsChatSend").onclick=sendChatMessage;
+  $("srsChatInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sendChatMessage();}});
   $("srsHelpClose").onclick=()=>{$("srsHelpPanel").classList.add("hidden");$("srsHelpToggle").setAttribute("aria-expanded","false");};
   $("srsShowCreate").onclick=()=>show("srsCreateView");
   $("srsAccess").addEventListener("change",()=>{$("srsCodeField").classList.toggle("hidden",$("srsAccess").value==="public");});
@@ -197,6 +248,8 @@
   $("srsGuessButton").onclick=async()=>{const result=await window.onlineGame.guessWhoAmI($("srsGuessInput").value.trim());if(!result.ok)return status(result.message||"Не удалось проверить.");$("srsGuessInput").value="";if(!result.correct)status("Неверно. Ход переходит дальше.");};
   $("srsPassTurn").textContent="Завершить ход";$("srsPassTurn").onclick=async()=>{const result=await window.onlineGame.passWhoAmITurn();if(!result.ok)status(result.message||"Не удалось передать ход.");};
   $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("srsHome");};
+  document.addEventListener("who-am-i-chat-history",e=>{const list=$("srsChatMessages");list.innerHTML="";(Array.isArray(e.detail.messages)?e.detail.messages:[]).forEach(appendChatMessage);if(!list.children.length)list.innerHTML='<div class="muted">Сообщений пока нет.</div>';});
+  document.addEventListener("who-am-i-chat-message",e=>appendChatMessage(e.detail));
   document.addEventListener("room-roster",e=>{roster=Array.isArray(e.detail.players)?e.detail.players:roster;playersCount=Number(e.detail.playersCount??playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();renderSeats();});
   document.addEventListener("online-opponent-connected",e=>{playersCount=Number(e.detail.playersCount||playersCount+1);syncRoom();});
   document.addEventListener("online-opponent-left",e=>{playersCount=Number(e.detail.playersCount||Math.max(1,playersCount-1));syncRoom();});
@@ -245,7 +298,7 @@
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
   document.addEventListener("word-round-reset",e=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();visibleWords={};hasSecretWord=false;renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
-  document.addEventListener("online-room-left",()=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();show("srsHome");started=false;});
+  document.addEventListener("online-room-left",()=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();$("srsNotebookPanel").classList.add("hidden");$("srsChatPanel").classList.add("hidden");$("srsChatMessages").innerHTML='<div class="muted">Сообщений пока нет.</div>';$("srsNotebookText").value="";show("srsHome");started=false;});
 })();
 (() => {
   "use strict";
