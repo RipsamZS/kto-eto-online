@@ -16,10 +16,19 @@
   .srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}.srs-menu{position:relative;display:inline-block}
   .srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
+  .srs-profile{display:grid;grid-template-columns:1fr 130px;gap:10px;margin:16px 0}.srs-profile label{margin:0}.srs-profile input,.srs-profile select{margin-top:6px}
+  .srs-table-wrap{position:relative;min-height:350px;margin:18px 0 8px;border:1px solid #ffffff20;border-radius:22px;background:radial-gradient(ellipse at center,#392a58 0%,#211a38 65%);overflow:hidden}
+  .srs-table-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;height:42%;border:2px solid #a78bfa66;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;color:#d9ccf5;background:#171329;font-weight:700}
+  .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(88px,24%,150px);min-height:76px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
+  .srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
+  .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
+  .srs-seat-0{left:50%;top:12%}.srs-seat-1{left:82%;top:28%}.srs-seat-2{left:82%;top:72%}.srs-seat-3{left:50%;top:88%}.srs-seat-4{left:18%;top:72%}.srs-seat-5{left:18%;top:28%}
+  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:27%;min-height:68px}.srs-table-center{width:30%;height:34%}.srs-profile{grid-template-columns:1fr 105px}}
   </style>
   <section class="srs">
     <div id="srsHome">
       <h2>Кто я?</h2><p>Создай свою комнату или подключись к друзьям по коду.</p>
+      <div class="srs-profile"><label for="srsNickname">Твой никнейм<input id="srsNickname" maxlength="20" placeholder="Как тебя зовут?"></label><label for="srsAvatar">Аватар<select id="srsAvatar"><option>🙂</option><option>😎</option><option>🐱</option><option>🐼</option><option>🦊</option><option>🐸</option><option>🐵</option><option>🐯</option><option>🐧</option><option>🐨</option><option>🦄</option><option>🐙</option></select></label></div>
       <div class="srs-grid">
         <button id="srsShowCreate" class="wide">Создать комнату</button>
         <button id="srsShowJoin" class="wide alt">Подключиться</button>
@@ -43,6 +52,7 @@
     <div id="srsLobby" class="hidden">
       <h2 id="srsRoomTitle">Комната</h2><p id="srsRoomInfo">Ожидаем игроков…</p>
       <div class="status" id="srsRoomCode">Код комнаты: —</div>
+      <div id="srsSeating" class="srs-card"><h3>Выбери место за столом</h3><p class="muted">Нажми на свободное место. Все игроки увидят тебя именно там.</p><div id="srsTable" class="srs-table-wrap"><div class="srs-table-center">КТО Я?</div></div><div id="srsSeatStatus" class="muted">Выбери свободное место.</div></div>
       <div id="srsHostMenu" class="srs-menu hidden">
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
         <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
@@ -74,9 +84,9 @@
   </section>`;
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
-  let playersCount=0,maxPlayers=2,started=false;
+  let playersCount=0,maxPlayers=2,started=false,roster=[];
   const show = id => ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
-  const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value)});
+  const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:($("srsNickname").value.trim()||"Игрок"),avatar:$("srsAvatar").value});
   function syncRoom(settings){
     settings=settings||window.onlineGame.getSettings()||{};
     $("srsRoomTitle").textContent=settings.roomName||"Комната";
@@ -86,7 +96,8 @@
     const host=!!window.onlineGame.isRoomHost();
     $("srsHostMenu").classList.toggle("hidden",!host);
     $("srsStart").classList.toggle("hidden",!host||started);
-    $("srsStart").disabled=playersCount!==maxPlayers;
+    const allSeated=roster.length===playersCount&&roster.every(player=>Number.isInteger(player.seatIndex));
+    $("srsStart").disabled=playersCount!==maxPlayers||!allSeated;
     if(host){
       $("srsEditName").value=settings.roomName||"";
       $("srsEditAccess").value=settings.access||"private";
@@ -94,10 +105,25 @@
       $("srsEditTimer").value=String(settings.timerSeconds??60);
     }
   }
+  function renderSeats(){
+    const table=$("srsTable");if(!table)return;
+    table.querySelectorAll(".srs-seat").forEach(node=>node.remove());
+    const me=window.onlineGame.getPlayerId();
+    const seats=Array.from({length:Math.min(6,maxPlayers)},(_,i)=>i);
+    seats.forEach(index=>{
+      const player=roster.find(item=>item.seatIndex===index);
+      const button=document.createElement("button");button.type="button";button.className="srs-seat srs-seat-"+index;
+      if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(avatar,nick,note);}
+      else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}else $("srsSeatStatus").textContent="Место выбрано. Можно поменять его до начала игры.";};}
+      table.append(button);
+    });
+    const mySeat=roster.find(player=>player.id===me&&Number.isInteger(player.seatIndex));
+    $("srsSeatStatus").textContent=mySeat?"Ты сидишь на выбранном месте. Нажми на другое свободное место, чтобы пересесть.":"Выбери свободное место за столом.";
+  }
   function enterLobby(result,host){
-    show("srsLobby");playersCount=host?1:Math.max(2,Number(result.playersCount||2));
+    show("srsLobby");playersCount=host?1:Math.max(1,Number(result.playersCount||1));
     maxPlayers=Number(result.settings?.maxPlayers||2);started=false;
-    syncRoom(result.settings);status(host?"Комната создана. Отправь код друзьям.":"Ты подключился к комнате. Ожидаем начала игры.");
+    syncRoom(result.settings);renderSeats();status(host?"Комната создана. Отправь код друзьям и выбери место за столом.":"Ты подключился к комнате. Выбери место за столом.");
   }
   $("srsShowCreate").onclick=()=>show("srsCreateView");
   $("srsShowJoin").onclick=()=>show("srsJoinView");
@@ -112,7 +138,7 @@
     enterLobby(result,true);
   };
   async function join(code){
-    const result=await window.onlineGame.joinRoom(code,gameId);
+    const result=await window.onlineGame.joinRoom(code,gameId,{nickname:($("srsNickname").value.trim()||"Игрок"),avatar:$("srsAvatar").value});
     if(!result.ok){status(result.message||"Не удалось подключиться.");return;}
     enterLobby(result,false);
   }
@@ -134,7 +160,7 @@
   $("srsGuessButton").onclick=async()=>{const result=await window.onlineGame.guessWhoAmI($("srsGuessInput").value.trim());if(!result.ok)return status(result.message||"Не удалось проверить.");$("srsGuessInput").value="";if(!result.correct)status("Неверно. Ход переходит дальше.");};
   $("srsPassTurn").onclick=async()=>{const result=await window.onlineGame.passWhoAmITurn();if(!result.ok)status(result.message||"Не удалось передать ход.");};
   $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("srsHome");};
-  document.addEventListener("room-roster",e=>{playersCount=Number(e.detail.playersCount||playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();});
+  document.addEventListener("room-roster",e=>{roster=Array.isArray(e.detail.players)?e.detail.players:roster;playersCount=Number(e.detail.playersCount??playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();renderSeats();});
   document.addEventListener("online-opponent-connected",e=>{playersCount=Number(e.detail.playersCount||playersCount+1);syncRoom();});
   document.addEventListener("online-opponent-left",e=>{playersCount=Number(e.detail.playersCount||Math.max(1,playersCount-1));syncRoom();});
   document.addEventListener("room-host-changed",()=>syncRoom());
