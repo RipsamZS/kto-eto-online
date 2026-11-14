@@ -842,7 +842,7 @@ export class GameRoom {
         this.gamePhase = "playing";
         for (const id of ids) {
           this.send(this.players.get(id), "your-secret-word", {
-            word:this.wordAssignments.get(id) || "",
+            hasSecretWord:true,
             playerNumber:ids.indexOf(id)+1
           });
           const visibleWords = Object.fromEntries(
