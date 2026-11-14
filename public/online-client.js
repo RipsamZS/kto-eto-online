@@ -718,6 +718,7 @@
     return result;
   }
 
+  function selectSeat(seatIndex) { return send("select-seat", { seatIndex:Number(seatIndex) }); }
   function startWordRound() { return send("start-word-round"); }
   function submitPlayerWord(word) { return send("submit-player-word", {word}); }
   function askWhoAmIQuestion(question) { return send("who-am-i-question", {question}); }
@@ -1147,6 +1148,7 @@
     createLobby,
     updateRoomSettings,
     startWordRound,
+    selectSeat,
     submitPlayerWord,
     askWhoAmIQuestion,
     answerWhoAmIQuestion,
