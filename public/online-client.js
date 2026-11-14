@@ -6,8 +6,20 @@
   let currentTurn = null;
   let requestCounter = 0;
   let readySent = false;
+  let opponentConnected = false;
+  let opponentReady = false;
 
   const pending = new Map();
+
+  function dispatchState() {
+    document.dispatchEvent(new CustomEvent("online-state-change", {
+      detail: {
+        opponentConnected,
+        opponentReady,
+        readySent
+      }
+    }));
+  }
 
   function connect(code) {
     return new Promise((resolve, reject) => {
@@ -79,7 +91,10 @@
           roomCode = null;
           playerId = null;
           readySent = false;
+          opponentConnected = false;
+          opponentReady = false;
           window.onlineRoomActive = false;
+          dispatchState();
         }
       });
     });
@@ -223,9 +238,36 @@
   function showMyTurnActions() {
     showAction(`
       <p><strong>Твой ход!</strong></p>
-      <button id="onlineAskButton" type="button">
-        ❓ Задать вопрос
-      </button>
+
+      <div style="
+        display:flex;
+        gap:8px;
+        justify-content:center;
+        flex-wrap:wrap;
+        margin:12px 0;
+      ">
+        <input
+          id="onlineQuestionInput"
+          type="text"
+          maxlength="250"
+          placeholder="Например: Твой персонаж человек?"
+          style="
+            flex:1;
+            min-width:200px;
+            max-width:450px;
+            padding:12px;
+            border-radius:10px;
+            border:1px solid #777;
+            background:#211e42;
+            color:white;
+          "
+        >
+
+        <button id="onlineAskButton" type="button">
+          ❓ Отправить вопрос
+        </button>
+      </div>
+
       <p class="note">
         Чтобы угадать персонажа, нажми правой кнопкой мыши на его карточку
         или удерживай карточку на телефоне.
@@ -233,42 +275,49 @@
     `);
 
     const askButton = document.getElementById("onlineAskButton");
+    const input = document.getElementById("onlineQuestionInput");
 
-    if (askButton) {
-      askButton.onclick = async () => {
-        const question = prompt(
-          "Задай вопрос сопернику. Например: «Твой персонаж человек?»"
-        );
-
-        if (question === null) return;
-
-        const value = question.trim();
+    if (askButton && input) {
+      const submit = async () => {
+        const value = input.value.trim();
 
         if (!value) {
-          alert("Введи вопрос.");
+          setStatus("Сначала введи вопрос.");
           return;
         }
 
         await askQuestion(value);
       };
+
+      askButton.onclick = submit;
+
+      input.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          submit();
+        }
+      });
     }
   }
 
   function handleServerEvent(event, data) {
     if (event === "player-joined") {
-      setStatus(
-        readySent
-          ? "Второй игрок подключился. Ожидаем его готовности."
-          : "Второй игрок подключился. Ожидаем выбора персонажей."
-      );
+      opponentConnected = true;
+      opponentReady = false;
+
+      setStatus("Второй игрок подключился! Теперь можно выбрать персонажа.");
+      dispatchState();
+
+      document.dispatchEvent(new CustomEvent("online-opponent-connected"));
     }
 
     if (event === "player-ready") {
-      setStatus("Соперник выбрал персонажа.");
+      opponentReady = true;
+      setStatus("Соперник выбрал персонажа. Ожидаем твоего выбора.");
+      dispatchState();
     }
 
     if (event === "online-start") {
-      setStatus("Игра началась!");
+      setStatus("Оба игрока выбрали персонажей. Игра началась!");
     }
 
     if (event === "online-turn") {
@@ -343,9 +392,16 @@
     }
 
     if (event === "player-left") {
-      setStatus("Соперник покинул комнату.");
+      opponentConnected = false;
+      opponentReady = false;
+      readySent = false;
       currentTurn = null;
+
+      setStatus("Соперник покинул комнату. Ожидаем нового игрока.");
       showAction("");
+      dispatchState();
+
+      document.dispatchEvent(new CustomEvent("online-opponent-left"));
     }
   }
 
@@ -362,7 +418,7 @@
 
   async function createRoom(pack) {
     if (!pack || !Array.isArray(pack.characters) || pack.characters.length < 2) {
-      alert("В паке должно быть хотя бы два персонажа.");
+      setStatus("В паке должно быть хотя бы два персонажа.");
       return { ok: false };
     }
 
@@ -376,7 +432,7 @@
       const result = await send("create-room", { pack });
 
       if (!result || !result.ok) {
-        alert(result?.message || "Не удалось создать комнату.");
+        setStatus(result?.message || "Не удалось создать комнату.");
 
         if (socket) socket.close();
 
@@ -385,18 +441,22 @@
 
       roomCode = code;
       readySent = false;
+      opponentConnected = false;
+      opponentReady = false;
       currentTurn = null;
       window.onlineRoomActive = true;
 
       showPanel();
-      setStatus("Комната создана. Отправь код другу и выбери персонажа.");
+      setStatus("Комната создана! Отправь код другу. Выбор персонажа откроется после его подключения.");
+
+      dispatchState();
 
       return {
         ok: true,
         code
       };
     } catch (error) {
-      alert(error.message || "Ошибка подключения.");
+      setStatus(error.message || "Ошибка подключения.");
       return { ok: false };
     }
   }
@@ -405,7 +465,7 @@
     code = String(code).trim();
 
     if (!/^\d{6}$/.test(code)) {
-      alert("Код должен состоять из 6 цифр.");
+      setStatus("Код должен состоять из 6 цифр.");
       return { ok: false };
     }
 
@@ -415,7 +475,7 @@
       const result = await send("join-room");
 
       if (!result || !result.ok) {
-        alert(result?.message || "Не удалось войти в комнату.");
+        setStatus(result?.message || "Не удалось войти в комнату.");
 
         if (socket) socket.close();
 
@@ -424,12 +484,16 @@
 
       roomCode = code;
       readySent = false;
+      opponentConnected = true;
+      opponentReady = false;
       currentTurn = null;
       window.onlineRoomActive = true;
       window.onlinePack = result.pack;
 
       showPanel();
       setStatus("Вы подключились к комнате. Выберите персонажа.");
+
+      dispatchState();
 
       document.dispatchEvent(
         new CustomEvent("online-pack-received", {
@@ -439,20 +503,28 @@
 
       return { ok: true };
     } catch (error) {
-      alert(error.message || "Ошибка подключения.");
+      setStatus(error.message || "Ошибка подключения.");
       return { ok: false };
     }
   }
 
   async function playerReady(secretCharacterId) {
-    if (!window.onlineRoomActive || readySent) return;
+    if (!window.onlineRoomActive || readySent) {
+      return { ok: false };
+    }
+
+    if (!opponentConnected) {
+      setStatus("Подожди, пока подключится второй игрок.");
+      return { ok: false };
+    }
 
     if (!secretCharacterId) {
       setStatus("Сначала выбери персонажа.");
-      return;
+      return { ok: false };
     }
 
     readySent = true;
+    dispatchState();
 
     const result = await send("player-ready", {
       secretCharacterId: String(secretCharacterId)
@@ -461,11 +533,17 @@
     if (!result.ok) {
       readySent = false;
       setStatus(result.message || "Не удалось подтвердить готовность.");
-    } else if (result.waiting) {
-      setStatus("Ты готов. Ожидаем готовности соперника.");
+      dispatchState();
+      return result;
+    }
+
+    if (result.waiting) {
+      setStatus("Ты готов! Ожидаем выбора персонажа соперником.");
     } else {
       setStatus("Вы оба готовы. Игра начинается!");
     }
+
+    return result;
   }
 
   async function askQuestion(question) {
@@ -526,6 +604,14 @@
     );
   }
 
+  function canChooseCharacter() {
+    return !!(
+      window.onlineRoomActive &&
+      opponentConnected &&
+      !readySent
+    );
+  }
+
   function getRoomCode() {
     return roomCode;
   }
@@ -545,6 +631,8 @@
     playerId = null;
     currentTurn = null;
     readySent = false;
+    opponentConnected = false;
+    opponentReady = false;
     window.onlineRoomActive = false;
 
     pending.forEach(callback => {
@@ -561,6 +649,8 @@
     if (panel) {
       panel.remove();
     }
+
+    dispatchState();
   }
 
   window.onlineGame = {
@@ -570,6 +660,7 @@
     askQuestion,
     makeGuess,
     isMyTurn,
+    canChooseCharacter,
     getRoomCode,
     leaveRoom
   };
