@@ -28,11 +28,24 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px}
 footer{margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
 @media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:46px}}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.game{min-height:150px}.hero{padding:38px 5px 28px}}
+
+body.needs-profile main,body.needs-profile footer{display:none}
+.profile-gate{display:none;max-width:480px;margin:54px auto 30px;padding:26px;border:1px solid var(--border);border-radius:22px;background:linear-gradient(145deg,rgba(42,32,69,.98),rgba(25,20,44,.99));box-shadow:0 18px 60px #0004}
+body.needs-profile .profile-gate{display:block}
+.profile-gate h1{margin:0;text-align:center;font-size:30px}.profile-gate p{color:var(--muted);text-align:center;line-height:1.5}
+.profile-gate label{display:block;margin:17px 0 7px;color:var(--muted);font-size:14px}
+.profile-gate input,.profile-gate select{width:100%;padding:13px;border-radius:11px;border:1px solid var(--border);background:#100d20;color:var(--text);font:inherit}
+.profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--accent2);color:white;font:inherit;font-weight:800;cursor:pointer}
 </style>
 </head>
-<body>
+<body class="needs-profile">
 <div class="wrap">
 <header><div class="logo">ИГРОВАЯ <span>КОМНАТА</span></div></header>
+<section id="profileGate" class="profile-gate" aria-labelledby="profileTitle">
+<h1 id="profileTitle">Добро пожаловать!</h1><p>Перед выбором игры придумай ник и выбери аватар. Они будут отображаться в игровых комнатах.</p>
+<form id="profileForm"><label for="profileNickname">Твой никнейм</label><input id="profileNickname" maxlength="20" autocomplete="nickname" placeholder="Например, Игрок" required>
+<label for="profileAvatar">Аватар</label><select id="profileAvatar"><option>🙂</option><option>😎</option><option>🐱</option><option>🐼</option><option>🦊</option><option>🐸</option><option>🐵</option><option>🐯</option><option>🐧</option><option>🐨</option><option>🦄</option><option>🐙</option></select>
+<button type="submit">Продолжить к играм</button></form></section>
 <main>
 <section class="hero">
 <h1>Во что <span>сыграем?</span></h1>
@@ -61,5 +74,8 @@ footer{margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
 </main>
 <footer>Новые игры будут появляться здесь. Выбранная игра загружается отдельно.</footer>
 </div>
+<script>
+(()=>{const KEY="kto-eto-profile-v1";const gate=document.getElementById("profileGate");const form=document.getElementById("profileForm");const nick=document.getElementById("profileNickname");const avatar=document.getElementById("profileAvatar");let saved=null;try{saved=JSON.parse(localStorage.getItem(KEY)||"null")}catch{};if(saved&&typeof saved.nickname==="string"&&saved.nickname.trim()){document.body.classList.remove("needs-profile");}else{document.body.classList.add("needs-profile");}form.addEventListener("submit",event=>{event.preventDefault();const profile={nickname:nick.value.trim().slice(0,20),avatar:avatar.value};if(!profile.nickname){nick.focus();return;}try{localStorage.setItem(KEY,JSON.stringify(profile));}catch{};document.body.classList.remove("needs-profile");});})();
+</script>
 </body>
 </html>
