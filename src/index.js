@@ -581,6 +581,12 @@ export class GameRoom {
       }
 
       this.players.set(playerId, socket);
+      this.send(socket, "room-roster", {
+        playersCount: this.players.size,
+        maxPlayers: this.maxPlayers,
+        hostPlayerId: this.hostPlayerId,
+        isHost: playerId === this.hostPlayerId
+      });
 
       reply({
         ok: true,
