@@ -613,7 +613,12 @@ function confirmCharacter(){
 
  renderGame();
  renderSecret();
+
+ if(window.onlineGame){
+  window.onlineGame.playerReady();
+ }
 }
+
 
 function closePicker(){
  document.getElementById("characterPicker").classList.remove("active");
