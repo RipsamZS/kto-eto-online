@@ -56,7 +56,6 @@
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
         <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
       </div>
-      <div id="srsLobbyActions"><button id="srsStart" class="wide hidden">Начать игру</button><button id="srsLeave" class="wide alt">Покинуть комнату</button></div>
       <div id="srsEdit" class="srs-card hidden"><h3>Редактирование комнаты</h3>
         <label for="srsEditName">Название</label><input id="srsEditName" maxlength="50">
         <label for="srsEditAccess">Доступ</label><select id="srsEditAccess"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
@@ -77,6 +76,7 @@
         </div>
         <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       </div>
+      <div id="srsLobbyActions"><button id="srsStart" class="wide hidden">Начать игру</button><button id="srsLeave" class="wide alt">Покинуть комнату</button></div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
   </section>`;
