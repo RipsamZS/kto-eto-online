@@ -365,7 +365,8 @@
       case "who-am-i-question":
       case "who-am-i-answer":
       case "who-am-i-guess-result":
-      case "who-am-i-finished": {
+      case "who-am-i-finished":
+      case "who-am-i-turn-timeout": {
         dispatch(event, data);
         break;
       }
