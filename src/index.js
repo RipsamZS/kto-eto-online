@@ -193,15 +193,17 @@ export class GameRoom {
     this.broadcast("player-left");
 
     if (this.players.size === 0) {
+      await this.updateDirectory();
       this.pack = null;
       this.roomId = null;
       this.createdAt = null;
       this.hostPlayerId = null;
-    } else if (this.hostPlayerId && !this.players.has(this.hostPlayerId)) {
-      this.hostPlayerId = this.players.keys().next().value;
+    } else {
+      if (this.hostPlayerId && !this.players.has(this.hostPlayerId)) {
+        this.hostPlayerId = this.players.keys().next().value;
+      }
+      await this.updateDirectory();
     }
-
-    await this.updateDirectory();
   }
 
   json(data, status = 200) {
