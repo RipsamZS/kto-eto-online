@@ -709,7 +709,7 @@ export class GameRoom {
         reply({ok:false, message:"Сейчас нельзя отправить слово."});
         return;
       }
-      const word = String(data.word || "").trim().replace(/\\s+/g," ").slice(0,40);
+      const word = String(data.word || "").trim().replace(/\s+/g," ").slice(0,40);
       if (!word || word.length < 2) {
         reply({ok:false, message:"Введи слово длиной хотя бы 2 символа."});
         return;
@@ -768,7 +768,7 @@ export class GameRoom {
     if (this.gameId === "who-am-i" && event === "who-am-i-guess") {
       const guess = String(data.guess || "").trim().replace(/\\s+/g," ").slice(0,40);
       if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending || guess.length < 2) { reply({ok:false,message:"Сейчас нельзя проверить догадку."}); return; }
-      const norm = v => String(v||"").toLocaleLowerCase("ru").replace(/[ё]/g,"е").replace(/[^\\p{L}\\p{N}]+/gu," ").trim();
+      const norm = v => String(v||"").toLocaleLowerCase("ru").replace(/[ё]/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim();
       const correct = norm(guess) === norm(this.wordAssignments.get(playerId));
       if (correct) {
         this.gamePhase="finished"; this.ended=true; this.currentTurn=null;
