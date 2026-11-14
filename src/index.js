@@ -1,3 +1,4 @@
+
 export class GameRoom {
   constructor(ctx, env) {
     this.ctx = ctx;
@@ -180,29 +181,28 @@ export class GameRoom {
     }
 
     if (event === "player-ready") {
-      if (this.ended || !this.pack) {
-        reply({
-          ok: false,
-          message: "Сейчас нельзя начать игру."
-        });
-        return;
-      }
-
-      const secretId = String(data.secretCharacterId || "");
-
-      const characterExists = this.pack.characters.some(
-        character => String(character.id) === secretId
+      const secretCharacterId = String(
+        data.secretCharacterId || ""
       );
 
-      if (!characterExists) {
+      const characterExists = this.pack?.characters?.some(
+        character => String(character.id) === secretCharacterId
+      );
+
+      if (
+        this.ended ||
+        !this.pack ||
+        !secretCharacterId ||
+        !characterExists
+      ) {
         reply({
           ok: false,
-          message: "Выбранный персонаж не найден в паке."
+          message: "Не удалось сохранить выбранного персонажа."
         });
         return;
       }
 
-      this.secretCharacters.set(playerId, secretId);
+      this.secretCharacters.set(playerId, secretCharacterId);
       this.ready.add(playerId);
 
       this.broadcast("player-ready", {}, socket);
@@ -261,7 +261,6 @@ export class GameRoom {
 
     if (event === "answer-question") {
       if (
-        this.ended ||
         !this.pending ||
         this.pending.type !== "question" ||
         this.pending.from === playerId
@@ -290,7 +289,7 @@ export class GameRoom {
     }
 
     if (event === "make-guess") {
-      const guessId = String(data.guessId || "");
+      const guessId = String(data.guessId || "").trim();
 
       if (
         this.ended ||
@@ -309,7 +308,7 @@ export class GameRoom {
         id => id !== playerId
       );
 
-      if (!opponentId || !this.ready.has(opponentId)) {
+      if (!opponentId || !this.secretCharacters.has(opponentId)) {
         reply({
           ok: false,
           message: "Соперник ещё не выбрал персонажа."
@@ -317,40 +316,35 @@ export class GameRoom {
         return;
       }
 
-      const secretId = this.secretCharacters.get(opponentId);
+      const correct =
+        this.secretCharacters.get(opponentId) === guessId;
 
-      if (!secretId) {
-        reply({
-          ok: false,
-          message: "Не удалось проверить персонажа соперника."
+      const guesser = this.players.get(playerId);
+
+      if (guesser) {
+        this.send(guesser, "online-guess-result", {
+          correct
         });
-        return;
       }
 
-      const correct = guessId === secretId;
-
-      this.send(socket, "online-guess-result", {
+      this.broadcast("online-guess-made", {
         correct
-      });
+      }, guesser);
 
       if (correct) {
         this.ended = true;
-        this.currentTurn = null;
         this.pending = null;
 
         this.broadcast("online-ended", {
-          winnerId: playerId,
           message: "Игра окончена! Персонаж угадан."
         });
       } else {
         this.currentTurn = opponentId;
+        this.pending = null;
         this.sendTurn();
       }
 
-      reply({
-        ok: true,
-        correct
-      });
+      reply({ ok: true, correct });
       return;
     }
 
