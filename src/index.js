@@ -743,7 +743,7 @@ export class GameRoom {
       const question = String(data.question || "").trim().slice(0,180);
       if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending || !question) { reply({ok:false,message:"Сейчас нельзя задать вопрос."}); return; }
       this.pending = {type:"who-am-i-question",from:playerId};
-      this.broadcast("who-am-i-question",{question,askerNumber:[...this.players.keys()].indexOf(playerId)+1});
+      this.broadcast("who-am-i-question",{question,askerNumber:[...this.players.keys()].indexOf(playerId)+1},this.players.get(playerId));
       reply({ok:true}); return;
     }
     if (this.gameId === "who-am-i" && event === "who-am-i-answer") {
