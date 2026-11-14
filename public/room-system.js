@@ -59,6 +59,14 @@
         <div id="srsWordEntry" class="hidden"><label for="srsWordInput">Придумай слово для следующего игрока</label><input id="srsWordInput" maxlength="40" autocomplete="off" placeholder="Напиши слово…"><button id="srsSubmitWord" class="wide">Отправить слово</button></div>
         <div id="srsWordWaiting" class="hidden status">Слово отправлено. Ждём остальных игроков. Ты не увидишь слово, которое отправил.</div>
         <div id="srsSecretWord" class="hidden"><p>Твоё слово:</p><div class="srs-word" id="srsSecretWordValue"></div><p>Не показывай экран другим игрокам. Теперь можно начинать угадывать!</p></div>
+        <div id="srsPlayPanel" class="hidden">
+          <div class="status" id="srsTurnStatus">Ожидаем ход…</div>
+          <div id="srsQuestionForm" class="hidden"><label for="srsQuestionInput">Задай вопрос всем игрокам</label><input id="srsQuestionInput" maxlength="180" placeholder="Например: Я живое существо?"><button id="srsAskQuestion" class="wide">Задать вопрос</button></div>
+          <div id="srsAnswerPanel" class="hidden"><p id="srsQuestionText"></p><button data-answer="yes">Да</button><button data-answer="no" class="alt">Нет</button><button data-answer="unknown" class="alt">Не знаю</button></div>
+          <div id="srsGuessForm" class="hidden"><label for="srsGuessInput">Попробуй угадать своё слово</label><input id="srsGuessInput" maxlength="40" placeholder="Твоя догадка"><button id="srsGuessButton">Проверить</button></div>
+          <button id="srsPassTurn" class="alt">Передать ход</button>
+        </div>
+        <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В новую комнату</button></div>
       </div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
@@ -118,7 +126,12 @@
   $("srsCancelEdit").onclick=()=>$("srsEdit").classList.add("hidden");
   $("srsSave").onclick=async()=>{const result=await window.onlineGame.updateRoomSettings(settingsFrom("srsEdit"));if(!result.ok)return status(result.message||"Не удалось сохранить настройки.");$("srsEdit").classList.add("hidden");syncRoom(result.settings);status("Настройки комнаты сохранены.");};
   $("srsStart").onclick=async()=>{const result=await window.onlineGame.startWordRound();if(!result.ok)status(result.message||"Не удалось начать игру.");};
-  $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");};
+  $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");$("srsWordInput").value="";};
+  $("srsAskQuestion").onclick=async()=>{const result=await window.onlineGame.askWhoAmIQuestion($("srsQuestionInput").value.trim());if(!result.ok)return status(result.message||"Не удалось задать вопрос.");$("srsQuestionForm").classList.add("hidden");$("srsQuestionInput").value="";status("Вопрос отправлен. Ждём ответ.");};
+  $("srsAnswerPanel").querySelectorAll("[data-answer]").forEach(b=>b.onclick=async()=>{const result=await window.onlineGame.answerWhoAmIQuestion(b.dataset.answer);if(!result.ok)return status(result.message||"Не удалось ответить.");$("srsAnswerPanel").classList.add("hidden");});
+  $("srsGuessButton").onclick=async()=>{const result=await window.onlineGame.guessWhoAmI($("srsGuessInput").value.trim());if(!result.ok)return status(result.message||"Не удалось проверить.");$("srsGuessInput").value="";if(!result.correct)status("Неверно. Ход переходит дальше.");};
+  $("srsPassTurn").onclick=async()=>{const result=await window.onlineGame.passWhoAmITurn();if(!result.ok)status(result.message||"Не удалось передать ход.");};
+  $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("srsHome");};
   document.addEventListener("room-roster",e=>{playersCount=Number(e.detail.playersCount||playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();});
   document.addEventListener("online-opponent-connected",e=>{playersCount=Number(e.detail.playersCount||playersCount+1);syncRoom();});
   document.addEventListener("online-opponent-left",e=>{playersCount=Number(e.detail.playersCount||Math.max(1,playersCount-1));syncRoom();});
@@ -129,8 +142,13 @@
   document.addEventListener("word-submitted",e=>status(e.detail.message||"Слово принято."));
   document.addEventListener("word-submission-progress",e=>status("Слова отправили "+e.detail.submitted+" из "+e.detail.total+" игроков."));
   document.addEventListener("your-secret-word",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
-  document.addEventListener("word-round-complete",()=>{status("Все слова розданы. Игра начинается!");});
-  document.addEventListener("word-round-reset",e=>{started=false;$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
+  document.addEventListener("word-round-complete",()=>{status("Все слова розданы. Игра начинается!");$("srsPlayPanel").classList.remove("hidden");});
+  document.addEventListener("who-am-i-turn",e=>{$("srsPlayPanel").classList.remove("hidden");$("srsAnswerPanel").classList.add("hidden");$("srsTurnStatus").textContent=e.detail.isYourTurn?"Твой ход — игрок №"+e.detail.playerNumber:"Ход игрока №"+e.detail.playerNumber+" из "+e.detail.totalPlayers;$("srsQuestionForm").classList.toggle("hidden",!e.detail.isYourTurn);$("srsGuessForm").classList.toggle("hidden",!e.detail.isYourTurn);$("srsPassTurn").classList.toggle("hidden",!e.detail.isYourTurn);});
+  document.addEventListener("who-am-i-question",e=>{$("srsAnswerPanel").classList.remove("hidden");$("srsQuestionText").textContent="Игрок №"+e.detail.askerNumber+" спрашивает: "+e.detail.question;$("srsQuestionForm").classList.add("hidden");$("srsGuessForm").classList.add("hidden");$("srsPassTurn").classList.add("hidden");});
+  document.addEventListener("who-am-i-answer",e=>{status("Ответ игрока №"+e.detail.responderNumber+": "+({yes:"Да",no:"Нет",unknown:"Не знаю"}[e.detail.answer]));$("srsAnswerPanel").classList.add("hidden");});
+  document.addEventListener("who-am-i-guess-result",e=>status(e.detail.message));
+  document.addEventListener("who-am-i-finished",e=>{$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
+  document.addEventListener("word-round-reset",e=>{started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
   document.addEventListener("online-room-left",()=>{show("srsHome");started=false;});
 })();
 (() => {
