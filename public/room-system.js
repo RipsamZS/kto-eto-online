@@ -13,6 +13,7 @@
       .srs button{padding:11px 14px;border:0;border-radius:10px;background:#7c3aed;color:white;font-weight:bold;cursor:pointer;margin-top:12px}
       .srs button.alt{background:#35294f;border:1px solid #ffffff24}.srs .wide{width:100%}.srs .status{margin-top:14px;padding:12px;border-radius:10px;background:#ffffff0d;color:#ddd2f2;white-space:pre-wrap}
       .srs .hidden{display:none}.srs .muted{color:#b8accf;font-size:13px}.srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}
+      .srs-menu{position:relative;margin-top:14px}.srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}.srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}
     </style>
     <section class="srs">
       <h2>Комнаты</h2>
@@ -37,6 +38,7 @@
         </div>
       </div>
       <div id="srsStatus" class="status">Комната ещё не создана.</div>
+      ${gameId === "who-am-i" ? `<div id="srsMenuWrap" class="srs-menu hidden"><button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button><div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div></div>` : ""}
       <div id="srsEdit" class="srs-card hidden" style="margin-top:14px">
         <strong>Редактирование комнаты</strong>
         <label for="srsEditName">Название</label><input id="srsEditName" maxlength="50">
@@ -61,7 +63,15 @@
     $("srsEditAccess").value = settings.access || "private";
     $("srsEditPlayers").value = String(settings.maxPlayers || 2);
     $("srsEditTimer").value = String(settings.timerSeconds ?? 60);
-    $("srsEdit").classList.toggle("hidden", !window.onlineGame.isRoomHost?.());
+    const isHost = !!window.onlineGame.isRoomHost?.();
+    if (gameId === "who-am-i") {
+      $("srsMenuWrap").classList.toggle("hidden", !isHost);
+      $("srsEdit").classList.add("hidden");
+      $("srsMenuPanel").classList.add("hidden");
+      $("srsMenuToggle").setAttribute("aria-expanded", "false");
+    } else {
+      $("srsEdit").classList.toggle("hidden", !isHost);
+    }
   }
   $("srsCreate").onclick = async () => {
     const settings = settingsFrom("srs");
@@ -103,10 +113,29 @@
       item.append(title, info, join); list.appendChild(item);
     });
   };
+  if (gameId === "who-am-i") {
+    $("srsMenuToggle").onclick = () => {
+      const isOpen = !$("srsMenuPanel").classList.contains("hidden");
+      $("srsMenuPanel").classList.toggle("hidden", isOpen);
+      $("srsMenuToggle").setAttribute("aria-expanded", String(!isOpen));
+    };
+    $("srsEditAction").onclick = () => {
+      $("srsMenuPanel").classList.add("hidden");
+      $("srsMenuToggle").setAttribute("aria-expanded", "false");
+      $("srsEdit").classList.remove("hidden");
+      const settings = window.onlineGame.getSettings() || {};
+      $("srsEditName").value = settings.roomName || "";
+      $("srsEditAccess").value = settings.access || "private";
+      $("srsEditPlayers").value = String(settings.maxPlayers || 2);
+      $("srsEditTimer").value = String(settings.timerSeconds ?? 60);
+      $("srsEdit").scrollIntoView({behavior:"smooth", block:"nearest"});
+    };
+  }
   $("srsSave").onclick = async () => {
     const settings = settingsFrom("srsEdit");
     const result = await window.onlineGame.updateRoomSettings(settings);
     status(result.ok ? "Настройки комнаты сохранены." : (result.message || "Не удалось сохранить настройки."));
+    if (result.ok && gameId === "who-am-i") $("srsEdit").classList.add("hidden");
     syncEdit();
   };
   document.addEventListener("online-room-settings-updated", syncEdit);
