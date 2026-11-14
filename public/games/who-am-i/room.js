@@ -41,6 +41,9 @@
   #srsChatMessages{display:flex;flex-direction:column;gap:8px;max-height:42vh;overflow:auto;margin:8px 0}
   .srs-chat-message{padding:8px 10px;border-radius:10px;background:#ffffff0d;overflow-wrap:anywhere}
   .srs-chat-message strong{display:block;margin-bottom:3px;color:#c4b5fd;font-size:12px}
+  .srs-chat-message.question-highlight{position:relative;border:1px solid #f6c453;background:linear-gradient(135deg,#6b4a12aa,#3b2a12dd 55%,#241b12);box-shadow:0 0 8px #fbbf2466,0 0 20px #f59e0b55,inset 0 0 14px #fbbf2422;color:#fff3c4;animation:srs-question-glow 2.4s ease-in-out infinite alternate}
+  .srs-chat-message.question-highlight strong{color:#ffdf86;text-shadow:0 0 8px #f59e0b99}
+  @keyframes srs-question-glow{from{box-shadow:0 0 6px #fbbf2455,0 0 14px #f59e0b33,inset 0 0 10px #fbbf2418}to{box-shadow:0 0 12px #fbbf24aa,0 0 28px #f59e0b88,inset 0 0 18px #fbbf2433}}
   #srsChatInput{box-sizing:border-box;width:100%;padding:10px;border:1px solid #ffffff30;border-radius:9px;background:#100d20;color:#fff;font:inherit}
   .srs-side-panel .srs-panel-close{margin-top:10px;width:100%;background:#35294f}
   @media(max-width:600px){.srs-side-toggle{top:auto;bottom:84px;transform:none;padding:11px 9px;font-size:12px}#srsNotebookToggle{left:8px}#srsChatToggle{right:8px}.srs-side-panel{top:auto;bottom:132px;transform:none;max-height:55vh;width:min(310px,calc(100vw - 54px))}#srsNotebookPanel{left:8px}#srsChatPanel{right:8px}#srsNotebookPanel textarea{min-height:140px}}
@@ -191,10 +194,10 @@
   $("srsNotebookClose").onclick=()=>setSidePanel("srsNotebookPanel","srsNotebookToggle",false);
   $("srsChatToggle").onclick=()=>setSidePanel("srsChatPanel","srsChatToggle",$("srsChatPanel").classList.contains("hidden"));
   $("srsChatClose").onclick=()=>setSidePanel("srsChatPanel","srsChatToggle",false);
-  function appendChatMessage(item){
+  function appendChatMessage(item,isQuestion=false){
     const list=$("srsChatMessages");
     if(list.querySelector(".muted"))list.innerHTML="";
-    const row=document.createElement("div");row.className="srs-chat-message";
+    const row=document.createElement("div");row.className="srs-chat-message"+(isQuestion?" question-highlight":"");
     const name=document.createElement("strong");name.textContent=String(item.nickname||"Игрок");
     const body=document.createElement("span");body.textContent=String(item.message||"");
     row.append(name,body);list.append(row);list.scrollTop=list.scrollHeight;
@@ -298,7 +301,7 @@
     update();
   }
   document.addEventListener("who-am-i-turn",e=>{$("srsPlayPanel").classList.remove("hidden");$("srsQuestionWaiting").classList.add("hidden");$("srsTurnStatus").textContent=e.detail.isYourTurn?"Твой ход — игрок №"+e.detail.playerNumber:"Ход игрока №"+e.detail.playerNumber+" из "+e.detail.totalPlayers;$("srsQuestionForm").classList.toggle("hidden",!e.detail.isYourTurn);$("srsGuessForm").classList.toggle("hidden",!e.detail.isYourTurn);$("srsPassTurn").classList.toggle("hidden",!e.detail.isYourTurn);startTurnCountdown(e.detail.deadline,e.detail.timerSeconds);});
-  document.addEventListener("who-am-i-question",e=>{appendChatMessage({nickname:"Вопрос • Игрок №"+e.detail.askerNumber,message:e.detail.question});$("srsChatPanel").classList.remove("hidden");$("srsChatToggle").setAttribute("aria-expanded","true");const isAsker=e.detail.isYourQuestion===true;if(isAsker){$("srsPlayPanel").classList.remove("hidden");$("srsQuestionForm").classList.add("hidden");$("srsGuessForm").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");$("srsTurnStatus").textContent="Твой вопрос — ответы в чате";}else{$("srsPlayPanel").classList.add("hidden");$("srsPassTurn").classList.add("hidden");}});
+  document.addEventListener("who-am-i-question",e=>{appendChatMessage({nickname:"Вопрос • Игрок №"+e.detail.askerNumber,message:e.detail.question},true);$("srsChatPanel").classList.remove("hidden");$("srsChatToggle").setAttribute("aria-expanded","true");const isAsker=e.detail.isYourQuestion===true;if(isAsker){$("srsPlayPanel").classList.remove("hidden");$("srsQuestionForm").classList.add("hidden");$("srsGuessForm").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");$("srsTurnStatus").textContent="Твой вопрос — ответы в чате";}else{$("srsPlayPanel").classList.add("hidden");$("srsPassTurn").classList.add("hidden");}});
   document.addEventListener("who-am-i-guess-result",e=>status(e.detail.message));
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
