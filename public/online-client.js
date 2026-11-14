@@ -8,13 +8,20 @@
 
   function connect(code) {
     return new Promise((resolve, reject) => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+
       const protocol = location.protocol === "https:" ? "wss:" : "ws:";
       socket = new WebSocket(
         `${protocol}//${location.host}/room?id=${encodeURIComponent(code)}`
       );
 
       socket.addEventListener("open", () => resolve(), { once: true });
-      socket.addEventListener("error", () => reject(new Error("Не удалось подключиться.")), { once: true });
+
+      socket.addEventListener("error", () => {
+        reject(new Error("Не удалось подключиться к серверу."));
+      }, { once: true });
 
       socket.addEventListener("message", event => {
         let message;
@@ -27,10 +34,12 @@
 
         if (message.ackId) {
           const item = pending.get(message.ackId);
+
           if (item) {
             pending.delete(message.ackId);
             item(message.result);
           }
+
           return;
         }
 
@@ -47,11 +56,13 @@
           ok: false,
           message: "Соединение закрыто."
         }));
+
         pending.clear();
 
         if (roomCode) {
           setStatus("Соединение потеряно.");
           roomCode = null;
+          window.onlineRoomActive = false;
         }
       });
     });
@@ -60,7 +71,10 @@
   function send(event, data = {}) {
     return new Promise(resolve => {
       if (!socket || socket.readyState !== WebSocket.OPEN) {
-        resolve({ ok: false, message: "Нет соединения с сервером." });
+        resolve({
+          ok: false,
+          message: "Нет соединения с сервером."
+        });
         return;
       }
 
@@ -76,7 +90,11 @@
       setTimeout(() => {
         if (pending.has(requestId)) {
           pending.delete(requestId);
-          resolve({ ok: false, message: "Сервер не ответил." });
+
+          resolve({
+            ok: false,
+            message: "Сервер не ответил."
+          });
         }
       }, 10000);
     });
@@ -93,6 +111,7 @@
 
     const line = document.createElement("div");
     line.textContent = message;
+
     el.appendChild(line);
     el.scrollTop = el.scrollHeight;
   }
@@ -103,7 +122,9 @@
     if (!panel) {
       panel = document.createElement("div");
       panel.id = "onlineGamePanel";
-      panel.style.cssText = "background:#202b3d;color:white;padding:16px;border-radius:12px;margin:15px 0;font-family:Arial";
+
+      panel.style.cssText =
+        "background:#202b3d;color:white;padding:16px;border-radius:12px;margin:15px 0;font-family:Arial";
 
       panel.innerHTML = `
         <h3>🌐 Онлайн-игра</h3>
@@ -116,17 +137,31 @@
       `;
 
       const game = document.getElementById("game");
-      if (game) game.prepend(panel);
+
+      if (game) {
+        game.prepend(panel);
+      }
 
       document.getElementById("onlineLeave").onclick = leaveRoom;
     }
 
-    document.getElementById("onlineRoomCode").textContent = roomCode || "";
+    document.getElementById("onlineRoomCode").textContent =
+      roomCode || "";
   }
 
   function showAction(html) {
     const el = document.getElementById("onlineAction");
     if (el) el.innerHTML = html;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
   }
 
   function handleServerEvent(event, data) {
@@ -147,7 +182,10 @@
     if (event === "online-turn") {
       const myTurn = data.currentTurn === playerId;
       const el = document.getElementById("onlineTurn");
-      if (el) el.textContent = myTurn ? "Ваш ход" : "Ход соперника";
+
+      if (el) {
+        el.textContent = myTurn ? "Ваш ход" : "Ход соперника";
+      }
     }
 
     if (event === "online-question") {
@@ -160,12 +198,19 @@
         <button id="answerNo" type="button">Нет</button>
       `);
 
-      document.getElementById("answerYes").onclick = () => answerQuestion(true);
-      document.getElementById("answerNo").onclick = () => answerQuestion(false);
+      document.getElementById("answerYes").onclick =
+        () => answerQuestion(true);
+
+      document.getElementById("answerNo").onclick =
+        () => answerQuestion(false);
     }
 
     if (event === "online-answer") {
-      addLog("Ответ на ваш вопрос: " + (data.answer ? "Да" : "Нет"));
+      addLog(
+        "Ответ на ваш вопрос: " +
+        (data.answer ? "Да" : "Нет")
+      );
+
       setStatus("Получен ответ.");
       showAction("");
     }
@@ -175,18 +220,31 @@
       addLog("Догадка соперника: " + data.guess);
 
       showAction(`
-        <p>Соперник угадывает: <strong>${escapeHtml(data.guess)}</strong></p>
+        <p>Соперник угадывает:
+          <strong>${escapeHtml(data.guess)}</strong>
+        </p>
         <button id="guessYes" type="button">Угадал</button>
         <button id="guessNo" type="button">Не угадал</button>
       `);
 
-      document.getElementById("guessYes").onclick = () => answerGuess(true);
-      document.getElementById("guessNo").onclick = () => answerGuess(false);
+      document.getElementById("guessYes").onclick =
+        () => answerGuess(true);
+
+      document.getElementById("guessNo").onclick =
+        () => answerGuess(false);
     }
 
     if (event === "online-guess-result") {
-      addLog(data.correct ? "Вы угадали персонажа!" : "Вы не угадали.");
-      setStatus(data.correct ? "Победа!" : "Неверная догадка.");
+      addLog(
+        data.correct
+          ? "Вы угадали персонажа!"
+          : "Вы не угадали."
+      );
+
+      setStatus(
+        data.correct ? "Победа!" : "Неверная догадка."
+      );
+
       showAction("");
     }
 
@@ -202,26 +260,24 @@
     }
   }
 
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[char]);
-  }
-
   async function answerQuestion(answer) {
     const result = await send("answer-question", { answer });
-    if (!result.ok) setStatus(result.message);
-    else showAction("");
+
+    if (!result.ok) {
+      setStatus(result.message);
+    } else {
+      showAction("");
+    }
   }
 
   async function answerGuess(correct) {
     const result = await send("answer-guess", { correct });
-    if (!result.ok) setStatus(result.message);
-    else showAction("");
+
+    if (!result.ok) {
+      setStatus(result.message);
+    } else {
+      showAction("");
+    }
   }
 
   async function createRoom(pack) {
@@ -230,39 +286,95 @@
       return { ok: false };
     }
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const code = String(
+      Math.floor(100000 + Math.random() * 900000)
+    );
 
     try {
       await connect(code);
+
       const result = await send("create-room", { pack });
 
-      if (!result.ok) {
-        alert(result.message);
+      if (!result || !result.ok) {
+        alert(result?.message || "Не удалось создать комнату.");
         socket.close();
         return { ok: false };
       }
 
       roomCode = code;
+      window.onlineRoomActive = true;
+
       showPanel();
       setStatus("Комната создана. Ожидаем второго игрока.");
 
-      return { ok: true, code };
+      return {
+        ok: true,
+        code
+      };
     } catch (error) {
       alert(error.message);
       return { ok: false };
     }
-}
+  }
+
+  async function joinRoom(code) {
+    code = String(code).trim();
+
+    if (!/^\d{6}$/.test(code)) {
+      alert("Код должен состоять из 6 цифр.");
+      return { ok: false };
+    }
+
+    try {
+      await connect(code);
+
+      const result = await send("join-room");
+
+      if (!result || !result.ok) {
+        alert(result?.message || "Не удалось войти в комнату.");
+
+        if (socket) socket.close();
+
+        return { ok: false };
+      }
+
+      roomCode = code;
+      window.onlineRoomActive = true;
+
+      showPanel();
+      setStatus("Вы подключились к комнате.");
+
+      window.onlinePack = result.pack;
+
+      document.dispatchEvent(
+        new CustomEvent("online-pack-received", {
+          detail: result.pack
+        })
+      );
+
+      return { ok: true };
+    } catch (error) {
+      alert(error.message);
+      return { ok: false };
+    }
+  }
 
   async function playerReady() {
     const result = await send("player-ready");
-    if (!result.ok) setStatus(result.message);
-    else setStatus("Вы готовы. Ожидаем соперника.");
+
+    if (!result.ok) {
+      setStatus(result.message);
+    } else {
+      setStatus("Вы готовы. Ожидаем соперника.");
+    }
   }
 
   async function askQuestion(question) {
     const result = await send("ask-question", { question });
-    if (!result.ok) setStatus(result.message);
-    else {
+
+    if (!result.ok) {
+      setStatus(result.message);
+    } else {
       addLog("Вы спросили: " + question);
       setStatus("Ожидаем ответ соперника.");
     }
@@ -270,8 +382,10 @@
 
   async function makeGuess(guess) {
     const result = await send("make-guess", { guess });
-    if (!result.ok) setStatus(result.message);
-    else {
+
+    if (!result.ok) {
+      setStatus(result.message);
+    } else {
       addLog("Ваша догадка: " + guess);
       setStatus("Ожидаем ответ соперника.");
     }
@@ -283,15 +397,20 @@
         event: "leave-room",
         data: {}
       }));
+
       socket.close();
     }
 
     socket = null;
     roomCode = null;
     playerId = null;
+    window.onlineRoomActive = false;
 
     const panel = document.getElementById("onlineGamePanel");
-    if (panel) panel.remove();
+
+    if (panel) {
+      panel.remove();
+    }
   }
 
   window.onlineGame = {
