@@ -112,7 +112,7 @@
     const seats=Array.from({length:Math.min(6,maxPlayers)},(_,i)=>i);
     seats.forEach(index=>{
       const player=roster.find(item=>item.seatIndex===index);
-      const button=document.createElement("button");button.type="button";button.className="srs-seat srs-seat-"+index;
+      const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);button.style.left=(50+39*Math.cos(angle))+"%";button.style.top=(50+40*Math.sin(angle))+"%;
       if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(avatar,nick,note);}
       else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}else $("srsSeatStatus").textContent="Место выбрано. Можно поменять его до начала игры.";};}
       table.append(button);
