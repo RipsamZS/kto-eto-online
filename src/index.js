@@ -42,6 +42,27 @@ export class GameRoom {
     });
   }
 
+  removePlayer(playerId) {
+    if (!this.players.has(playerId)) return;
+
+    this.players.delete(playerId);
+    this.ready.delete(playerId);
+
+    this.broadcast("player-left");
+
+    if (this.players.size === 0) {
+      this.pack = null;
+      this.pending = null;
+      this.currentTurn = null;
+      this.ended = false;
+      this.ready.clear();
+    } else {
+      this.currentTurn = null;
+      this.pending = null;
+      this.ended = false;
+    }
+  }
+
   async fetch(request) {
     if (request.headers.get("Upgrade") !== "websocket") {
       return new Response("WebSocket connection required", {
@@ -75,20 +96,7 @@ export class GameRoom {
     });
 
     const remove = () => {
-      if (!this.players.has(playerId)) return;
-
-      this.players.delete(playerId);
-      this.ready.delete(playerId);
-
-      this.broadcast("player-left");
-
-      if (this.players.size === 0) {
-        this.pack = null;
-        this.pending = null;
-        this.currentTurn = null;
-        this.ended = false;
-        this.ready.clear();
-      }
+      this.removePlayer(playerId);
     };
 
     server.addEventListener("close", remove);
@@ -105,7 +113,9 @@ export class GameRoom {
     const data = message.data ?? {};
     const requestId = message.requestId;
 
-    const reply = result => this.reply(socket, requestId, result);
+    const reply = result => {
+      this.reply(socket, requestId, result);
+    };
 
     if (event === "create-room") {
       const pack = data.pack;
@@ -117,10 +127,11 @@ export class GameRoom {
         pack.characters.length < 2 ||
         pack.characters.length > 100
       ) {
-        return reply({
+        reply({
           ok: false,
           message: "Не удалось создать комнату или неверный набор персонажей."
         });
+        return;
       }
 
       this.pack = pack;
@@ -132,17 +143,19 @@ export class GameRoom {
 
     if (event === "join-room") {
       if (!this.pack) {
-        return reply({
+        reply({
           ok: false,
           message: "Комната не найдена."
         });
+        return;
       }
 
       if (this.players.size >= 2) {
-        return reply({
+        reply({
           ok: false,
           message: "В комнате уже два игрока."
         });
+        return;
       }
 
       this.players.set(playerId, socket);
@@ -157,18 +170,20 @@ export class GameRoom {
     }
 
     if (!this.players.has(playerId)) {
-      return reply({
+      reply({
         ok: false,
         message: "Сначала войдите в комнату."
       });
+      return;
     }
 
     if (event === "player-ready") {
       if (this.players.size !== 2 || this.ended) {
-        return reply({
+        reply({
           ok: false,
           message: "Ожидаем второго игрока."
         });
+        return;
       }
 
       this.ready.add(playerId);
@@ -176,13 +191,16 @@ export class GameRoom {
 
       if (this.ready.size === 2) {
         const ids = [...this.players.keys()];
-        this.currentTurn = ids[Math.floor(Math.random() * 2)];
+        this.currentTurn = ids[
+          Math.floor(Math.random() * ids.length)
+        ];
 
         this.broadcast("online-start");
         this.sendTurn();
       }
 
-      return reply({ ok: true });
+      reply({ ok: true });
+      return;
     }
 
     if (event === "ask-question") {
@@ -196,10 +214,11 @@ export class GameRoom {
         this.pending ||
         !question
       ) {
-        return reply({
+        reply({
           ok: false,
           message: "Сейчас нельзя задать вопрос."
         });
+        return;
       }
 
       this.pending = {
@@ -208,7 +227,8 @@ export class GameRoom {
       };
 
       this.broadcast("online-question", { question }, socket);
-      return reply({ ok: true });
+      reply({ ok: true });
+      return;
     }
 
     if (event === "answer-question") {
@@ -217,10 +237,11 @@ export class GameRoom {
         this.pending.type !== "question" ||
         this.pending.from === playerId
       ) {
-        return reply({
+        reply({
           ok: false,
           message: "Нет вопроса для ответа."
         });
+        return;
       }
 
       const asker = this.players.get(this.pending.from);
@@ -235,7 +256,8 @@ export class GameRoom {
       this.currentTurn = playerId;
 
       this.sendTurn();
-      return reply({ ok: true });
+      reply({ ok: true });
+      return;
     }
 
     if (event === "make-guess") {
@@ -249,10 +271,11 @@ export class GameRoom {
         this.pending ||
         !guess
       ) {
-        return reply({
+        reply({
           ok: false,
           message: "Сейчас нельзя угадывать."
         });
+        return;
       }
 
       this.pending = {
@@ -261,7 +284,8 @@ export class GameRoom {
       };
 
       this.broadcast("online-guess", { guess }, socket);
-      return reply({ ok: true });
+      reply({ ok: true });
+      return;
     }
 
     if (event === "answer-guess") {
@@ -270,10 +294,11 @@ export class GameRoom {
         this.pending.type !== "guess" ||
         this.pending.from === playerId
       ) {
-        return reply({
+        reply({
           ok: false,
           message: "Нет догадки для ответа."
         });
+        return;
       }
 
       const guesser = this.players.get(this.pending.from);
@@ -297,14 +322,14 @@ export class GameRoom {
         this.sendTurn();
       }
 
-      return reply({ ok: true });
+      reply({ ok: true });
+      return;
     }
 
     if (event === "leave-room") {
-      this.players.delete(playerId);
-      this.ready.delete(playerId);
-      this.broadcast("player-left");
-      return reply({ ok: true });
+      this.removePlayer(playerId);
+      reply({ ok: true });
+      return;
     }
 
     reply({
