@@ -1,7 +1,9 @@
+
 (() => {
   let socket = null;
   let roomCode = null;
   let playerId = null;
+  let currentTurn = null;
   let requestCounter = 0;
   let readySent = false;
 
@@ -69,6 +71,7 @@
         pending.clear();
 
         socket = null;
+        currentTurn = null;
 
         if (roomCode) {
           setStatus("Соединение с комнатой потеряно.");
@@ -203,10 +206,10 @@
         <button id="onlineAskButton" type="button">❓ Задать вопрос</button>
         <button id="onlineGuessButton" type="button">🎯 Угадать персонажа</button>
       </div>
+      <p class="note">Для угадывания нажми правой кнопкой мыши на карточку или удерживай её на телефоне.</p>
     `);
 
     const askButton = document.getElementById("onlineAskButton");
-    const guessButton = document.getElementById("onlineGuessButton");
 
     if (askButton) {
       askButton.onclick = async () => {
@@ -227,27 +230,23 @@
       };
     }
 
+    const guessButton = document.getElementById("onlineGuessButton");
+
     if (guessButton) {
-      guessButton.onclick = async () => {
-        const guess = prompt("Какого персонажа ты хочешь угадать?");
-
-        if (guess === null) return;
-
-        const value = guess.trim();
-
-        if (!value) {
-          alert("Введи имя персонажа.");
-          return;
-        }
-
-        await makeGuess(value);
+      guessButton.onclick = () => {
+        setStatus("Выбери карточку персонажа правой кнопкой мыши или удержанием.");
       };
     }
   }
 
   function handleServerEvent(event, data) {
     if (event === "player-joined") {
-      setStatus("Второй игрок подключился. Выберите персонажа.");
+      setStatus(
+        readySent
+          ? "Второй игрок подключился. Ожидаем его готовности."
+          : "Второй игрок подключился. Выберите персонажа."
+      );
+
       addLog("Второй игрок вошёл в комнату.");
     }
 
@@ -261,7 +260,9 @@
     }
 
     if (event === "online-turn") {
-      const myTurn = data.currentTurn === playerId;
+      currentTurn = data.currentTurn || null;
+
+      const myTurn = currentTurn === playerId;
       const turnElement = document.getElementById("onlineTurn");
 
       if (turnElement) {
@@ -343,12 +344,14 @@
     if (event === "online-ended") {
       setStatus(data.message || "Игра окончена.");
       addLog("Игра завершена.");
+      currentTurn = null;
       showAction("");
     }
 
     if (event === "player-left") {
       setStatus("Соперник покинул комнату.");
       addLog("Соперник отключился.");
+      currentTurn = null;
       showAction("");
     }
   }
@@ -400,10 +403,11 @@
 
       roomCode = code;
       readySent = false;
+      currentTurn = null;
       window.onlineRoomActive = true;
 
       showPanel();
-      setStatus("Комната создана. Отправь код другу и дождись его подключения.");
+      setStatus("Комната создана. Отправь код другу и выбери своего персонажа.");
 
       return {
         ok: true,
@@ -438,6 +442,7 @@
 
       roomCode = code;
       readySent = false;
+      currentTurn = null;
       window.onlineRoomActive = true;
       window.onlinePack = result.pack;
 
@@ -467,12 +472,19 @@
     if (!result.ok) {
       readySent = false;
       setStatus(result.message || "Не удалось подтвердить готовность.");
+    } else if (result.waiting) {
+      setStatus("Вы готовы. Ожидаем подключения и готовности соперника.");
     } else {
-      setStatus("Вы готовы. Ожидаем соперника.");
+      setStatus("Вы готовы. Ожидаем начала игры.");
     }
   }
 
   async function askQuestion(question) {
+    if (!isMyTurn()) {
+      setStatus("Сейчас не твой ход.");
+      return;
+    }
+
     const value = String(question || "").trim();
 
     if (!value) return;
@@ -491,6 +503,11 @@
   }
 
   async function makeGuess(guess) {
+    if (!isMyTurn()) {
+      setStatus("Сейчас не твой ход.");
+      return;
+    }
+
     const value = String(guess || "").trim();
 
     if (!value) return;
@@ -508,6 +525,15 @@
     }
   }
 
+  function isMyTurn() {
+    return !!(
+      window.onlineRoomActive &&
+      playerId &&
+      currentTurn &&
+      currentTurn === playerId
+    );
+  }
+
   function leaveRoom() {
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
@@ -521,6 +547,7 @@
     socket = null;
     roomCode = null;
     playerId = null;
+    currentTurn = null;
     readySent = false;
     window.onlineRoomActive = false;
 
@@ -546,6 +573,7 @@
     playerReady,
     askQuestion,
     makeGuess,
+    isMyTurn,
     leaveRoom
   };
 })();
