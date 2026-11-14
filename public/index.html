@@ -732,7 +732,17 @@ function onlineJoinMenu(){
   }
  });
 }
+document.addEventListener("online-pack-received", event => {
+ const pack = event.detail;
 
+ if(pack && Array.isArray(pack.characters)){
+  window.onlineRoomActive = true;
+  startGameFromCharacters(
+   pack.characters,
+   pack.name || "Онлайн-пак"
+  );
+ }
+});
 </script>
 
 <script src="/online-client.js"></script>
