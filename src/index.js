@@ -11,6 +11,8 @@ export class GameRoom {
     this.secretCharacters = new Map();
     this.wordAssignments = new Map();
     this.wordSubmitted = new Set();
+    this.wordWriterOrder = [];
+    this.wordRecipients = new Map();
     this.gamePhase = "lobby";
 
     this.currentTurn = null;
@@ -226,6 +228,8 @@ export class GameRoom {
     this.secretCharacters.clear();
     this.wordAssignments.clear();
     this.wordSubmitted.clear();
+    this.wordWriterOrder = [];
+    this.wordRecipients.clear();
     this.gamePhase = "lobby";
 
     this.currentTurn = null;
@@ -748,9 +752,23 @@ export class GameRoom {
       this.wordAssignments.clear();
       this.wordSubmitted.clear();
       const ids = [...this.players.keys()];
-      this.send(this.players.get(ids[0]), "word-entry-turn", {
-        playerNumber:1,
-        targetPlayerNumber:2,
+      this.wordWriterOrder = [...ids];
+      for (let i = this.wordWriterOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.wordWriterOrder[i], this.wordWriterOrder[j]] = [this.wordWriterOrder[j], this.wordWriterOrder[i]];
+      }
+      this.wordRecipients.clear();
+      for (let i = 0; i < this.wordWriterOrder.length; i++) {
+        this.wordRecipients.set(
+          this.wordWriterOrder[i],
+          this.wordWriterOrder[(i + 1) % this.wordWriterOrder.length]
+        );
+      }
+      const firstWriter = this.wordWriterOrder[0];
+      const firstRecipient = this.wordRecipients.get(firstWriter);
+      this.send(this.players.get(firstWriter), "word-entry-turn", {
+        playerNumber:ids.indexOf(firstWriter)+1,
+        targetPlayerNumber:ids.indexOf(firstRecipient)+1,
         totalPlayers:ids.length
       });
       this.broadcast("word-round-start", { playersCount:ids.length, totalPlayers:ids.length });
@@ -769,12 +787,16 @@ export class GameRoom {
         return;
       }
       const ids = [...this.players.keys()];
-      const index = ids.indexOf(playerId);
+      const index = this.wordWriterOrder.indexOf(playerId);
       if (index < 0 || ids.length !== this.maxPlayers || index !== this.wordSubmitted.size) {
         reply({ok:false, message:"Сейчас очередь другого игрока."});
         return;
       }
-      const recipientId = ids[(index+1)%ids.length];
+      const recipientId = this.wordRecipients.get(playerId);
+      if (!recipientId || recipientId === playerId || this.wordAssignments.has(recipientId)) {
+        reply({ok:false, message:"Не удалось назначить получателя слова. Перезапусти раздачу."});
+        return;
+      }
       this.wordAssignments.set(recipientId, word);
       this.wordSubmitted.add(playerId);
       reply({ok:true, waiting:true});
@@ -799,10 +821,11 @@ export class GameRoom {
       } else {
         this.broadcast("word-submission-progress", {submitted:this.wordSubmitted.size,total:ids.length});
         const nextWriterIndex = this.wordSubmitted.size;
-        const nextWriterId = ids[nextWriterIndex];
+        const nextWriterId = this.wordWriterOrder[nextWriterIndex];
+        const nextRecipientId = this.wordRecipients.get(nextWriterId);
         this.send(this.players.get(nextWriterId), "word-entry-turn", {
-          playerNumber:nextWriterIndex+1,
-          targetPlayerNumber:((nextWriterIndex+1)%ids.length)+1,
+          playerNumber:ids.indexOf(nextWriterId)+1,
+          targetPlayerNumber:ids.indexOf(nextRecipientId)+1,
           totalPlayers:ids.length
         });
       }
