@@ -19,7 +19,8 @@
     timerInterval: null,
     timerDeadline: null,
     connectedPromise: null,
-    intentionalLeave: false
+    intentionalLeave: false,
+    isRoomHost: false
   };
 
   function dispatch(name, detail = {}) {
@@ -178,6 +179,7 @@
     API.roomActive = false;
     API.roomSettings = null;
     API.pack = null;
+    API.isRoomHost = false;
     API.connectedPromise = null;
 
     window.onlineRoomActive = false;
@@ -344,6 +346,12 @@
         break;
       }
 
+      case "room-settings-updated": {
+        API.roomSettings = data;
+        dispatch("online-room-settings-updated", data);
+        break;
+      }
+
       default:
         dispatch("online-unknown-event", message);
     }
@@ -370,6 +378,7 @@
     API.roomActive = false;
     API.roomSettings = null;
     API.pack = null;
+    API.isRoomHost = false;
     API.intentionalLeave = false;
 
     window.onlineRoomActive = false;
@@ -507,6 +516,7 @@
     }
 
     API.roomActive = true;
+    API.isRoomHost = true;
     API.pack = pack;
     API.roomSettings = result.settings || settings;
 
@@ -556,6 +566,7 @@
     }
 
     API.roomActive = true;
+    API.isRoomHost = false;
     API.pack = result.pack;
     API.roomSettings = result.settings || null;
     API.opponentConnected = true;
@@ -665,6 +676,7 @@
     }});
     if (!result.ok) { leaveRoom(); return result; }
     API.roomActive = true;
+    API.isRoomHost = true;
     API.roomSettings = result.settings || settings;
     window.onlineRoomActive = true;
     updateRoomCodeDisplay();
@@ -803,6 +815,10 @@
 
   function getSettings() {
     return API.roomSettings;
+  }
+
+  function isRoomHost() {
+    return API.isRoomHost;
   }
 
   function getPlayerId() {
@@ -1014,6 +1030,7 @@
     canChooseCharacter,
     getRoomCode,
     getSettings,
+    isRoomHost,
     getPlayerId,
     getPack,
     leaveRoom
