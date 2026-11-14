@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -36,13 +37,14 @@ input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #77
 .game-info{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:15px 0}
 .info-pill{background:#ffffff18;padding:10px 15px;border-radius:12px}
 .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px;max-width:1100px;margin:20px auto}
-.game-card{border:2px solid #ffffff28;border-radius:14px;padding:10px;background:#ffffff12;text-align:center;cursor:pointer;transition:.2s;min-width:0}
+.game-card{border:2px solid #ffffff28;border-radius:14px;padding:10px;background:#ffffff12;text-align:center;cursor:pointer;transition:.2s;min-width:0;user-select:none;-webkit-user-select:none;touch-action:pan-y}
 .game-card:hover{border-color:#b79aff;transform:translateY(-2px)}
-.game-card img{width:100%;height:105px;object-fit:contain}
-.game-card .emoji{font-size:55px;height:105px;display:grid;place-items:center}
+.game-card img{width:100%;height:105px;object-fit:contain;pointer-events:none}
+.game-card .emoji{font-size:55px;height:105px;display:grid;place-items:center;pointer-events:none}
 .game-card.eliminated{opacity:.25;filter:grayscale(1)}
 .game-card.selected{border-color:#ffe477;background:#ffe47722}
-.game-card p{margin:7px 0 2px;font-size:14px;overflow-wrap:anywhere}
+.game-card.guess-target{border-color:#ffbd55;background:#ffbd5522;box-shadow:0 0 15px #ffbd5566}
+.game-card p{margin:7px 0 2px;font-size:14px;overflow-wrap:anywhere;pointer-events:none}
 .secret-box{max-width:350px;margin:15px auto;padding:12px;background:#ffffff16;border-radius:15px;text-align:center}
 .secret-box img{height:100px;max-width:100%;object-fit:contain}
 .secret-box .emoji{font-size:50px}
@@ -89,31 +91,11 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
  transition:.2s;
 }
 .picker-card:hover{border-color:#b79aff;transform:translateY(-2px)}
-.picker-card.selected{
- border-color:#ffe477;
- background:#ffe47730;
-}
-.picker-card img{
- width:100%;
- height:85px;
- object-fit:contain;
-}
-.picker-card .emoji{
- font-size:45px;
- height:85px;
- display:grid;
- place-items:center;
-}
-.picker-card p{
- font-size:13px;
- overflow-wrap:anywhere;
-}
-.picker-actions{
- display:flex;
- justify-content:center;
- gap:10px;
- flex-wrap:wrap;
-}
+.picker-card.selected{border-color:#ffe477;background:#ffe47730}
+.picker-card img{width:100%;height:85px;object-fit:contain}
+.picker-card .emoji{font-size:45px;height:85px;display:grid;place-items:center}
+.picker-card p{font-size:13px;overflow-wrap:anywhere}
+.picker-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
 
 @media(max-width:600px){
  h1{font-size:32px}
@@ -224,7 +206,7 @@ hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
   <div id="secretDisplay" style="margin-top:8px">Сначала выбери персонажа</div>
   <button class="small secondary" onclick="chooseSecret()">Выбрать персонажа</button>
  </div>
- <p class="subtitle">Нажимай на карточки, чтобы исключать или возвращать персонажей.</p>
+ <p class="subtitle">Левая кнопка мыши — зачеркнуть карточку. Правая — угадать персонажа. На телефоне удерживай карточку.</p>
  <div id="gameGrid" class="game-grid"></div>
 </section>
 
@@ -257,6 +239,9 @@ let gameCharacters=[];
 let eliminated=new Set();
 let secretCharacter=null;
 let pickerSelected=null;
+let suppressNextClick=false;
+let longPressTimer=null;
+let longPressTriggered=false;
 
 let myPacks=[];
 try{
@@ -604,7 +589,6 @@ function confirmCharacter(){
  renderGame();
  renderSecret();
 
- // Отправляем готовность только в активной онлайн-комнате.
  if(window.onlineRoomActive && window.onlineGame){
   window.onlineGame.playerReady();
  }
@@ -616,6 +600,28 @@ function closePicker(){
 
 function chooseSecret(){
  openPicker();
+}
+
+function confirmGuess(character){
+ if(!character)return;
+
+ if(!window.onlineRoomActive || !window.onlineGame){
+  alert("Угадывание персонажа доступно в онлайн-игре.");
+  return;
+ }
+
+ if(!window.onlineGame.isMyTurn()){
+  alert("Сейчас не твой ход!");
+  return;
+ }
+
+ const confirmed=confirm(
+  "Ты точно хочешь угадать персонажа «"+character.name+"»?"
+ );
+
+ if(!confirmed)return;
+
+ window.onlineGame.makeGuess(character.name);
 }
 
 function renderGame(){
@@ -637,12 +643,53 @@ function renderGame(){
 
   card.querySelector("p").textContent=c.name;
 
-  card.onclick=()=>{
+  // Левая кнопка мыши: зачеркнуть или восстановить карточку.
+  card.addEventListener("click",()=>{
+   if(suppressNextClick){
+    suppressNextClick=false;
+    return;
+   }
+
    if(eliminated.has(c.id))eliminated.delete(c.id);
    else eliminated.add(c.id);
 
    renderGame();
-  };
+  });
+
+  // Правая кнопка мыши: выбрать персонажа для угадывания.
+  card.addEventListener("contextmenu",e=>{
+   e.preventDefault();
+   confirmGuess(c);
+  });
+
+  // Долгое нажатие на телефоне: выбрать персонажа для угадывания.
+  card.addEventListener("touchstart",()=>{
+   longPressTriggered=false;
+
+   clearTimeout(longPressTimer);
+
+   longPressTimer=setTimeout(()=>{
+    longPressTriggered=true;
+    suppressNextClick=true;
+    confirmGuess(c);
+
+    setTimeout(()=>{
+     suppressNextClick=false;
+    },1000);
+   },600);
+  },{passive:true});
+
+  card.addEventListener("touchend",()=>{
+   clearTimeout(longPressTimer);
+  });
+
+  card.addEventListener("touchmove",()=>{
+   clearTimeout(longPressTimer);
+  });
+
+  card.addEventListener("touchcancel",()=>{
+   clearTimeout(longPressTimer);
+  });
 
   grid.appendChild(card);
  });
