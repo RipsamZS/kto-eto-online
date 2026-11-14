@@ -179,6 +179,17 @@ export class GameRoom {
     await this.sendTurn();
   }
 
+  broadcastWhoAmITurn() {
+    const ids = [...this.players.keys()];
+    ids.forEach((id,i) => this.send(this.players.get(id), "who-am-i-turn", {playerNumber:i+1,totalPlayers:ids.length,isYourTurn:id===this.currentTurn}));
+  }
+  async advanceWhoAmITurn() {
+    const ids = [...this.players.keys()];
+    if (!ids.length) return;
+    this.currentTurn = ids[(ids.indexOf(this.currentTurn)+1)%ids.length];
+    this.pending = null;
+    this.broadcastWhoAmITurn();
+  }
   async removePlayer(playerId) {
     if (!this.players.has(playerId)) return;
 
@@ -710,7 +721,11 @@ export class GameRoom {
             playerNumber:ids.indexOf(id)+1
           });
         }
+        this.gamePhase = "playing";
+        this.currentTurn = ids[0];
+        this.pending = null;
         this.broadcast("word-round-complete", {playersCount:ids.length});
+        this.broadcastWhoAmITurn();
       } else {
         this.broadcast("word-submission-progress", {submitted:this.wordSubmitted.size,total:ids.length});
         const nextWriterIndex = this.wordSubmitted.size;
@@ -724,6 +739,40 @@ export class GameRoom {
       return;
     }
 
+    if (this.gameId === "who-am-i" && event === "who-am-i-question") {
+      const question = String(data.question || "").trim().slice(0,180);
+      if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending || !question) { reply({ok:false,message:"Сейчас нельзя задать вопрос."}); return; }
+      this.pending = {type:"who-am-i-question",from:playerId};
+      this.broadcast("who-am-i-question",{question,askerNumber:[...this.players.keys()].indexOf(playerId)+1},this.players.get(playerId));
+      reply({ok:true}); return;
+    }
+    if (this.gameId === "who-am-i" && event === "who-am-i-answer") {
+      if (this.gamePhase !== "playing" || !this.pending || this.pending.type !== "who-am-i-question" || this.pending.from === playerId) { reply({ok:false,message:"Сейчас нельзя ответить."}); return; }
+      const answer = ["yes","no","unknown"].includes(data.answer) ? data.answer : null;
+      if (!answer) { reply({ok:false,message:"Выбери ответ."}); return; }
+      this.broadcast("who-am-i-answer",{answer,responderNumber:[...this.players.keys()].indexOf(playerId)+1});
+      await this.advanceWhoAmITurn(); reply({ok:true}); return;
+    }
+    if (this.gameId === "who-am-i" && event === "who-am-i-guess") {
+      const guess = String(data.guess || "").trim().replace(/\\s+/g," ").slice(0,40);
+      if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending || guess.length < 2) { reply({ok:false,message:"Сейчас нельзя проверить догадку."}); return; }
+      const norm = v => String(v||"").toLocaleLowerCase("ru").replace(/[ё]/g,"е").replace(/[^\\p{L}\\p{N}]+/gu," ").trim();
+      const correct = norm(guess) === norm(this.wordAssignments.get(playerId));
+      if (correct) {
+        this.gamePhase="finished"; this.ended=true; this.currentTurn=null;
+        const winnerNumber=[...this.players.keys()].indexOf(playerId)+1;
+        this.broadcast("who-am-i-finished",{winnerNumber,message:"Игрок №"+winnerNumber+" угадал своё слово!"});
+        await this.updateDirectory();
+      } else {
+        this.send(this.players.get(playerId),"who-am-i-guess-result",{correct:false,message:"Пока не угадал. Ход переходит дальше."});
+        await this.advanceWhoAmITurn();
+      }
+      reply({ok:true,correct}); return;
+    }
+    if (this.gameId === "who-am-i" && event === "who-am-i-pass") {
+      if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending) { reply({ok:false,message:"Сейчас нельзя передать ход."}); return; }
+      await this.advanceWhoAmITurn(); reply({ok:true}); return;
+    }
     if (event === "player-ready") {
       const secretCharacterId = String(
         data.secretCharacterId || ""

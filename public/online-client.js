@@ -360,7 +360,12 @@
       case "word-submitted":
       case "word-submission-progress":
       case "your-secret-word":
-      case "word-round-complete": {
+      case "word-round-complete":
+      case "who-am-i-turn":
+      case "who-am-i-question":
+      case "who-am-i-answer":
+      case "who-am-i-guess-result":
+      case "who-am-i-finished": {
         dispatch(event, data);
         break;
       }
@@ -712,6 +717,10 @@
 
   function startWordRound() { return send("start-word-round"); }
   function submitPlayerWord(word) { return send("submit-player-word", {word}); }
+  function askWhoAmIQuestion(question) { return send("who-am-i-question", {question}); }
+  function answerWhoAmIQuestion(answer) { return send("who-am-i-answer", {answer}); }
+  function guessWhoAmI(guess) { return send("who-am-i-guess", {guess}); }
+  function passWhoAmITurn() { return send("who-am-i-pass"); }
 
   async function listPublicRooms(gameId = "who-is-it") {
     try {
@@ -1134,6 +1143,10 @@
     updateRoomSettings,
     startWordRound,
     submitPlayerWord,
+    askWhoAmIQuestion,
+    answerWhoAmIQuestion,
+    guessWhoAmI,
+    passWhoAmITurn,
     joinRoom,
     playerReady,
     askQuestion,
