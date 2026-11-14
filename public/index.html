@@ -718,6 +718,11 @@ function onlineCreateMenu(){
  onlineGame.createRoom({
   name:pack.name,
   characters:pack.characters
+ }).then(result=>{
+  if(result && result.ok){
+   window.onlineRoomActive = true;
+   startGameFromCharacters(pack.characters, pack.name);
+  }
  });
 }
 
