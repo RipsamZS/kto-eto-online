@@ -862,9 +862,10 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/room") {
-      const roomId = url.searchParams.get("id");
+      const roomId = String(url.searchParams.get("id") || "").trim().toUpperCase();
+      const gameId = url.searchParams.get("game") || "who-is-it";
 
-      if (!roomId || !/^\d{6}$/.test(roomId)) {
+      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium"].includes(gameId)) {
         return new Response("Неверный код комнаты", {
           status: 400
         });
