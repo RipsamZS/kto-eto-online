@@ -4,27 +4,26 @@ export class GameRoom {
     this.ctx = ctx;
     this.env = env;
     this.players = new Map();
-    this.state = {
-      pack: [],
-      secretCharacters: {},
-      turn: null,
-      question: null,
-      answers: {}
-    };
   }
 
   async fetch(request) {
     if (request.headers.get("Upgrade") !== "websocket") {
-      return new Response("Game room is ready");
+      return new Response("WebSocket connection required", {
+        status: 426
+      });
+    }
+
+    if (this.players.size >= 2) {
+      return new Response("Комната заполнена", { status: 403 });
     }
 
     const pair = new WebSocketPair();
-    const [client, server] = Object.values(pair);
+    const client = pair[0];
+    const server = pair[1];
 
     server.accept();
 
     const playerId = crypto.randomUUID();
-
     this.players.set(playerId, server);
 
     server.send(JSON.stringify({
@@ -34,16 +33,30 @@ export class GameRoom {
     }));
 
     server.addEventListener("message", event => {
-      this.handleMessage(playerId, event.data);
+      let message;
+
+      try {
+        message = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
+      this.broadcast({
+        ...message,
+        playerId
+      });
     });
 
-    server.addEventListener("close", () => {
+    const removePlayer = () => {
       this.players.delete(playerId);
       this.broadcast({
         type: "player-left",
         players: this.players.size
       });
-    });
+    };
+
+    server.addEventListener("close", removePlayer);
+    server.addEventListener("error", removePlayer);
 
     this.broadcast({
       type: "players",
@@ -54,52 +67,6 @@ export class GameRoom {
       status: 101,
       webSocket: client
     });
-  }
-
-  handleMessage(playerId, raw) {
-    let message;
-
-    try {
-      message = JSON.parse(raw);
-    } catch {
-      return;
-    }
-
-    if (message.type === "start" && this.players.size === 2) {
-      this.state.pack = message.pack || [];
-
-      this.broadcast({
-        type: "game-started",
-        pack: this.state.pack
-      });
-      return;
-    }
-
-    if (message.type === "question") {
-      this.broadcast({
-        type: "question",
-        playerId,
-        question: message.question
-      });
-      return;
-    }
-
-    if (message.type === "answer") {
-      this.broadcast({
-        type: "answer",
-        playerId,
-        answer: message.answer
-      });
-      return;
-    }
-
-    if (message.type === "guess") {
-      this.broadcast({
-        type: "guess",
-        playerId,
-        character: message.character
-      });
-    }
   }
 
   broadcast(data) {
@@ -117,10 +84,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/") {
-      return new Response("Кто это? Онлайн-сервер работает!");
-    }
-
     if (url.pathname === "/room") {
       const roomId = url.searchParams.get("id");
 
@@ -135,6 +98,6 @@ export default {
       return room.fetch(request);
     }
 
-    return new Response("Not found", { status: 404 });
+    return env.ASSETS.fetch(request);
   }
 };
