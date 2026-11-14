@@ -178,25 +178,38 @@ export class GameRoom {
     }
 
     if (event === "player-ready") {
-      if (this.players.size !== 2 || this.ended) {
+      if (this.ended || !this.pack) {
         reply({
           ok: false,
-          message: "Ожидаем второго игрока."
+          message: "Сейчас нельзя начать игру."
         });
         return;
       }
 
+      // Готовность сохраняется даже тогда, когда второй игрок
+      // ещё не подключился. Это исправляет проблему хоста.
       this.ready.add(playerId);
+
       this.broadcast("player-ready", {}, socket);
 
-      if (this.ready.size === 2) {
+      if (this.players.size === 2 && this.ready.size === 2) {
         const ids = [...this.players.keys()];
+
         this.currentTurn = ids[
           Math.floor(Math.random() * ids.length)
         ];
 
+        this.pending = null;
+        this.ended = false;
+
         this.broadcast("online-start");
         this.sendTurn();
+      } else {
+        reply({
+          ok: true,
+          waiting: true
+        });
+        return;
       }
 
       reply({ ok: true });
@@ -254,8 +267,8 @@ export class GameRoom {
 
       this.pending = null;
       this.currentTurn = playerId;
-
       this.sendTurn();
+
       reply({ ok: true });
       return;
     }
