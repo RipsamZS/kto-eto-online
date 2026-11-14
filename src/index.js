@@ -719,9 +719,13 @@ export class GameRoom {
       this.access = nextAccess;
       this.maxPlayers = nextMax;
       this.timerSeconds = nextTimer;
+      for (const profile of this.playerProfiles.values()) {
+        if (Number.isInteger(profile.seatIndex) && profile.seatIndex >= nextMax) profile.seatIndex = null;
+      }
       await this.updateDirectory();
       const settings = { roomName:this.roomName, roomCode:this.roomId, access:this.access, maxPlayers:this.maxPlayers, timerSeconds:this.timerSeconds };
       this.broadcast("room-settings-updated", settings);
+      this.broadcastRoster();
       reply({ ok:true, settings });
       return;
     }
