@@ -808,6 +808,14 @@ export class GameRoom {
         return;
       }
       this.wordAssignments.set(recipientId, word);
+      // Reveal each assigned word to every player except its recipient.
+      for (const viewerId of ids) {
+        if (viewerId === recipientId) continue;
+        const visibleWords = Object.fromEntries(
+          [...this.wordAssignments.entries()].filter(([targetId]) => targetId !== viewerId)
+        );
+        this.send(this.players.get(viewerId), "who-am-i-visible-words", {words:visibleWords});
+      }
       this.wordSubmitted.add(playerId);
       reply({ok:true, waiting:true});
       this.send(this.players.get(playerId), "word-submitted", {message:"Слово принято. Оно скрыто от тебя и будет показано адресату."});
