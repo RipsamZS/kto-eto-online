@@ -21,6 +21,7 @@
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(112px,27%,166px);min-height:90px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-seat .word-tag{display:block;max-width:100%;min-width:54px;padding:3px 7px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:12px;line-height:1.2;font-weight:800;overflow-wrap:anywhere;text-align:center}.srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
   .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
+  #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
   .srs-seat-0{left:50%;top:12%}.srs-seat-1{left:82%;top:28%}.srs-seat-2{left:82%;top:72%}.srs-seat-3{left:50%;top:88%}.srs-seat-4{left:18%;top:72%}.srs-seat-5{left:18%;top:28%}
   @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}.srs-code-field{margin-top:8px}}
   </style>
@@ -78,6 +79,21 @@
       <div id="srsLobbyActions"><button id="srsStart" class="wide hidden">Начать игру</button><button id="srsLeave" class="wide alt">Покинуть комнату</button></div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
+    <button id="srsHelpToggle" type="button" aria-expanded="false">? Справка</button>
+    <section id="srsHelpPanel" class="hidden" role="dialog" aria-label="Правила игры">
+      <h3>Как играть в «Кто я?»</h3>
+      <p><strong>Цель:</strong> угадать слово, которое досталось тебе, задавая вопросы остальным игрокам.</p>
+      <ol>
+        <li>Соберите от 2 до 6 игроков. Каждый занимает своё место, а создатель комнаты запускает игру.</li>
+        <li>Сервер случайно распределяет игроков: каждый придумывает слово для одного другого игрока, и каждый получает ровно одно слово. Себе слово не достаётся.</li>
+        <li>Вводите слова по очереди. Не подсказывайте адресату и не раскрывайте своё слово. После раздачи своё слово увидишь ты, а над своим местом будут звёздочки.</li>
+        <li>Когда начнётся игра, в свой ход задай всем вопрос, на который можно ответить «Да», «Нет» или «Не знаю».</li>
+        <li>Используй ответы, чтобы сузить варианты, и введи догадку. Если пока не готов — передай ход следующему игроку.</li>
+        <li>Учитывай таймер комнаты: если время на ход закончится, ход перейдёт дальше.</li>
+      </ol>
+      <p><strong>Совет:</strong> задавай вопросы, которые постепенно исключают целые группы вариантов.</p>
+      <button id="srsHelpClose" class="alt wide" type="button">Понятно</button>
+    </section>
   </section>`;
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
@@ -112,7 +128,7 @@
     seats.forEach(index=>{
       const player=roster.find(item=>item.seatIndex===index);
       const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);button.style.left=(50+38*Math.cos(angle))+"%";button.style.top=(57+34*Math.sin(angle))+"%";
-      if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const wordTag=document.createElement("span");wordTag.className="word-tag";wordTag.textContent=Object.prototype.hasOwnProperty.call(visibleWords,player.id)?visibleWords[player.id]:"";wordTag.classList.toggle("hidden",!wordTag.textContent);const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(wordTag,avatar,nick,note);}
+      if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const wordTag=document.createElement("span");wordTag.className="word-tag";wordTag.textContent=player.id===me?"******":(Object.prototype.hasOwnProperty.call(visibleWords,player.id)?visibleWords[player.id]:"");wordTag.classList.toggle("hidden",player.id!==me&&!wordTag.textContent);const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(wordTag,avatar,nick,note);}
       else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}};}
       table.append(button);
     });
@@ -124,6 +140,8 @@
     maxPlayers=Number(result.settings?.maxPlayers||2);started=false;
     syncRoom(result.settings);renderSeats();status("");
   }
+  $("srsHelpToggle").onclick=()=>{const open=$("srsHelpPanel").classList.contains("hidden");$("srsHelpPanel").classList.toggle("hidden",!open);$("srsHelpToggle").setAttribute("aria-expanded",String(open));};
+  $("srsHelpClose").onclick=()=>{$("srsHelpPanel").classList.add("hidden");$("srsHelpToggle").setAttribute("aria-expanded","false");};
   $("srsShowCreate").onclick=()=>show("srsCreateView");
   $("srsAccess").addEventListener("change",()=>{$("srsCodeField").classList.toggle("hidden",$("srsAccess").value==="public");});
   $("srsShowJoin").onclick=()=>show("srsJoinView");
