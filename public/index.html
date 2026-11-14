@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кто это?</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:white;font-family:Arial,sans-serif;background:linear-gradient(135deg,#17142e,#29215a,#151b3d)}
+button,input{font:inherit}
+button{border:0;border-radius:13px;padding:12px 20px;cursor:pointer;color:white;font-weight:bold;background:linear-gradient(135deg,#7955e8,#a04de0);transition:.2s}
+button:hover{filter:brightness(1.15);transform:translateY(-2px)}
+button.secondary{background:#42446e}
+button.danger{background:#b84462}
+button.small{padding:8px 12px;font-size:13px}
+.hidden{display:none!important}
+.screen{display:none;min-height:100vh;padding:25px}
+.screen.active{display:block}
+h1,h2,h3{text-align:center}
+h1{font-size:42px;margin:15px 0}
+.subtitle{text-align:center;color:#c9c5ed;margin-bottom:30px}
+.menu{max-width:540px;margin:45px auto;padding:30px;background:#ffffff12;border:1px solid #ffffff25;border-radius:25px;text-align:center;box-shadow:0 15px 50px #0005}
+.menu-buttons{display:grid;gap:14px;margin-top:28px}
+.menu-buttons button{font-size:18px;padding:17px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1100px;margin:0 auto 20px;flex-wrap:wrap}
+.panel{max-width:1100px;margin:0 auto;padding:22px;background:#ffffff12;border:1px solid #ffffff25;border-radius:20px}
+input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #777;background:#211e42;color:white;margin:7px 0 15px}
+.dropzone{border:2px dashed #9b8ae9;border-radius:17px;padding:35px 15px;text-align:center;color:#d5d0ff;background:#ffffff08;margin:15px 0;cursor:pointer}
+.dropzone.drag{background:#7654d955;border-color:white}
+.editor-grid,.pack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;margin-top:20px}
+.editor-card,.pack-card{background:#ffffff12;border:1px solid #ffffff22;border-radius:15px;padding:12px;text-align:center;min-width:0}
+.editor-card img,.pack-card img{width:100%;height:120px;object-fit:contain;border-radius:10px;background:#17152e}
+.editor-card input{margin:8px 0}
+.card-actions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.empty{text-align:center;padding:45px 15px;color:#c8c3e8;background:#ffffff09;border-radius:15px;margin-top:20px}
+.game-info{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:15px 0}
+.info-pill{background:#ffffff18;padding:10px 15px;border-radius:12px}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px;max-width:1100px;margin:20px auto}
+.game-card{border:2px solid #ffffff28;border-radius:14px;padding:10px;background:#ffffff12;text-align:center;cursor:pointer;transition:.2s;min-width:0}
+.game-card:hover{border-color:#b79aff;transform:translateY(-2px)}
+.game-card img{width:100%;height:105px;object-fit:contain}
+.game-card .emoji{font-size:55px;height:105px;display:grid;place-items:center}
+.game-card.eliminated{opacity:.25;filter:grayscale(1)}
+.game-card.selected{border-color:#ffe477;background:#ffe47722}
+.game-card p{margin:7px 0 2px;font-size:14px;overflow-wrap:anywhere}
+.secret-box{max-width:350px;margin:15px auto;padding:12px;background:#ffffff16;border-radius:15px;text-align:center}
+.secret-box img{height:100px;max-width:100%;object-fit:contain}
+.secret-box .emoji{font-size:50px}
+.center{text-align:center}
+.note{font-size:13px;color:#c6c1e5;line-height:1.5}
+hr{border:0;border-top:1px solid #ffffff22;margin:22px 0}
+
+/* Меню выбора персонажа */
+.character-picker{
+ position:fixed;
+ inset:0;
+ z-index:1000;
+ background:#111027ee;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ padding:15px;
+ overflow-y:auto;
+}
+.character-picker.active{display:flex}
+.picker-window{
+ width:100%;
+ max-width:850px;
+ max-height:90vh;
+ overflow-y:auto;
+ background:linear-gradient(135deg,#29215a,#17142e);
+ border:1px solid #ffffff35;
+ border-radius:22px;
+ padding:22px;
+ box-shadow:0 15px 60px #0009;
+}
+.picker-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+ gap:10px;
+ margin:20px 0;
+}
+.picker-card{
+ background:#ffffff12;
+ border:2px solid #ffffff25;
+ border-radius:13px;
+ padding:8px;
+ text-align:center;
+ cursor:pointer;
+ transition:.2s;
+}
+.picker-card:hover{border-color:#b79aff;transform:translateY(-2px)}
+.picker-card.selected{
+ border-color:#ffe477;
+ background:#ffe47730;
+}
+.picker-card img{
+ width:100%;
+ height:85px;
+ object-fit:contain;
+}
+.picker-card .emoji{
+ font-size:45px;
+ height:85px;
+ display:grid;
+ place-items:center;
+}
+.picker-card p{
+ font-size:13px;
+ overflow-wrap:anywhere;
+}
+.picker-actions{
+ display:flex;
+ justify-content:center;
+ gap:10px;
+ flex-wrap:wrap;
+}
+
+@media(max-width:600px){
+ h1{font-size:32px}
+ .screen{padding:13px}
+ .menu{margin:20px auto;padding:22px}
+ .panel{padding:15px}
+ .game-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .game-card{padding:6px}
+ .game-card img,.game-card .emoji{height:75px}
+ .game-card .emoji{font-size:38px}
+ .game-card p{font-size:11px}
+ .picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- ГЛАВНОЕ МЕНЮ -->
+<section id="home" class="screen active">
+ <div class="menu">
+  <h1>Кто это?</h1>
+  <p class="subtitle">Угадай персонажа соперника!</p>
+  <div class="menu-buttons">
+   <button onclick="newPack()">🎨 Создать собственный пак</button>
+   <button onclick="openMyPacks()">📦 Мои паки</button>
+   <button onclick="openOnlinePacks()">🌐 Онлайн паки</button>
+  </div>
+  <p class="note" style="margin-top:25px">Создавай свои наборы персонажей и играй с друзьями!</p>
+ </div>
+</section>
+
+<!-- МОИ ПАКИ -->
+<section id="myPacks" class="screen">
+ <div class="topbar">
+  <button class="secondary" onclick="showScreen('home')">← Назад</button>
+  <h2>📦 Мои паки</h2>
+  <button onclick="newPack()">＋ Создать пак</button>
+ </div>
+ <div class="panel">
+  <p class="subtitle">Твои сохранённые наборы персонажей</p>
+  <div id="myPacksGrid" class="pack-grid"></div>
+  <div id="myPacksEmpty" class="empty hidden">
+   <h3>Здесь пока пусто</h3>
+   <p>Создай свой первый пак персонажей!</p>
+   <button onclick="newPack()">Создать пак</button>
+  </div>
+ </div>
+</section>
+
+<!-- ОНЛАЙН ПАКИ -->
+<section id="onlinePacks" class="screen">
+ <div class="topbar">
+  <button class="secondary" onclick="showScreen('home')">← Назад</button>
+  <h2>🌐 Онлайн паки</h2>
+  <span></span>
+ </div>
+ <div class="panel">
+  <p class="subtitle">Паки, которыми можно поделиться с другими игроками</p>
+  <div class="note center">Сейчас здесь показаны демонстрационные наборы. Общая публикация паков появится после подключения сервера.</div>
+  <div id="onlinePacksGrid" class="pack-grid"></div>
+ </div>
+</section>
+
+<!-- РЕДАКТОР -->
+<section id="editor" class="screen">
+ <div class="topbar">
+  <button class="secondary" onclick="showScreen('home')">← В меню</button>
+  <h2>🎨 Редактор пака</h2>
+  <button onclick="savePack()">💾 Сохранить</button>
+ </div>
+ <div class="panel">
+  <label>Название пака</label>
+  <input id="packName" type="text" placeholder="Например: Мои персонажи">
+  <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+   <h3>📷 Добавить изображения</h3>
+   <p>Нажми, чтобы выбрать картинки</p>
+   <p class="note">Или перетащи изображения сюда. Также можно вставить картинку через Ctrl+V.</p>
+  </div>
+  <input id="fileInput" type="file" accept="image/*" multiple class="hidden">
+  <div class="card-actions">
+   <button onclick="document.getElementById('fileInput').click()">Выбрать файлы</button>
+   <button class="secondary" onclick="addPlaceholder()">＋ Добавить пустую карточку</button>
+  </div>
+  <hr>
+  <div class="topbar">
+   <strong>Персонажи пака</strong>
+   <span id="editorCount" class="note">0 персонажей</span>
+  </div>
+  <div id="editorGrid" class="editor-grid"></div>
+  <p class="note center">Изображения и названия сохраняются в этом браузере. Для удобной игры рекомендуется добавить 24 персонажа.</p>
+  <div class="center" style="margin-top:20px">
+   <button onclick="savePack()">💾 Сохранить пак</button>
+   <button onclick="playEditedPack()">🎮 Играть с этим паком</button>
+  </div>
+ </div>
+</section>
+
+<!-- ИГРА -->
+<section id="game" class="screen">
+ <div class="topbar">
+  <button class="secondary" onclick="showScreen('home')">← В меню</button>
+  <h2>🎮 Кто это?</h2>
+  <button class="secondary" onclick="resetCards()">↩ Вернуть все карточки</button>
+ </div>
+ <div class="game-info">
+  <div class="info-pill" id="gamePackLabel">Пак</div>
+  <div class="info-pill" id="remainingLabel">Осталось: 0</div>
+ </div>
+ <div class="secret-box">
+  <strong>Твой загаданный персонаж</strong>
+  <div id="secretDisplay" style="margin-top:8px">Сначала выбери персонажа</div>
+  <button class="small secondary" onclick="chooseSecret()">Выбрать персонажа</button>
+ </div>
+ <p class="subtitle">Нажимай на карточки, чтобы исключать или возвращать персонажей.</p>
+ <div id="gameGrid" class="game-grid"></div>
+</section>
+
+<!-- МЕНЮ ВЫБОРА ПЕРСОНАЖА -->
+<div id="characterPicker" class="character-picker">
+ <div class="picker-window">
+  <h2>🌟 Выбери своего персонажа</h2>
+  <p class="subtitle">Нажми на персонажа, за которого будешь играть</p>
+  <div id="pickerGrid" class="picker-grid"></div>
+  <div class="picker-actions">
+   <button onclick="confirmCharacter()">Подтвердить выбор</button>
+   <button class="secondary" onclick="closePicker()">Отмена</button>
+  </div>
+ </div>
+</div>
+
+<script>
+const defaultCharacters=[
+["Стив","🧑"],["Алекс","👩"],["Крипер","💚"],["Эндермен","👾"],
+["Зомби","🧟"],["Скелет","💀"],["Паук","🕷️"],["Железный голем","🤖"],
+["Снежный голем","☃️"],["Деревенский житель","🧑‍🌾"],["Ведьма","🧙"],
+["Пиглин","🐗"],["Хоглин","🐗"],["Гаст","👻"],["Блейз","🔥"],
+["Ифрит","🔥"],["Страж","🐡"],["Аксолотль","🦎"],
+["Лиса","🦊"],["Волк","🐺"],["Кошка","🐈"],["Панда","🐼"],
+["Овца","🐑"],["Корова","🐄"]
+].map((x,i)=>({id:"default"+i,name:x[0],emoji:x[1],image:null}));
+
+let pack=[];
+let currentPackId=null;
+let gameCharacters=[];
+let eliminated=new Set();
+let secretCharacter=null;
+let pickerSelected=null;
+
+let myPacks=[];
+try{
+ myPacks=JSON.parse(localStorage.getItem("guessWhoPacks")||"[]");
+ if(!Array.isArray(myPacks))myPacks=[];
+}catch(e){myPacks=[]}
+
+const demoPacks=[
+ {id:"demo1",name:"Животные",author:"Команда игры",count:8,emoji:"🐾"},
+ {id:"demo2",name:"Космос",author:"Команда игры",count:8,emoji:"🚀"},
+ {id:"demo3",name:"Фэнтези",author:"Команда игры",count:8,emoji:"🐉"}
+];
+
+function showScreen(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+}
+
+function persistPacks(){
+ try{
+  localStorage.setItem("guessWhoPacks",JSON.stringify(myPacks));
+ }catch(e){
+  alert("Не удалось сохранить паки. Возможно, изображения занимают слишком много места. Попробуй добавить меньше или более лёгкие изображения.");
+ }
+}
+
+function newPack(){
+ pack=[];
+ currentPackId=null;
+ document.getElementById("packName").value="";
+ renderEditor();
+ showScreen("editor");
+}
+
+function editPack(id){
+ const found=myPacks.find(p=>p.id===id);
+ if(!found)return;
+ currentPackId=id;
+ pack=found.characters.map(c=>({...c}));
+ document.getElementById("packName").value=found.name;
+ renderEditor();
+ showScreen("editor");
+}
+
+function savePack(){
+ const name=document.getElementById("packName").value.trim()||"Мой пак";
+ if(pack.length===0){
+  alert("Добавь хотя бы одного персонажа!");
+  return false;
+ }
+ const id=currentPackId||("pack_"+Date.now());
+ const item={id,name,characters:pack.map(c=>({...c}))};
+ const index=myPacks.findIndex(p=>p.id===id);
+ if(index>=0)myPacks[index]=item;
+ else myPacks.push(item);
+ currentPackId=id;
+ persistPacks();
+ return true;
+}
+
+function openMyPacks(){
+ renderMyPacks();
+ showScreen("myPacks");
+}
+
+function renderMyPacks(){
+ const grid=document.getElementById("myPacksGrid");
+ grid.innerHTML="";
+ document.getElementById("myPacksEmpty").classList.toggle("hidden",myPacks.length>0);
+
+ myPacks.forEach(p=>{
+  const card=document.createElement("div");
+  card.className="pack-card";
+  const preview=p.characters.find(c=>c.image);
+
+  card.innerHTML=`
+   ${preview?`<img src="${preview.image}">`:`<div style="font-size:55px;padding:25px">${p.characters[0]?.emoji||"📦"}</div>`}
+   <h3></h3>
+   <p>${p.characters.length} персонажей</p>
+   <div class="card-actions">
+    <button class="small" data-action="play">Играть</button>
+    <button class="small secondary" data-action="edit">Изменить</button>
+    <button class="small danger" data-action="delete">Удалить</button>
+   </div>`;
+
+  card.querySelector("h3").textContent=p.name;
+  card.querySelector('[data-action="play"]').onclick=()=>startGame(p.id);
+  card.querySelector('[data-action="edit"]').onclick=()=>editPack(p.id);
+  card.querySelector('[data-action="delete"]').onclick=()=>deletePack(p.id);
+  grid.appendChild(card);
+ });
+}
+
+function deletePack(id){
+ if(!confirm("Удалить этот пак?"))return;
+ myPacks=myPacks.filter(p=>p.id!==id);
+ persistPacks();
+ renderMyPacks();
+}
+
+function openOnlinePacks(){
+ const grid=document.getElementById("onlinePacksGrid");
+ grid.innerHTML="";
+
+ demoPacks.forEach(p=>{
+  const card=document.createElement("div");
+  card.className="pack-card";
+  card.innerHTML=`
+   <div style="font-size:65px;padding:18px">${p.emoji}</div>
+   <h3>${p.name}</h3>
+   <p>Автор: ${p.author}</p>
+   <p>${p.count} персонажей</p>
+   <button class="small">Добавить себе</button>`;
+
+  card.querySelector("button").onclick=()=>addDemoPack(p.id);
+  grid.appendChild(card);
+ });
+
+ showScreen("onlinePacks");
+}
+
+function addDemoPack(id){
+ const demo=demoPacks.find(p=>p.id===id);
+ if(!demo)return;
+
+ if(myPacks.some(p=>p.id==="copy_"+id)){
+  alert("Этот демонстрационный пак уже есть в твоих паках.");
+  return;
+ }
+
+ const emojis={
+  demo1:["🐶","🐱","🦊","🐼","🐸","🐵","🦁","🐧"],
+  demo2:["🚀","🌙","⭐","🪐","☄️","👽","🌍","🛰️"],
+  demo3:["🐉","🧙","🧚","🧝","🧛","🦄","🧌","🧞"]
+ };
+ const names={
+  demo1:["Собака","Кот","Лиса","Панда","Лягушка","Обезьяна","Лев","Пингвин"],
+  demo2:["Ракета","Луна","Звезда","Планета","Комета","Пришелец","Земля","Спутник"],
+  demo3:["Дракон","Волшебник","Фея","Эльф","Вампир","Единорог","Тролль","Джинн"]
+ };
+
+ const characters=names[id].map((name,i)=>({
+  id:"online_"+id+"_"+i,
+  name,
+  emoji:emojis[id][i],
+  image:null
+ }));
+
+ myPacks.push({id:"copy_"+id,name:demo.name,characters});
+ persistPacks();
+ alert("Пак добавлен в раздел «Мои паки»!");
+}
+
+function renderEditor(){
+ const grid=document.getElementById("editorGrid");
+ grid.innerHTML="";
+ document.getElementById("editorCount").textContent=pack.length+" персонажей";
+
+ pack.forEach((c,i)=>{
+  const card=document.createElement("div");
+  card.className="editor-card";
+  card.innerHTML=`
+   ${c.image?`<img src="${c.image}">`:`<div style="font-size:65px;height:120px;display:grid;place-items:center">${c.emoji||"❔"}</div>`}
+   <input type="text" aria-label="Имя персонажа">
+   <div class="card-actions"><button class="small danger">Удалить</button></div>`;
+
+  const input=card.querySelector("input");
+  input.value=c.name;
+  input.oninput=()=>pack[i].name=input.value;
+
+  card.querySelector("button").onclick=()=>{
+   pack.splice(i,1);
+   renderEditor();
+  };
+
+  grid.appendChild(card);
+ });
+}
+
+function addPlaceholder(){
+ pack.push({id:"custom"+Date.now(),name:"Новый персонаж",emoji:"❔",image:null});
+ renderEditor();
+}
+
+function addFiles(files){
+ [...files].forEach(file=>{
+  if(!file.type.startsWith("image/"))return;
+
+  const reader=new FileReader();
+  reader.onload=e=>{
+   const img=new Image();
+
+   img.onload=()=>{
+    const canvas=document.createElement("canvas");
+    const max=600;
+    const scale=Math.min(1,max/Math.max(img.width,img.height));
+    canvas.width=Math.round(img.width*scale);
+    canvas.height=Math.round(img.height*scale);
+    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+
+    const image=canvas.toDataURL("image/jpeg",0.8);
+
+    pack.push({
+     id:"custom"+Date.now()+Math.random(),
+     name:file.name.replace(/\.[^.]+$/,""),
+     image,
+     emoji:null
+    });
+
+    renderEditor();
+   };
+
+   img.src=e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+ });
+}
+
+document.getElementById("fileInput").addEventListener("change",e=>{
+ addFiles(e.target.files);
+ e.target.value="";
+});
+
+const dropzone=document.getElementById("dropzone");
+
+dropzone.addEventListener("dragover",e=>{
+ e.preventDefault();
+ dropzone.classList.add("drag");
+});
+
+dropzone.addEventListener("dragleave",()=>{
+ dropzone.classList.remove("drag");
+});
+
+dropzone.addEventListener("drop",e=>{
+ e.preventDefault();
+ dropzone.classList.remove("drag");
+ addFiles(e.dataTransfer.files);
+});
+
+document.addEventListener("paste",e=>{
+ if(!document.getElementById("editor").classList.contains("active"))return;
+
+ const items=[...(e.clipboardData?.items||[])];
+ const files=items.filter(i=>i.type.startsWith("image/"))
+  .map(i=>i.getAsFile()).filter(Boolean);
+
+ if(files.length)addFiles(files);
+});
+
+function playEditedPack(){
+ if(pack.length===0){
+  alert("Сначала добавь персонажей!");
+  return;
+ }
+
+ if(!savePack())return;
+
+ startGameFromCharacters(
+  pack,
+  document.getElementById("packName").value||"Мой пак"
+ );
+}
+
+function startGame(packId){
+ if(packId){
+  const p=myPacks.find(x=>x.id===packId);
+  if(!p)return;
+
+  startGameFromCharacters(p.characters,p.name);
+  return;
+ }
+
+ startGameFromCharacters(defaultCharacters,"Minecraft");
+}
+
+function startGameFromCharacters(characters,name){
+ if(!characters||characters.length===0){
+  alert("В этом паке нет персонажей.");
+  return;
+ }
+
+ gameCharacters=characters.map((c,i)=>({
+  ...c,
+  id:c.id||("game_character_"+i)
+ }));
+
+ eliminated=new Set();
+ secretCharacter=null;
+
+ document.getElementById("gamePackLabel").textContent="Пак: "+name;
+
+ renderGame();
+ showScreen("game");
+
+ // Автоматически открываем полноценное меню выбора
+ openPicker();
+}
+
+/* ВЫБОР ПЕРСОНАЖА */
+
+function openPicker(){
+ pickerSelected=null;
+
+ const grid=document.getElementById("pickerGrid");
+ grid.innerHTML="";
+
+ gameCharacters.forEach(c=>{
+  const card=document.createElement("div");
+  card.className="picker-card";
+
+  card.innerHTML=`
+   ${c.image
+    ? `<img src="${c.image}">`
+    : `<div class="emoji">${c.emoji||"❔"}</div>`}
+   <p></p>`;
+
+  card.querySelector("p").textContent=c.name;
+
+  card.onclick=()=>{
+   pickerSelected=c.id;
+
+   document.querySelectorAll(".picker-card").forEach(el=>{
+    el.classList.remove("selected");
+   });
+
+   card.classList.add("selected");
+  };
+
+  grid.appendChild(card);
+ });
+
+ document.getElementById("characterPicker").classList.add("active");
+}
+
+function confirmCharacter(){
+ if(!pickerSelected){
+  alert("Сначала выбери персонажа!");
+  return;
+ }
+
+ secretCharacter=gameCharacters.find(c=>c.id===pickerSelected);
+
+ if(!secretCharacter)return;
+
+ document.getElementById("characterPicker").classList.remove("active");
+
+ renderGame();
+ renderSecret();
+}
+
+function closePicker(){
+ document.getElementById("characterPicker").classList.remove("active");
+}
+
+function chooseSecret(){
+ openPicker();
+}
+
+/* ИГРОВОЕ ПОЛЕ */
+
+function renderGame(){
+ const grid=document.getElementById("gameGrid");
+ grid.innerHTML="";
+
+ gameCharacters.forEach(c=>{
+  const card=document.createElement("div");
+
+  card.className="game-card"+
+   (eliminated.has(c.id)?" eliminated":"")+
+   (secretCharacter?.id===c.id?" selected":"");
+
+  card.innerHTML=`
+   ${c.image
+    ? `<img src="${c.image}">`
+    : `<div class="emoji">${c.emoji||"❔"}</div>`}
+   <p></p>`;
+
+  card.querySelector("p").textContent=c.name;
+
+  card.onclick=()=>{
+   if(eliminated.has(c.id))eliminated.delete(c.id);
+   else eliminated.add(c.id);
+
+   renderGame();
+  };
+
+  grid.appendChild(card);
+ });
+
+ document.getElementById("remainingLabel").textContent=
+  "Осталось: "+(gameCharacters.length-eliminated.size);
+
+ renderSecret();
+}
+
+function renderSecret(){
+ const box=document.getElementById("secretDisplay");
+
+ if(!secretCharacter){
+  box.textContent="Сначала выбери персонажа";
+  return;
+ }
+
+ box.innerHTML=`
+  ${secretCharacter.image
+   ? `<img src="${secretCharacter.image}">`
+   : `<div class="emoji">${secretCharacter.emoji||"❔"}</div>`}
+  <div></div>`;
+
+ box.querySelector("div:last-child").textContent=secretCharacter.name;
+}
+
+function resetCards(){
+ eliminated.clear();
+ renderGame();
+}
+
+renderMyPacks();
+</script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="online-client.js"></script>
+
+</body>
+</html>
