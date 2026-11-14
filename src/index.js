@@ -874,7 +874,7 @@ export class GameRoom {
       const question = String(data.question || "").trim().slice(0,180);
       if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending || !question) { reply({ok:false,message:"Сейчас нельзя задать вопрос."}); return; }
       this.pending = {type:"who-am-i-question",from:playerId};
-      this.broadcast("who-am-i-question",{question,askerNumber:[...this.players.keys()].indexOf(playerId)+1},this.players.get(playerId));
+      this.broadcast("who-am-i-question",{question,askerNumber:[...this.players.keys()].indexOf(playerId)+1,isYourQuestion:true});
       reply({ok:true}); return;
     }
     if (this.gameId === "who-am-i" && event === "who-am-i-answer") {
@@ -901,7 +901,7 @@ export class GameRoom {
       reply({ok:true,correct}); return;
     }
     if (this.gameId === "who-am-i" && event === "who-am-i-pass") {
-      if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending) { reply({ok:false,message:"Сейчас нельзя передать ход."}); return; }
+      if (this.gamePhase !== "playing" || this.currentTurn !== playerId || (this.pending && !(this.pending.type === "who-am-i-question" && this.pending.from === playerId))) { reply({ok:false,message:"Сейчас нельзя передать ход."}); return; }
       await this.advanceWhoAmITurn(); reply({ok:true}); return;
     }
     if (event === "player-ready") {
