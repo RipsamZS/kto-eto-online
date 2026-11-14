@@ -858,6 +858,19 @@
   function createPanel() {
     const existingPanel = document.getElementById("onlineGamePanel");
     if (existingPanel) {
+      if (!document.getElementById("onlineRoomCodeFrame")) {
+        const codeFrame = document.createElement("div");
+        codeFrame.id = "onlineRoomCodeFrame";
+        codeFrame.style.cssText = "display:none;padding:12px;margin:8px 0;border:1px solid #a78bfa;border-radius:12px";
+        codeFrame.innerHTML = '<div style="font-size:12px;color:#d4c8ff">КОД КОМНАТЫ</div><strong id="onlineRoomCodeValue" style="font-size:24px;letter-spacing:2px"></strong><button id="onlineCopyCodeButton" type="button" class="secondary small" style="margin-left:10px">Скопировать</button>';
+        existingPanel.appendChild(codeFrame);
+        document.getElementById("onlineCopyCodeButton").onclick = () => {
+          if (API.roomCode && navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(API.roomCode);
+            setStatus("Код комнаты скопирован.");
+          }
+        };
+      }
       if (!document.getElementById("onlineEditRoomButton")) {
         const editButton = document.createElement("button");
         editButton.id = "onlineEditRoomButton";
