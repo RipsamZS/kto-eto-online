@@ -893,7 +893,7 @@ export class GameRoom {
       if (correct) {
         this.gamePhase="finished"; this.ended=true; this.currentTurn=null;
         const winnerNumber=[...this.players.keys()].indexOf(playerId)+1;
-        this.broadcast("who-am-i-finished",{winnerNumber,message:"Игрок №"+winnerNumber+" угадал своё слово!"});
+        this.broadcast("who-am-i-finished",{winnerNumber,winnerId:playerId,message:"Игрок №"+winnerNumber+" угадал своё слово!"});
         await this.updateDirectory();
       } else {
         this.send(this.players.get(playerId),"who-am-i-guess-result",{correct:false,message:"Пока не угадал. Ход переходит дальше."});
