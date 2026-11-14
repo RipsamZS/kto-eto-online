@@ -16,12 +16,12 @@
   .srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}.srs-menu{position:relative;display:inline-block}
   .srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
-  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}\n  #srsLobby{position:relative;padding-top:48px}\n  #srsHostMenu{position:absolute;top:50%;left:50%;right:auto;z-index:60;transform:translate(-50%,-50%)}\n  .srs.lobby-active #srsHostMenu:not(.hidden){display:block!important}\n  #srsMenuToggle{width:clamp(76px,11vw,108px);height:clamp(76px,11vw,108px);padding:8px;margin:0;border:2px solid #c4b5fd;border-radius:50%;background:#7c3aed;box-shadow:0 8px 30px #0008;font-size:15px}\n  #srsMenuToggle:hover{background:#8b5cf6}\n  .srs-menu-panel{top:calc(100% + 12px);left:50%;right:auto;transform:translateX(-50%)}\n  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}\n  #srsSeating h3,#srsSeating>p{display:none}\n  #srsLobbyActions{margin-top:auto;padding-top:18px}\n  #srsLobbyActions button{display:block;width:100%}
+  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}\n  #srsLobby{position:relative;padding-top:48px}\n  #srsHostMenu{position:absolute;top:50%;left:12%;right:auto;z-index:60;transform:translate(-50%,-50%)}\n  .srs.lobby-active #srsHostMenu:not(.hidden){display:block!important}\n  #srsMenuToggle{width:clamp(76px,11vw,108px);height:clamp(76px,11vw,108px);padding:8px;margin:0;border:2px solid #c4b5fd;border-radius:50%;background:#7c3aed;box-shadow:0 8px 30px #0008;font-size:15px}\n  #srsMenuToggle:hover{background:#8b5cf6}\n  .srs-menu-panel{top:calc(100% + 12px);left:50%;right:auto;transform:translateX(-50%)}\n  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}\n  #srsSeating h3,#srsSeating>p{display:none}\n  #srsLobbyActions{margin-top:auto;padding-top:18px}\n  #srsLobbyActions button{display:block;width:100%}
   .srs-table-wrap{position:relative;min-height:350px;margin:8px 0;border:0;border-radius:0;background:transparent;overflow:visible}
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(112px,27%,166px);min-height:90px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-seat .word-tag{display:block;max-width:100%;min-width:54px;padding:3px 7px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:12px;line-height:1.2;font-weight:800;overflow-wrap:anywhere;text-align:center}.srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
   .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
-  .srs-turn-ring{position:absolute;top:50%;left:50%;z-index:55;width:clamp(170px,24vmin,220px);height:clamp(170px,24vmin,220px);transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
+  .srs-turn-ring{position:absolute;top:50%;left:60%;z-index:55;width:clamp(170px,24vmin,220px);height:clamp(170px,24vmin,220px);transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
   .srs-turn-ring svg{display:block;width:100%;height:100%;overflow:visible}
   .srs-turn-ring circle{fill:none;stroke-width:7}
   .srs-turn-ring-track{stroke:#ffffff28}
@@ -30,8 +30,8 @@
   .srs-turn-ring.warning .srs-turn-ring-progress{stroke:#f59e0b}.srs-turn-ring.warning strong{border-color:#f59e0b;color:#fbbf24}
   .srs-turn-ring.urgent .srs-turn-ring-progress{stroke:#ef4444}.srs-turn-ring.urgent strong{border-color:#ef4444;color:#fca5a5}
   #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
-  .srs-seat-0{left:50%;top:12%}.srs-seat-1{left:82%;top:28%}.srs-seat-2{left:82%;top:72%}.srs-seat-3{left:50%;top:88%}.srs-seat-4{left:18%;top:72%}.srs-seat-5{left:18%;top:28%}
-  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}.srs-code-field{margin-top:8px}}
+  .srs-seat-0{left:58%;top:12%}.srs-seat-1{left:84%;top:28%}.srs-seat-2{left:84%;top:72%}.srs-seat-3{left:58%;top:88%}.srs-seat-4{left:39%;top:72%}.srs-seat-5{left:39%;top:28%}
+  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}#srsHostMenu{left:13%}.srs-turn-ring{left:60%}.srs-code-field{margin-top:8px}}
   </style>
   <section class="srs">
     <div id="srsHome">
@@ -69,7 +69,7 @@
       </div>
       <div id="srsHostMenu" class="srs-menu hidden">
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
-        <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
+        <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsStart" class="wide hidden" type="button">▶ Начать игру</button><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
       </div>
       <div id="srsEdit" class="srs-card hidden"><h3>Редактирование комнаты</h3>
         <label for="srsEditName">Название</label><input id="srsEditName" maxlength="50">
@@ -91,7 +91,7 @@
         </div>
         <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       </div>
-      <div id="srsLobbyActions"><button id="srsStart" class="wide hidden">Начать игру</button><button id="srsLeave" class="wide alt">Покинуть комнату</button></div>
+      <div id="srsLobbyActions"><button id="srsLeave" class="wide alt">Покинуть комнату</button></div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
     <button id="srsHelpToggle" type="button" aria-expanded="false">? Справка</button>
