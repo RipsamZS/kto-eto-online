@@ -778,6 +778,7 @@ export class GameRoom {
       this.send(this.players.get(firstWriter), "word-entry-turn", {
         playerNumber:ids.indexOf(firstWriter)+1,
         targetPlayerNumber:ids.indexOf(firstRecipient)+1,
+        targetPlayerId:firstRecipient,
         totalPlayers:ids.length
       });
       this.broadcast("word-round-start", { playersCount:ids.length, totalPlayers:ids.length });
@@ -835,6 +836,7 @@ export class GameRoom {
         this.send(this.players.get(nextWriterId), "word-entry-turn", {
           playerNumber:ids.indexOf(nextWriterId)+1,
           targetPlayerNumber:ids.indexOf(nextRecipientId)+1,
+          targetPlayerId:nextRecipientId,
           totalPlayers:ids.length
         });
       }
