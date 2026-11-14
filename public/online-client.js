@@ -856,7 +856,48 @@
   }
 
   function createPanel() {
-    if (document.getElementById("onlineGamePanel")) return;
+    const existingPanel = document.getElementById("onlineGamePanel");
+    if (existingPanel) {
+      if (!document.getElementById("onlineEditRoomButton")) {
+        const editButton = document.createElement("button");
+        editButton.id = "onlineEditRoomButton";
+        editButton.type = "button";
+        editButton.className = "secondary small";
+        editButton.textContent = "Изменить настройки комнаты";
+        editButton.style.cssText = "display:none;margin:10px auto";
+        existingPanel.appendChild(editButton);
+        const editModal = document.createElement("div");
+        editModal.id = "onlineEditRoomModal";
+        editModal.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;background:#080612dd;align-items:center;justify-content:center;padding:16px";
+        editModal.innerHTML = `<div style="width:min(440px,100%);padding:22px;border:1px solid #a78bfa;border-radius:18px;background:#1c1732;color:#fff">
+          <h3 style="margin-top:0">Настройки комнаты</h3>
+          <label>Название</label><input id="onlineEditRoomName" maxlength="50" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30">
+          <label>Доступ</label><select id="onlineEditRoomAccess" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
+          <label>Время на вопрос</label><select id="onlineEditRoomTimer" style="width:100%;padding:11px;border-radius:9px;background:#100d20;color:white;border:1px solid #ffffff30"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60">60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option><option value="0">Без ограничения</option></select>
+          <div style="display:flex;gap:8px;margin-top:16px"><button id="onlineSaveRoomSettings" type="button">Сохранить</button><button id="onlineCancelRoomSettings" type="button">Отмена</button></div>
+        </div>`;
+        document.body.appendChild(editModal);
+        editButton.onclick = () => {
+          const settings = API.roomSettings || {};
+          document.getElementById("onlineEditRoomName").value = settings.roomName || "Комната";
+          document.getElementById("onlineEditRoomAccess").value = settings.access || "private";
+          document.getElementById("onlineEditRoomTimer").value = String(settings.timerSeconds ?? 60);
+          editModal.style.display = "flex";
+        };
+        document.getElementById("onlineCancelRoomSettings").onclick = () => { editModal.style.display = "none"; };
+        document.getElementById("onlineSaveRoomSettings").onclick = async () => {
+          const result = await updateRoomSettings({
+            roomName: document.getElementById("onlineEditRoomName").value.trim(),
+            access: document.getElementById("onlineEditRoomAccess").value,
+            timerSeconds: Number(document.getElementById("onlineEditRoomTimer").value),
+            maxPlayers: 2
+          });
+          if (result.ok) editModal.style.display = "none";
+          setStatus(result.ok ? "Настройки комнаты сохранены." : (result.message || "Не удалось сохранить настройки."));
+        };
+      }
+      return;
+    }
 
     const panel = document.createElement("div");
 
@@ -1046,6 +1087,8 @@
 
   document.addEventListener("online-state-change", () => {
     updateTurnControls();
+    const editButton = document.getElementById("onlineEditRoomButton");
+    if (editButton) editButton.style.display = API.isRoomHost ? "inline-block" : "none";
   });
 
   createPanel();
