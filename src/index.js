@@ -786,6 +786,10 @@ export class GameRoom {
             word:this.wordAssignments.get(id) || "",
             playerNumber:ids.indexOf(id)+1
           });
+          const visibleWords = Object.fromEntries(
+            [...this.wordAssignments.entries()].filter(([targetId]) => targetId !== id)
+          );
+          this.send(this.players.get(id), "who-am-i-visible-words", {words:visibleWords});
         }
         this.gamePhase = "playing";
         this.currentTurn = ids[0];
