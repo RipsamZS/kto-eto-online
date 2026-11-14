@@ -8,6 +8,9 @@ export class GameRoom {
     this.pack = null;
     this.ready = new Set();
     this.secretCharacters = new Map();
+    this.wordAssignments = new Map();
+    this.wordSubmitted = new Set();
+    this.gamePhase = "lobby";
 
     this.currentTurn = null;
     this.pending = null;
@@ -183,6 +186,9 @@ export class GameRoom {
 
     this.ready.clear();
     this.secretCharacters.clear();
+    this.wordAssignments.clear();
+    this.wordSubmitted.clear();
+    this.gamePhase = "lobby";
 
     this.currentTurn = null;
     this.pending = null;
@@ -590,8 +596,16 @@ export class GameRoom {
       });
 
       this.broadcast("player-joined", {
-        playersCount: this.players.size
+        playersCount: this.players.size,
+        maxPlayers: this.maxPlayers,
+        hostPlayerId: this.hostPlayerId
       }, socket);
+      this.send(socket, "room-roster", {
+        playersCount: this.players.size,
+        maxPlayers: this.maxPlayers,
+        hostPlayerId: this.hostPlayerId,
+        isHost: playerId === this.hostPlayerId
+      });
 
       await this.updateDirectory();
       return;
@@ -627,6 +641,67 @@ export class GameRoom {
       const settings = { roomName:this.roomName, roomCode:this.roomId, access:this.access, maxPlayers:this.maxPlayers, timerSeconds:this.timerSeconds };
       this.broadcast("room-settings-updated", settings);
       reply({ ok:true, settings });
+      return;
+    }
+
+    if (this.gameId === "who-am-i" && event === "start-word-round") {
+      if (playerId !== this.hostPlayerId) {
+        reply({ ok:false, message:"Начать игру может только создатель комнаты." });
+        return;
+      }
+      if (this.gamePhase !== "lobby" || this.players.size !== this.maxPlayers) {
+        reply({ ok:false, message:"Для начала игры должны подключиться все игроки." });
+        return;
+      }
+      this.gamePhase = "writing";
+      this.wordAssignments.clear();
+      this.wordSubmitted.clear();
+      const ids = [...this.players.keys()];
+      ids.forEach((id, index) => {
+        this.send(this.players.get(id), "word-entry-turn", {
+          playerNumber:index+1,
+          targetPlayerNumber:((index+1)%ids.length)+1,
+          totalPlayers:ids.length
+        });
+      });
+      this.broadcast("word-round-start", { playersCount:ids.length, totalPlayers:ids.length });
+      reply({ok:true});
+      return;
+    }
+
+    if (this.gameId === "who-am-i" && event === "submit-player-word") {
+      if (this.gamePhase !== "writing" || this.wordSubmitted.has(playerId)) {
+        reply({ok:false, message:"Сейчас нельзя отправить слово."});
+        return;
+      }
+      const word = String(data.word || "").trim().replace(/\\s+/g," ").slice(0,40);
+      if (!word || word.length < 2) {
+        reply({ok:false, message:"Введи слово длиной хотя бы 2 символа."});
+        return;
+      }
+      const ids = [...this.players.keys()];
+      const index = ids.indexOf(playerId);
+      if (index < 0 || ids.length !== this.maxPlayers) {
+        reply({ok:false, message:"Состав комнаты изменился. Начните заново."});
+        return;
+      }
+      const recipientId = ids[(index+1)%ids.length];
+      this.wordAssignments.set(recipientId, word);
+      this.wordSubmitted.add(playerId);
+      reply({ok:true, waiting:true});
+      this.send(this.players.get(playerId), "word-submitted", {message:"Слово принято. Оно скрыто от тебя и будет показано адресату."});
+      if (this.wordSubmitted.size === ids.length) {
+        this.gamePhase = "playing";
+        for (const id of ids) {
+          this.send(this.players.get(id), "your-secret-word", {
+            word:this.wordAssignments.get(id) || "",
+            playerNumber:ids.indexOf(id)+1
+          });
+        }
+        this.broadcast("word-round-complete", {playersCount:ids.length});
+      } else {
+        this.broadcast("word-submission-progress", {submitted:this.wordSubmitted.size,total:ids.length});
+      }
       return;
     }
 
