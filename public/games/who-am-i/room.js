@@ -22,7 +22,7 @@
   .srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
   .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
   .srs-seat-0{left:50%;top:12%}.srs-seat-1{left:82%;top:28%}.srs-seat-2{left:82%;top:72%}.srs-seat-3{left:50%;top:88%}.srs-seat-4{left:18%;top:72%}.srs-seat-5{left:18%;top:28%}
-  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:27%;min-height:68px}.srs-table-center{width:30%;height:34%}.srs-code-field{margin-top:8px}}
+  @media(max-width:480px){.srs-table-wrap{min-height:320px}.srs-seat{width:27%;min-height:68px}.srs-code-field{margin-top:8px}}
   </style>
   <section class="srs">
     <div id="srsHome">
