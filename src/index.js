@@ -678,8 +678,8 @@ export class GameRoom {
       }
       const ids = [...this.players.keys()];
       const index = ids.indexOf(playerId);
-      if (index < 0 || ids.length !== this.maxPlayers) {
-        reply({ok:false, message:"Состав комнаты изменился. Начните заново."});
+      if (index < 0 || ids.length !== this.maxPlayers || index !== this.wordSubmitted.size) {
+        reply({ok:false, message:"Сейчас очередь другого игрока."});
         return;
       }
       const recipientId = ids[(index+1)%ids.length];
