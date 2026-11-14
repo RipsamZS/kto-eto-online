@@ -121,6 +121,8 @@
   $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");};
   document.addEventListener("room-roster",e=>{playersCount=Number(e.detail.playersCount||playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();});
   document.addEventListener("online-opponent-connected",e=>{playersCount=Number(e.detail.playersCount||playersCount+1);syncRoom();});
+  document.addEventListener("online-opponent-left",e=>{playersCount=Number(e.detail.playersCount||Math.max(1,playersCount-1));syncRoom();});
+  document.addEventListener("room-host-changed",()=>syncRoom());
   document.addEventListener("room-settings-updated",e=>syncRoom(e.detail));
   document.addEventListener("word-round-start",()=>{started=true;$("srsStart").classList.add("hidden");$("srsWordStage").classList.remove("hidden");$("srsWordInstruction").textContent="Все игроки по очереди отправляют слово следующему по кругу. Получатель не увидит его до завершения раздачи.";syncRoom();});
   document.addEventListener("word-entry-turn",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");$("srsWordHeading").textContent="Твой ход — игрок "+e.detail.playerNumber+" из "+e.detail.totalPlayers;$("srsWordInstruction").textContent="Придумай одно слово для игрока №"+e.detail.targetPlayerNumber+". Не вводи своё имя.";});
@@ -128,6 +130,7 @@
   document.addEventListener("word-submission-progress",e=>status("Слова отправили "+e.detail.submitted+" из "+e.detail.total+" игроков."));
   document.addEventListener("your-secret-word",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
   document.addEventListener("word-round-complete",()=>{status("Все слова розданы. Игра начинается!");});
+  document.addEventListener("word-round-reset",e=>{started=false;$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
   document.addEventListener("online-room-left",()=>{show("srsHome");started=false;});
 })();
 (() => {
