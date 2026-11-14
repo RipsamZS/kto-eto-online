@@ -16,12 +16,15 @@
   .srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}.srs-menu{position:relative;display:inline-block}
   .srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
-  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}\n  #srsLobby{position:relative;padding-top:48px}\n  #srsHostMenu{position:absolute;top:50%;left:12%;right:auto;z-index:60;transform:translate(-50%,-50%)}\n  .srs.lobby-active #srsHostMenu:not(.hidden){display:block!important}\n  #srsMenuToggle{width:clamp(76px,11vw,108px);height:clamp(76px,11vw,108px);padding:8px;margin:0;border:2px solid #c4b5fd;border-radius:50%;background:#7c3aed;box-shadow:0 8px 30px #0008;font-size:15px}\n  #srsMenuToggle:hover{background:#8b5cf6}\n  .srs-menu-panel{top:calc(100% + 12px);left:50%;right:auto;transform:translateX(-50%)}\n  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}\n  #srsSeating h3,#srsSeating>p{display:none}\n  #srsLobbyActions{margin-top:auto;padding-top:18px}\n  #srsLobbyActions button{display:block;width:100%}
+  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}\n  #srsLobby{position:relative;padding-top:48px}\n  #srsHostMenu{position:absolute;top:50%;left:50%;right:auto;z-index:60;transform:translate(-50%,-50%)}\n  .srs.lobby-active #srsHostMenu{display:block!important}
+  .srs.lobby-active.writing-active #srsWordStage{display:block!important;position:absolute;z-index:65;width:min(260px,78vw);margin:0;padding:12px;transform:translate(-50%,-100%);box-shadow:0 8px 28px #000b}
+  .srs.lobby-active.writing-active #srsWordStage h3,.srs.lobby-active.writing-active #srsWordStage>p{display:none}
+  #srsWriterTag{position:absolute;z-index:64;transform:translate(-50%,-100%);padding:5px 8px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:11px;white-space:nowrap;pointer-events:none}\n  #srsMenuToggle{width:clamp(76px,11vw,108px);height:clamp(76px,11vw,108px);padding:8px;margin:0;border:2px solid #c4b5fd;border-radius:50%;background:#7c3aed;box-shadow:0 8px 30px #0008;font-size:15px}\n  #srsMenuToggle:hover{background:#8b5cf6}\n  .srs-menu-panel{top:calc(100% + 12px);left:50%;right:auto;transform:translateX(-50%)}\n  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}\n  #srsSeating h3,#srsSeating>p{display:none}\n  #srsLobbyActions{margin-top:auto;padding-top:18px}\n  #srsLobbyActions button{display:block;width:100%}
   .srs-table-wrap{position:relative;min-height:350px;margin:8px 0;border:0;border-radius:0;background:transparent;overflow:visible}
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(112px,27%,166px);min-height:90px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-seat .word-tag{display:block;max-width:100%;min-width:54px;padding:3px 7px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:12px;line-height:1.2;font-weight:800;overflow-wrap:anywhere;text-align:center}.srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
   .srs-seat.occupied{background:#4b3470!important;border-color:#a78bfa!important}.srs-seat.mine{outline:2px solid #c4b5fd;outline-offset:2px}.srs-seat:disabled{opacity:1;cursor:default}
-  .srs-turn-ring{position:absolute;top:50%;left:60%;z-index:55;width:clamp(170px,24vmin,220px);height:clamp(170px,24vmin,220px);transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
+  .srs-turn-ring{position:absolute;top:50%;left:50%;z-index:55;width:clamp(170px,24vmin,220px);height:clamp(170px,24vmin,220px);transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 4px 12px #0009)}
   .srs-turn-ring svg{display:block;width:100%;height:100%;overflow:visible}
   .srs-turn-ring circle{fill:none;stroke-width:7}
   .srs-turn-ring-track{stroke:#ffffff28}
@@ -69,7 +72,7 @@
       </div>
       <div id="srsHostMenu" class="srs-menu hidden">
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
-        <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsStart" class="wide hidden" type="button">▶ Начать игру</button><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
+        <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsStart" class="wide hidden" type="button">▶ Начать игру</button><button id="srsEditAction" type="button">⚙ Редактировать комнату</button><button id="srsLeave" class="wide alt" type="button">Выйти из игры</button></div>
       </div>
       <div id="srsEdit" class="srs-card hidden"><h3>Редактирование комнаты</h3>
         <label for="srsEditName">Название</label><input id="srsEditName" maxlength="50">
@@ -91,7 +94,7 @@
         </div>
         <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       </div>
-      <div id="srsLobbyActions"><button id="srsLeave" class="wide alt">Покинуть комнату</button></div>
+      <div id="srsLobbyActions"></div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
     <button id="srsHelpToggle" type="button" aria-expanded="false">? Справка</button>
@@ -124,8 +127,9 @@
     maxPlayers=Number(settings.maxPlayers||maxPlayers||2);
     $("srsRoomInfo").textContent="Игроков в комнате: "+playersCount+"/"+maxPlayers+(started?" · Игра началась":" · Ожидаем подключения");
     const host=!!window.onlineGame.isRoomHost();
-    $("srsHostMenu").classList.toggle("hidden",!host);
+    $("srsHostMenu").classList.remove("hidden");
     $("srsStart").classList.toggle("hidden",!host||started);
+    $("srsEditAction").classList.toggle("hidden",!host);
     const allSeated=roster.length===playersCount&&roster.every(player=>Number.isInteger(player.seatIndex));
     $("srsStart").disabled=playersCount!==maxPlayers||!allSeated;
     if(host){
@@ -199,12 +203,19 @@
   document.addEventListener("room-host-changed",()=>syncRoom());
   document.addEventListener("room-settings-updated",e=>syncRoom(e.detail));
   document.addEventListener("word-round-start",()=>{visibleWords={};renderSeats();started=true;$("srsStart").classList.add("hidden");$("srsWordStage").classList.remove("hidden");$("srsWordInstruction").textContent="Игроки по очереди отправляют слова случайно назначенным игрокам. Каждый получит ровно одно слово. Получатель не увидит его до завершения раздачи.";syncRoom();});
-  document.addEventListener("word-entry-turn",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");$("srsWordHeading").textContent="Твой ход — игрок "+e.detail.playerNumber+" из "+e.detail.totalPlayers;$("srsWordInstruction").textContent="Придумай одно слово для случайно назначенного игрока №"+e.detail.targetPlayerNumber+". Не вводи своё имя.";});
-  document.addEventListener("word-submitted",e=>status(e.detail.message||"Слово принято."));
+  document.addEventListener("word-entry-turn",e=>{
+    $("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");
+    const me=roster.find(p=>p.id===window.onlineGame.getPlayerId());const target=roster.find(p=>p.id===e.detail.targetPlayerId);
+    const place=player=>{const seat=Number.isInteger(player?.seatIndex)?player.seatIndex:0;const angle=-Math.PI/2+seat*(2*Math.PI/Math.max(2,maxPlayers));return {left:50+38*Math.cos(angle),top:57+34*Math.sin(angle)};};
+    const targetPos=place(target),myPos=place(me);$("srsWordStage").style.left=targetPos.left+"%";$("srsWordStage").style.top=Math.max(8,targetPos.top-12)+"%";
+    $("srsWordHeading").textContent="Слово для игрока №"+e.detail.targetPlayerNumber;$("srsWordInstruction").textContent="Введи слово, которое получит этот игрок.";$("srsWordInput").placeholder="Слово для соперника…";
+    let tag=$("srsWriterTag");if(!tag){tag=document.createElement("div");tag.id="srsWriterTag";$("srsLobby").append(tag);}tag.textContent="Ты придумываешь слово";tag.style.left=myPos.left+"%";tag.style.top=Math.max(8,myPos.top-10)+"%";root.querySelector(".srs").classList.add("writing-active");
+  });
+  document.addEventListener("word-submitted",e=>{root.querySelector(".srs").classList.remove("writing-active");$("srsWordStage").classList.add("hidden");$("srsWriterTag")?.remove();status(e.detail.message||"Слово принято.");});
   document.addEventListener("word-submission-progress",e=>status("Слова отправили "+e.detail.submitted+" из "+e.detail.total+" игроков."));
   document.addEventListener("who-am-i-visible-words",e=>{visibleWords=e.detail.words&&typeof e.detail.words==="object"?e.detail.words:{};renderSeats();});
   document.addEventListener("your-secret-word",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
-  document.addEventListener("word-round-complete",()=>{status("Все слова розданы. Игра начинается!");$("srsPlayPanel").classList.remove("hidden");});
+  document.addEventListener("word-round-complete",()=>{root.querySelector(".srs").classList.remove("writing-active");$("srsWordStage").classList.add("hidden");$("srsWriterTag")?.remove();status("Все слова розданы. Игра начинается!");$("srsPlayPanel").classList.remove("hidden");});
   let turnTimerInterval=null;
   const turnTimerDuration=2*Math.PI*91;
   $("srsTurnTimerProgress").style.strokeDasharray=String(turnTimerDuration);
@@ -234,7 +245,7 @@
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
   document.addEventListener("word-round-reset",e=>{stopTurnCountdown();visibleWords={};renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
-  document.addEventListener("online-room-left",()=>{stopTurnCountdown();show("srsHome");started=false;});
+  document.addEventListener("online-room-left",()=>{stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();show("srsHome");started=false;});
 })();
 (() => {
   "use strict";
