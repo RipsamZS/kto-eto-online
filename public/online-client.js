@@ -346,6 +346,17 @@
         break;
       }
 
+      case "room-roster":
+      case "word-round-start":
+      case "word-entry-turn":
+      case "word-submitted":
+      case "word-submission-progress":
+      case "your-secret-word":
+      case "word-round-complete": {
+        dispatch(event, data);
+        break;
+      }
+
       case "room-settings-updated": {
         API.roomSettings = data;
         dispatch("online-room-settings-updated", data);
@@ -690,6 +701,9 @@
     if (result.ok) API.roomSettings = result.settings || settings;
     return result;
   }
+
+  function startWordRound() { return send("start-word-round"); }
+  function submitPlayerWord(word) { return send("submit-player-word", {word}); }
 
   async function listPublicRooms(gameId = "who-is-it") {
     try {
@@ -1110,6 +1124,8 @@
     createRoom,
     createLobby,
     updateRoomSettings,
+    startWordRound,
+    submitPlayerWord,
     joinRoom,
     playerReady,
     askQuestion,
