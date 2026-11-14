@@ -184,6 +184,7 @@ export class GameRoom {
 
     this.players.delete(playerId);
 
+    const wordRoundWasActive = this.gameId === "who-am-i" && this.gamePhase !== "lobby";
     this.ready.clear();
     this.secretCharacters.clear();
     this.wordAssignments.clear();
@@ -196,7 +197,15 @@ export class GameRoom {
 
     await this.clearTurnTimer();
 
-    this.broadcast("player-left");
+    this.broadcast("player-left", {
+      playersCount: this.players.size,
+      maxPlayers: this.maxPlayers
+    });
+    if (wordRoundWasActive) {
+      this.broadcast("word-round-reset", {
+        message: "Игрок покинул комнату. Раздачу слов нужно начать заново."
+      });
+    }
 
     if (this.players.size === 0) {
       await this.updateDirectory();
@@ -207,6 +216,12 @@ export class GameRoom {
     } else {
       if (this.hostPlayerId && !this.players.has(this.hostPlayerId)) {
         this.hostPlayerId = this.players.keys().next().value;
+        for (const [id, socket] of this.players) {
+          this.send(socket, "room-host-changed", {
+            hostPlayerId: this.hostPlayerId,
+            isHost: id === this.hostPlayerId
+          });
+        }
       }
       await this.updateDirectory();
     }
