@@ -16,8 +16,8 @@
   .srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}.srs-menu{position:relative;display:inline-block}
   .srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
-  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}
-  .srs-table-wrap{position:relative;min-height:350px;margin:18px 0 8px;border:1px solid #ffffff20;border-radius:22px;background:radial-gradient(ellipse at center,#392a58 0%,#211a38 65%);overflow:hidden}
+  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}\n  #srsLobby{position:relative;padding-top:48px}\n  #srsHostMenu{position:absolute;top:0;right:0;z-index:30}\n  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}\n  #srsSeating h3,#srsSeating>p{display:none}\n  #srsLobbyActions{margin-top:auto;padding-top:18px}\n  #srsLobbyActions button{display:block;width:100%}
+  .srs-table-wrap{position:relative;min-height:350px;margin:8px 0;border:0;border-radius:0;background:transparent;overflow:visible}
   .srs-table-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;height:42%;border:2px solid #a78bfa66;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;color:#d9ccf5;background:#171329;font-weight:700}
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(88px,24%,150px);min-height:76px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
@@ -51,7 +51,7 @@
     <div id="srsLobby" class="hidden">
       <h2 id="srsRoomTitle">Комната</h2><p id="srsRoomInfo">Ожидаем игроков…</p>
       <div class="status" id="srsRoomCode">Код комнаты: —</div>
-      <div id="srsSeating" class="srs-card"><h3>Выбери место за столом</h3><p class="muted">Нажми на свободное место. Все игроки увидят тебя именно там.</p><div id="srsTable" class="srs-table-wrap"><div class="srs-table-center">КТО Я?</div></div><div id="srsSeatStatus" class="muted">Выбери свободное место.</div></div>
+      <div id="srsSeating"><div id="srsTable" class="srs-table-wrap"><div class="srs-table-center">КТО Я?</div></div><div id="srsSeatStatus" class="muted"></div></div>
       <div id="srsHostMenu" class="srs-menu hidden">
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
         <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsEditAction" type="button">⚙ Редактировать комнату</button></div>
@@ -115,16 +115,16 @@
       const player=roster.find(item=>item.seatIndex===index);
       const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);button.style.left=(50+39*Math.cos(angle))+"%";button.style.top=(50+40*Math.sin(angle))+"%";
       if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(avatar,nick,note);}
-      else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}else $("srsSeatStatus").textContent="Место выбрано. Можно поменять его до начала игры.";};}
+      else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}};}
       table.append(button);
     });
     const mySeat=roster.find(player=>player.id===me&&Number.isInteger(player.seatIndex));
-    $("srsSeatStatus").textContent=mySeat?"Ты сидишь на выбранном месте. Нажми на другое свободное место, чтобы пересесть.":"Выбери свободное место за столом.";
+    $("srsSeatStatus").textContent="";
   }
   function enterLobby(result,host){
     show("srsLobby");playersCount=host?1:Math.max(1,Number(result.playersCount||1));
     maxPlayers=Number(result.settings?.maxPlayers||2);started=false;
-    syncRoom(result.settings);renderSeats();status(host?"Комната создана. Отправь код друзьям и выбери место за столом.":"Ты подключился к комнате. Выбери место за столом.");
+    syncRoom(result.settings);renderSeats();status("");
   }
   $("srsShowCreate").onclick=()=>show("srsCreateView");
   $("srsAccess").addEventListener("change",()=>{$("srsCodeField").classList.toggle("hidden",$("srsAccess").value==="public");});
