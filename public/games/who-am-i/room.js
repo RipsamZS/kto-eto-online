@@ -6,7 +6,7 @@
   const isWhoAmI = gameId === "who-am-i";
   root.innerHTML = `
   <style>
-  .srs{max-width:760px;margin:24px auto;padding:22px;border:1px solid #ffffff24;border-radius:22px;background:#211a38;color:#f6f2ff;font-family:Arial,sans-serif}
+  .srs{max-width:760px;margin:24px auto;padding:22px;border:1px solid #ffffff24;border-radius:22px;background:#211a38;color:#f6f2ff;font-family:Arial,sans-serif}\n  .srs.lobby-active{position:fixed;inset:0;z-index:50;width:100vw;height:100vh;max-width:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:hidden}\n  .srs.lobby-active #srsLobby{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}\n  .srs.lobby-active #srsRoomTitle,.srs.lobby-active #srsRoomInfo,.srs.lobby-active #srsRoomCode,.srs.lobby-active #srsHostMenu,.srs.lobby-active #srsEdit,.srs.lobby-active #srsWordStage,.srs.lobby-active #srsLobbyActions,.srs.lobby-active #srsStatus{display:none!important}\n  .srs.lobby-active #srsSeating{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}\n  .srs.lobby-active .srs-table-wrap{position:absolute;inset:0;width:100%;height:100%;min-height:100vh;margin:0}\n  .srs.lobby-active .srs-seat{width:clamp(82px,14vw,132px);min-height:74px}
   .srs h2,.srs h3{margin-top:0}.srs p{color:#c4b8d8;line-height:1.5}.srs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
   .srs-card{padding:17px;border:1px solid #ffffff20;border-radius:16px;background:#171329;margin-top:14px}.srs label{display:block;margin:10px 0 6px;color:#c4b8d8;font-size:13px}
   .srs input,.srs select{width:100%;padding:11px;border-radius:10px;border:1px solid #ffffff25;background:#100d20;color:#fff;font:inherit}
@@ -82,7 +82,7 @@
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
   let playersCount=0,maxPlayers=2,started=false,roster=[];
-  const show = id => ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+  const show = id => { ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); root.querySelector(".srs").classList.toggle("lobby-active",id==="srsLobby"); };
   function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
   const profile=getProfile();
   const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:profile.nickname,avatar:profile.avatar});
@@ -111,7 +111,7 @@
     const seats=Array.from({length:Math.min(6,maxPlayers)},(_,i)=>i);
     seats.forEach(index=>{
       const player=roster.find(item=>item.seatIndex===index);
-      const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);button.style.left=(50+39*Math.cos(angle))+"%";button.style.top=(50+40*Math.sin(angle))+"%";
+      const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);button.style.left=(50+45*Math.cos(angle))+"%";button.style.top=(50+43*Math.sin(angle))+"%";
       if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(avatar,nick,note);}
       else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}};}
       table.append(button);
