@@ -581,13 +581,6 @@ export class GameRoom {
       }
 
       this.players.set(playerId, socket);
-      this.send(socket, "room-roster", {
-        playersCount: this.players.size,
-        maxPlayers: this.maxPlayers,
-        hostPlayerId: this.hostPlayerId,
-        isHost: playerId === this.hostPlayerId
-      });
-
       reply({
         ok: true,
         pack: this.pack,
@@ -626,7 +619,7 @@ export class GameRoom {
     }
 
     if (event === "update-room-settings") {
-      if (playerId !== this.hostPlayerId || this.ready.size > 0) {
+      if (playerId !== this.hostPlayerId || this.ready.size > 0 || (this.gameId === "who-am-i" && this.gamePhase !== "lobby")) {
         reply({ ok: false, message: "Настройки может менять создатель до начала игры." });
         return;
       }
@@ -663,12 +656,10 @@ export class GameRoom {
       this.wordAssignments.clear();
       this.wordSubmitted.clear();
       const ids = [...this.players.keys()];
-      ids.forEach((id, index) => {
-        this.send(this.players.get(id), "word-entry-turn", {
-          playerNumber:index+1,
-          targetPlayerNumber:((index+1)%ids.length)+1,
-          totalPlayers:ids.length
-        });
+      this.send(this.players.get(ids[0]), "word-entry-turn", {
+        playerNumber:1,
+        targetPlayerNumber:2,
+        totalPlayers:ids.length
       });
       this.broadcast("word-round-start", { playersCount:ids.length, totalPlayers:ids.length });
       reply({ok:true});
@@ -707,6 +698,13 @@ export class GameRoom {
         this.broadcast("word-round-complete", {playersCount:ids.length});
       } else {
         this.broadcast("word-submission-progress", {submitted:this.wordSubmitted.size,total:ids.length});
+        const nextWriterIndex = this.wordSubmitted.size;
+        const nextWriterId = ids[nextWriterIndex];
+        this.send(this.players.get(nextWriterId), "word-entry-turn", {
+          playerNumber:nextWriterIndex+1,
+          targetPlayerNumber:((nextWriterIndex+1)%ids.length)+1,
+          totalPlayers:ids.length
+        });
       }
       return;
     }
