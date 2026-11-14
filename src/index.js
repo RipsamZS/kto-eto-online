@@ -630,31 +630,6 @@ export class GameRoom {
       return;
     }
 
-    if (event === "update-room-settings") {
-      if (playerId !== this.hostPlayerId || this.ready.size > 0) {
-        reply({ ok: false, message: "Настройки может менять создатель до начала игры." });
-        return;
-      }
-      const next = data.settings || {};
-      const nextName = String(next.roomName || "").trim().slice(0, 50);
-      const nextAccess = next.access === "public" ? "public" : "private";
-      const nextMax = this.gameId === "who-is-it" ? 2 : Number(next.maxPlayers || this.maxPlayers);
-      const nextTimer = Number(next.timerSeconds ?? this.timerSeconds);
-      if (!nextName || ![2,3,4,5,6].includes(nextMax) || ![0,15,30,45,60,90,120].includes(nextTimer) || this.players.size > nextMax) {
-        reply({ ok: false, message: "Некорректные настройки комнаты." });
-        return;
-      }
-      this.roomName = nextName;
-      this.access = nextAccess;
-      this.maxPlayers = nextMax;
-      this.timerSeconds = nextTimer;
-      await this.updateDirectory();
-      const settings = { roomName:this.roomName, roomCode:this.roomId, access:this.access, maxPlayers:this.maxPlayers, timerSeconds:this.timerSeconds };
-      this.broadcast("room-settings-updated", settings);
-      reply({ ok:true, settings });
-      return;
-    }
-
     if (event === "player-ready") {
       const secretCharacterId = String(
         data.secretCharacterId || ""
