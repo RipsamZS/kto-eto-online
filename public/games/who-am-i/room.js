@@ -32,7 +32,7 @@
   .srs-turn-ring strong{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);padding:3px 8px;border:1px solid #a78bfa;border-radius:8px;background:#171329;color:#f4eaff;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.5px;box-shadow:0 2px 8px #0008}
   .srs-turn-ring.warning .srs-turn-ring-progress{stroke:#f59e0b}.srs-turn-ring.warning strong{border-color:#f59e0b;color:#fbbf24}
   .srs-turn-ring.urgent .srs-turn-ring-progress{stroke:#ef4444}.srs-turn-ring.urgent strong{border-color:#ef4444;color:#fca5a5}
-  .srs.lobby-active.playing-active #srsWordStage{display:block!important;position:fixed;left:50%;bottom:82px;top:auto;z-index:66;width:min(380px,calc(100vw - 36px));max-height:58vh;overflow:auto;transform:translateX(-50%);margin:0;padding:14px;box-shadow:0 8px 28px #000b}\n  #srsPassTurn{position:fixed;left:50%;bottom:18px;z-index:78;transform:translateX(-50%);width:min(260px,calc(100vw - 36px));margin:0;padding:14px 20px;border:1px solid #c4b5fd;background:#7c3aed;box-shadow:0 5px 22px #0008;font-size:15px}\n  #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
+  .srs.lobby-active.playing-active #srsWordStage{display:block!important;position:fixed;left:50%;bottom:82px;top:auto;z-index:66;width:min(380px,calc(100vw - 36px));max-height:58vh;overflow:auto;transform:translateX(-50%);margin:0;padding:14px;box-shadow:0 8px 28px #000b}\n  .srs.lobby-active.playing-active #srsPlayPanel{display:block!important;position:fixed;left:50%;bottom:76px;z-index:67;transform:translateX(-50%);width:min(380px,calc(100vw - 36px));max-height:48vh;overflow:auto;margin:0;padding:12px;border:1px solid #a78bfa;border-radius:14px;background:#171329;box-shadow:0 8px 28px #000b}\n  #srsPassTurn{position:fixed;left:50%;bottom:18px;z-index:78;transform:translateX(-50%);width:min(260px,calc(100vw - 36px));margin:0;padding:14px 20px;border:1px solid #c4b5fd;background:#7c3aed;box-shadow:0 5px 22px #0008;font-size:15px}\n  #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
   .srs-seat-0{left:50%;top:14%}.srs-seat-1{left:81%;top:32%}.srs-seat-2{left:81%;top:68%}.srs-seat-3{left:50%;top:86%}.srs-seat-4{left:19%;top:68%}.srs-seat-5{left:19%;top:32%}
   @media(max-width:480px){#srsPassTurn{bottom:14px;width:calc(100vw - 36px)}.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}#srsHostMenu{left:13%}.srs-turn-ring{left:60%}.srs-code-field{margin-top:8px}}
   </style>
@@ -85,15 +85,15 @@
         <div id="srsWordEntry" class="hidden"><label for="srsWordInput">Придумай слово для следующего игрока</label><input id="srsWordInput" maxlength="40" autocomplete="off" placeholder="Напиши слово…"><button id="srsSubmitWord" class="wide">Отправить слово</button></div>
         <div id="srsWordWaiting" class="hidden status">Слово отправлено. Ждём остальных игроков. Ты не увидишь слово, которое отправил.</div>
         <div id="srsSecretWord" class="hidden"><p>Твоё слово:</p><div class="srs-word" id="srsSecretWordValue"></div><p>Не показывай экран другим игрокам. Теперь можно начинать угадывать!</p></div>
-        <div id="srsPlayPanel" class="hidden">
-          <div class="status" id="srsTurnStatus">Ожидаем ход…</div>
-          <div id="srsQuestionForm" class="hidden"><label for="srsQuestionInput">Задай вопрос всем игрокам</label><input id="srsQuestionInput" maxlength="180" placeholder="Например: Я живое существо?"><button id="srsAskQuestion" class="wide">Задать вопрос</button></div>
-          <div id="srsAnswerPanel" class="hidden"><p id="srsQuestionText"></p><button data-answer="yes">Да</button><button data-answer="no" class="alt">Нет</button><button data-answer="unknown" class="alt">Не знаю</button></div>
-          <div id="srsGuessForm" class="hidden"><label for="srsGuessInput">Попробуй угадать своё слово</label><input id="srsGuessInput" maxlength="40" placeholder="Твоя догадка"><button id="srsGuessButton">Проверить</button></div>
-          <button id="srsPassTurn" class="alt">Передать ход</button>
-        </div>
-        <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       </div>
+      <div id="srsPlayPanel" class="srs-card hidden">
+        <div class="status" id="srsTurnStatus">Ожидаем ход…</div>
+        <div id="srsQuestionForm" class="hidden"><label for="srsQuestionInput">Задай вопрос всем игрокам</label><input id="srsQuestionInput" maxlength="180" placeholder="Например: Я живое существо?"><button id="srsAskQuestion" class="wide">Задать вопрос</button></div>
+        <div id="srsAnswerPanel" class="hidden"><p id="srsQuestionText"></p><button data-answer="yes">Да</button><button data-answer="no" class="alt">Нет</button><button data-answer="unknown" class="alt">Не знаю</button></div>
+        <div id="srsGuessForm" class="hidden"><label for="srsGuessInput">Попробуй угадать своё слово</label><input id="srsGuessInput" maxlength="40" placeholder="Твоя догадка"><button id="srsGuessButton">Проверить</button></div>
+      </div>
+      <button id="srsPassTurn" class="alt hidden" type="button">Завершить ход</button>
+      <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       <div id="srsLobbyActions"></div>
     </div>
     <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
@@ -115,7 +115,7 @@
   </section>`;
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
-  let playersCount=0,maxPlayers=2,started=false,roster=[],visibleWords={};
+  let playersCount=0,maxPlayers=2,started=false,roster=[],visibleWords={},hasSecretWord=false;
   const show = id => { ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); root.querySelector(".srs").classList.toggle("lobby-active",id==="srsLobby"); };
   function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
   const profile=getProfile();
@@ -146,8 +146,8 @@
     const seats=Array.from({length:Math.min(6,maxPlayers)},(_,i)=>i);
     seats.forEach(index=>{
       const player=roster.find(item=>item.seatIndex===index);
-      const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);const seatLeft=50+36*Math.cos(angle),seatTop=50+36*Math.sin(angle);button.style.left=seatLeft+"%";button.style.top=seatTop+"%";
-      if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const wordTag=document.createElement("div");wordTag.className="srs-player-word";wordTag.textContent=player.id===me?"******":(Object.prototype.hasOwnProperty.call(visibleWords,player.id)?visibleWords[player.id]:"");wordTag.classList.toggle("hidden",player.id!==me&&!wordTag.textContent);wordTag.style.left=seatLeft+"%";wordTag.style.top=Math.max(4,seatTop-7)+"%";const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(avatar,nick,note);table.append(wordTag);}
+      const button=document.createElement("button");button.type="button";button.className="srs-seat";const angle=-Math.PI/2+index*(2*Math.PI/seats.length);const seatLeft=50+27*Math.cos(angle),seatTop=50+27*Math.sin(angle);button.style.left=seatLeft+"%";button.style.top=seatTop+"%";
+      if(player){button.classList.add("occupied");if(player.id===me)button.classList.add("mine");button.disabled=player.id!==me||started;const wordTag=document.createElement("div");wordTag.className="srs-player-word";wordTag.textContent=player.id===me?(hasSecretWord?"******":""):(Object.prototype.hasOwnProperty.call(visibleWords,player.id)?visibleWords[player.id]:"");wordTag.classList.toggle("hidden",!wordTag.textContent);wordTag.style.left=seatLeft+"%";wordTag.style.top=Math.max(4,seatTop-7)+"%";const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent=player.avatar||"🙂";const nick=document.createElement("span");nick.className="nickname";nick.textContent=player.nickname||"Игрок";const note=document.createElement("span");note.className="seat-note";note.textContent=player.id===me?"Твоё место":(player.isHost?"Создатель":"Игрок");button.append(avatar,nick,note);table.append(wordTag);}
       else{button.disabled=started;const avatar=document.createElement("span");avatar.className="avatar";avatar.textContent="＋";const nick=document.createElement("span");nick.className="nickname";nick.textContent="Свободно";const note=document.createElement("span");note.className="seat-note";note.textContent="Нажми, чтобы сесть";button.append(avatar,nick,note);button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.selectSeat(index);if(!result.ok){status(result.message||"Не удалось занять место.");button.disabled=false;}};}
       table.append(button);
     });
@@ -202,11 +202,11 @@
   document.addEventListener("online-opponent-left",e=>{playersCount=Number(e.detail.playersCount||Math.max(1,playersCount-1));syncRoom();});
   document.addEventListener("room-host-changed",()=>syncRoom());
   document.addEventListener("room-settings-updated",e=>syncRoom(e.detail));
-  document.addEventListener("word-round-start",()=>{visibleWords={};renderSeats();started=true;$("srsStart").classList.add("hidden");$("srsWordStage").classList.remove("hidden");$("srsWordInstruction").textContent="Игроки по очереди отправляют слова случайно назначенным игрокам. Каждый получит ровно одно слово. Получатель не увидит его до завершения раздачи.";syncRoom();});
+  document.addEventListener("word-round-start",()=>{visibleWords={};hasSecretWord=false;renderSeats();started=true;$("srsStart").classList.add("hidden");$("srsWordStage").classList.remove("hidden");$("srsWordInstruction").textContent="Игроки по очереди отправляют слова случайно назначенным игрокам. Каждый получит ровно одно слово. Получатель не увидит его до завершения раздачи.";syncRoom();});
   document.addEventListener("word-entry-turn",e=>{
     $("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");
     const me=roster.find(p=>p.id===window.onlineGame.getPlayerId());const target=roster.find(p=>p.id===e.detail.targetPlayerId);
-    const place=player=>{const seat=Number.isInteger(player?.seatIndex)?player.seatIndex:0;const angle=-Math.PI/2+seat*(2*Math.PI/Math.max(2,maxPlayers));return {left:50+36*Math.cos(angle),top:50+36*Math.sin(angle)};};
+    const place=player=>{const seat=Number.isInteger(player?.seatIndex)?player.seatIndex:0;const angle=-Math.PI/2+seat*(2*Math.PI/Math.max(2,maxPlayers));return {left:50+27*Math.cos(angle),top:50+27*Math.sin(angle)};};
     const targetPos=place(target),myPos=place(me);$("srsWordStage").style.left=targetPos.left+"%";$("srsWordStage").style.top=Math.max(8,targetPos.top-12)+"%";
     $("srsWordHeading").textContent="Слово для игрока №"+e.detail.targetPlayerNumber;$("srsWordInstruction").textContent="Введи слово, которое получит этот игрок.";$("srsWordInput").placeholder="Слово для соперника…";
     let tag=$("srsWriterTag");if(!tag){tag=document.createElement("div");tag.id="srsWriterTag";$("srsLobby").append(tag);}tag.textContent="Ты придумываешь слово";tag.style.left=myPos.left+"%";tag.style.top=Math.max(8,myPos.top-10)+"%";root.querySelector(".srs").classList.add("writing-active");
@@ -214,8 +214,8 @@
   document.addEventListener("word-submitted",e=>{root.querySelector(".srs").classList.remove("writing-active");$("srsWordStage").classList.add("hidden");$("srsWriterTag")?.remove();status(e.detail.message||"Слово принято.");});
   document.addEventListener("word-submission-progress",e=>status("Слова отправили "+e.detail.submitted+" из "+e.detail.total+" игроков."));
   document.addEventListener("who-am-i-visible-words",e=>{visibleWords=e.detail.words&&typeof e.detail.words==="object"?e.detail.words:{};renderSeats();});
-  document.addEventListener("your-secret-word",e=>{$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
-  document.addEventListener("word-round-complete",()=>{root.querySelector(".srs").classList.remove("writing-active");root.querySelector(".srs").classList.add("playing-active");$("srsWordStage").classList.add("hidden");$("srsWriterTag")?.remove();status("Все слова розданы. Игра начинается!");$("srsPlayPanel").classList.remove("hidden");});
+  document.addEventListener("your-secret-word",e=>{hasSecretWord=true;renderSeats();$("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.remove("hidden");$("srsSecretWordValue").textContent=e.detail.word;status("Раздача завершена. Твоё слово готово!");});
+  document.addEventListener("word-round-complete",()=>{root.querySelector(".srs").classList.remove("writing-active");root.querySelector(".srs").classList.add("playing-active");$("srsWordStage").classList.add("hidden");$("srsWriterTag")?.remove();status("Все слова розданы. Игра начинается!");$("srsPlayPanel").classList.remove("hidden");$("srsPassTurn").textContent="Завершить ход";});
   let turnTimerInterval=null;
   const turnTimerDuration=2*Math.PI*91;
   $("srsTurnTimerProgress").style.strokeDasharray=String(turnTimerDuration);
@@ -244,7 +244,7 @@
   document.addEventListener("who-am-i-guess-result",e=>status(e.detail.message));
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
-  document.addEventListener("word-round-reset",e=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();visibleWords={};renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
+  document.addEventListener("word-round-reset",e=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();visibleWords={};hasSecretWord=false;renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");$("srsSecretWord").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
   document.addEventListener("online-room-left",()=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();show("srsHome");started=false;});
 })();
 (() => {
