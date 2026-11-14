@@ -227,7 +227,7 @@
   async function createRoom(pack) {
     if (!pack || !Array.isArray(pack.characters)) {
       alert("Не удалось получить набор персонажей.");
-      return;
+      return { ok: false };
     }
 
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -239,46 +239,19 @@
       if (!result.ok) {
         alert(result.message);
         socket.close();
-        return;
+        return { ok: false };
       }
 
       roomCode = code;
       showPanel();
       setStatus("Комната создана. Ожидаем второго игрока.");
+
+      return { ok: true, code };
     } catch (error) {
       alert(error.message);
+      return { ok: false };
     }
-  }
-
-  async function joinRoom(code) {
-    code = String(code || "").trim();
-
-    if (!/^\d{6}$/.test(code)) {
-      alert("Введите шестизначный код комнаты.");
-      return;
-    }
-
-    try {
-      await connect(code);
-      const result = await send("join-room");
-
-      if (!result.ok) {
-        alert(result.message);
-        socket.close();
-        return;
-      }
-
-      roomCode = code;
-      window.onlinePack = result.pack;
-      showPanel();
-      setStatus("Вы вошли. Выберите персонажа.");
-      document.dispatchEvent(new CustomEvent("online-pack-received", {
-        detail: result.pack
-      }));
-    } catch (error) {
-      alert(error.message);
-    }
-  }
+}
 
   async function playerReady() {
     const result = await send("player-ready");
