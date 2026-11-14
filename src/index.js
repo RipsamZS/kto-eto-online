@@ -692,7 +692,7 @@ export class GameRoom {
     }
 
     if (event === "who-am-i-chat" && this.gameId === "who-am-i") {
-      const message = String(data.message || "").trim().replace(/\\s+/g," ").slice(0,300);
+      const message = String(data.message || "").trim().replace(/\s+/g," ").slice(0,300);
       if (!message) { reply({ok:false,message:"Напиши сообщение."}); return; }
       const profile = this.playerProfiles.get(playerId) || {};
       const entry = {
