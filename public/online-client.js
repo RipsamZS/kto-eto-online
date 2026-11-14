@@ -1,4 +1,3 @@
-
 (() => {
   let socket = null;
   let roomCode = null;
