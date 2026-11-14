@@ -140,7 +140,7 @@ export class GameRoom {
     if (
       !this.currentTurn ||
       this.ended ||
-      this.pending ||
+      (this.pending && this.gameId !== "who-am-i") ||
       !this.turnDeadline
     ) {
       return;
@@ -152,6 +152,13 @@ export class GameRoom {
     }
 
     const previousTurn = this.currentTurn;
+    if (this.gameId === "who-am-i" && this.gamePhase === "playing") {
+      this.turnDeadline = null;
+      this.pending = null;
+      this.broadcast("who-am-i-turn-timeout", {message:"Время хода закончилось. Ход переходит следующему игроку."});
+      await this.advanceWhoAmITurn();
+      return;
+    }
     const opponentId = [...this.players.keys()].find(
       id => id !== previousTurn
     );
@@ -179,16 +186,21 @@ export class GameRoom {
     await this.sendTurn();
   }
 
-  broadcastWhoAmITurn() {
+  async broadcastWhoAmITurn() {
     const ids = [...this.players.keys()];
-    ids.forEach((id,i) => this.send(this.players.get(id), "who-am-i-turn", {playerNumber:i+1,totalPlayers:ids.length,isYourTurn:id===this.currentTurn}));
+    ids.forEach((id,i) => this.send(this.players.get(id), "who-am-i-turn", {playerNumber:i+1,totalPlayers:ids.length,isYourTurn:id===this.currentTurn,timerSeconds:this.timerSeconds}));
+    await this.clearTurnTimer();
+    if (this.timerSeconds > 0 && this.currentTurn && this.gamePhase === "playing") {
+      this.turnDeadline = Date.now() + this.timerSeconds * 1000;
+      await this.ctx.storage.setAlarm(this.turnDeadline);
+    }
   }
   async advanceWhoAmITurn() {
     const ids = [...this.players.keys()];
     if (!ids.length) return;
     this.currentTurn = ids[(ids.indexOf(this.currentTurn)+1)%ids.length];
     this.pending = null;
-    this.broadcastWhoAmITurn();
+    await this.broadcastWhoAmITurn();
   }
   async removePlayer(playerId) {
     if (!this.players.has(playerId)) return;
@@ -725,7 +737,7 @@ export class GameRoom {
         this.currentTurn = ids[0];
         this.pending = null;
         this.broadcast("word-round-complete", {playersCount:ids.length});
-        this.broadcastWhoAmITurn();
+        await this.broadcastWhoAmITurn();
       } else {
         this.broadcast("word-submission-progress", {submitted:this.wordSubmitted.size,total:ids.length});
         const nextWriterIndex = this.wordSubmitted.size;
