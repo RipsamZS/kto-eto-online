@@ -405,7 +405,7 @@ export class GameRoom {
         if(s.phase!=="review")return {ok:false,message:"Сначала дождись окончания таймера."};
         if(!Array.isArray(payload.guessed))return {ok:false,message:"Отметь отгаданные слова."};
         const guessed=new Set(payload.guessed.map(Number));
-        s.turnWords.forEach((item,index)=>{item.status=guessed.has(index)?"guessed":item.status==="skipped"?"skipped":"missed";});
+        s.turnWords.forEach((item,index)=>{item.status=item.status==="skipped"?"skipped":guessed.has(index)?"guessed":"missed";});
         const points=s.turnWords.filter(item=>item.status==="guessed").length;
         s.scores[s.teams[playerId]]=(s.scores[s.teams[playerId]]||0)+points;
         s.lastTurn={playerId,team:s.teams[playerId],words:s.turnWords.map(item=>({...item})),points};
