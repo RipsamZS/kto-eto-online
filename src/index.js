@@ -1064,7 +1064,8 @@ export class GameRoom {
       }
       const ids = [...this.players.keys()];
       const index = this.wordWriterOrder.indexOf(playerId);
-      if (index < 0 || ids.length < 2 || index !== this.wordSubmitted.size) {
+      const submittedHumanCount=[...this.wordSubmitted].filter(id=>!this.playerProfiles.get(id)?.testBot).length;
+      if (index < 0 || ids.length < 2 || index !== submittedHumanCount) {
         reply({ok:false, message:"Сейчас очередь другого игрока."});
         return;
       }
