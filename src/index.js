@@ -15,6 +15,7 @@ export class GameRoom {
     this.wordRecipients = new Map();
     this.chatMessages = [];
     this.gamePhase = "lobby";
+    this.partyState = null;
 
     this.currentTurn = null;
     this.pending = null;
@@ -232,16 +233,20 @@ export class GameRoom {
       let view = JSON.parse(JSON.stringify(s));
       if (this.gameId === "alias") {
         view.secretWord = id === s.activePlayerId ? s.currentWord : null;
+        view.currentWord = null; delete view.words;
       } else if (this.gameId === "codenames") {
         const captain = s.captains?.[s.teams?.[id]];
         view.grid = s.grid.map(cell => ({...cell, color: (captain === id || cell.revealed) ? cell.color : null}));
         view.myRole = captain === id ? "captain" : "operative";
         view.myTeam = s.teams[id];
       } else if (this.gameId === "spy") {
+        delete view.spyId;
         view.location = s.spyId === id ? null : s.location;
         view.isSpy = s.spyId === id;
         view.myVote = s.votes?.[id] || null;
       } else if (this.gameId === "imaginarium") {
+        delete view.hands;
+        if (s.phase !== "result") view.storyCard = null;
         view.myHand = s.hands?.[id] || [];
         view.mySubmission = s.submissions?.[id] || null;
         view.myVote = s.votes?.[id] || null;
