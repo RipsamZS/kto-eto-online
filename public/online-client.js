@@ -505,6 +505,8 @@
       };
     }
 
+    const savedProfile = (() => { try { return JSON.parse(localStorage.getItem("kto-eto-profile-v1") || "{}"); } catch { return {}; } })();
+    settings = { ...settings, nickname: settings.nickname || savedProfile.nickname, avatar: settings.avatar || savedProfile.avatar };
     const characters = pack.characters;
 
     if (characters.length < 2 || characters.length > 60) {
