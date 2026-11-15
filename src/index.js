@@ -315,7 +315,7 @@ export class GameRoom {
       if(ids.length<3)return {ok:false,message:"Для Имаджинариума нужно минимум 3 игрока."};
       const deck=this.partyShuffle(["🌙","🚀","🦋","🏰","🌊","🗝️","🎭","🌲","🔥","🪞","🐈","🎈","⏳","🌈","🕯️","🧩","🦉","🍄","🌋","🎻","🧸","⚡","🪐","🦚","🧭","💎","🌧️","🎠","📚","🪁"]);
       const hands={}; for(const id of ids)hands[id]=deck.splice(0,6);
-      this.partyState={phase:"story",players:profiles,order:this.partyShuffle(ids),turnIndex:0,storyteller:null,hands,submissions:{},votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),deck,round:1,clue:"",storyCard:null};
+      this.partyState={phase:"story",players:profiles,order:this.partyShuffle(ids),turnIndex:0,storyteller:null,hands,submissions:{},submissionIds:{},votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),deck,round:1,clue:"",storyCard:null};
       this.partyImaginariumBegin();
     } else return {ok:false,message:"Эта игра пока не поддерживает общий запуск."};
     this.gamePhase="playing"; this.ended=false;
@@ -340,7 +340,7 @@ export class GameRoom {
   partyImaginariumBegin() {
     const s=this.partyState; if(!s)return;
     s.storyteller=s.order[(s.round-1)%s.order.length];
-    s.phase="story";s.submissions={};s.votes={};s.clue="";s.storyCard=null;
+    s.phase="story";s.submissions={};s.submissionIds={};s.votes={};s.clue="";s.storyCard=null;
     for(const id of s.order){if(s.hands[id].length<6&&s.deck.length)s.hands[id].push(...s.deck.splice(0,Math.min(6-s.hands[id].length,s.deck.length)));}
     this.partySendState();
   }
