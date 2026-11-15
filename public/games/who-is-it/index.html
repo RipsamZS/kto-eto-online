@@ -489,7 +489,7 @@ function toast(message){
   clearTimeout(window.toastTimer);
   window.toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
-function showBotNotice(){autoAddTestBot=true;openRoomSettings('private');toast('Выбери пак персонажей и создай комнату — тестовый соперник добавится автоматически.')}
+function showBotNotice(){openRoomSettings('private');autoAddTestBot=true;toast('Выбери пак персонажей и создай комнату — тестовый соперник добавится автоматически.')}
 
 /* -------------------------------------------------------
    ГЛАВНОЕ МЕНЮ И ПАКИ
@@ -945,7 +945,7 @@ function openPackSelectionModal(onChoose){
 ------------------------------------------------------- */
 
 function openRoomSettings(access='private'){
-  roomAccessDefault=access;selectedRoomPack=null;
+  autoAddTestBot=false;roomAccessDefault=access;selectedRoomPack=null;
   document.getElementById('roomName').value='';
   document.getElementById('roomCode').value='';
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
