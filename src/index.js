@@ -348,6 +348,27 @@ export class GameRoom {
 
   partyHandleAction(playerId, action, payload) {
     const s=this.partyState, ids=[...this.players.keys()];
+    if (action === "test-bots-add") {
+      if (playerId !== this.hostPlayerId || this.partyState || this.gamePhase !== "lobby") return {ok:false,message:"Добавлять тестовых ботов может только создатель до начала игры."};
+      const required = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
+      const requested = Math.max(1, Math.min(5, Number(payload.count) || required - this.players.size));
+      const amount = Math.min(requested, this.maxPlayers - this.players.size, 6 - this.players.size);
+      if (amount <= 0) return {ok:false,message:"В комнате больше нет свободных мест."};
+      for (let i=0;i<amount;i++) {
+        const id = "test-bot-" + crypto.randomUUID();
+        this.players.set(id, null);
+        this.playerProfiles.set(id, {nickname:"Бот "+(i+1),avatar:"🤖",seatIndex:null,testBot:true});
+        if (this.gameId === "alias") {
+          this.aliasTeams = this.aliasTeams || {};
+          const countA=[...this.aliasTeams.values ? this.aliasTeams.values() : Object.values(this.aliasTeams)].filter(x=>x==="A").length;
+          const countB=Object.values(this.aliasTeams).filter(x=>x==="B").length;
+          this.aliasTeams[id]=countA<=countB?"A":"B";
+        }
+      }
+      this.broadcastRoster();
+      this.updateDirectory();
+      return {ok:true,added:amount};
+    }
     if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
