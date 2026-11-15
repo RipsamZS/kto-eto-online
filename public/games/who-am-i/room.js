@@ -6,8 +6,15 @@
   const isWhoAmI = gameId === "who-am-i";
   root.innerHTML = `
   <style>
-  .srs{max-width:760px;margin:24px auto;padding:22px;border:1px solid #ffffff24;border-radius:22px;background:#211a38;color:#f6f2ff;font-family:Arial,sans-serif}\n  .srs.lobby-active{position:fixed;inset:0;z-index:50;width:100vw;height:100vh;max-width:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:hidden}\n  .srs.lobby-active #srsLobby{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}\n  .srs.lobby-active #srsRoomTitle,.srs.lobby-active #srsRoomInfo,.srs.lobby-active #srsRoomCode,.srs.lobby-active #srsEdit,.srs.lobby-active #srsWordStage,.srs.lobby-active #srsLobbyActions,.srs.lobby-active #srsStatus{display:none!important}\n  .srs.lobby-active #srsSeating{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}\n  .srs.lobby-active .srs-table-wrap{position:absolute;inset:0;width:100%;height:100%;min-height:100vh;margin:0}\n  .srs.lobby-active .srs-seat{width:clamp(112px,16vw,166px);min-height:90px}
-  .srs-answer-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.srs-answer-actions button{flex:1;min-width:100px;background:#6546a5;color:#fff;border-radius:12px;padding:12px}.srs-answer-actions button:hover{filter:brightness(1.08)}\n  .srs h2,.srs h3{margin-top:0}.srs p{color:#c4b8d8;line-height:1.5}.srs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+  .srs{max-width:760px;margin:24px auto;padding:22px;border:1px solid #ffffff24;border-radius:22px;background:#211a38;color:#f6f2ff;font-family:Arial,sans-serif}
+  .srs.lobby-active{position:fixed;inset:0;z-index:50;width:100vw;height:100vh;max-width:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:hidden}
+  .srs.lobby-active #srsLobby{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
+  .srs.lobby-active #srsRoomTitle,.srs.lobby-active #srsRoomInfo,.srs.lobby-active #srsRoomCode,.srs.lobby-active #srsEdit,.srs.lobby-active #srsWordStage,.srs.lobby-active #srsLobbyActions,.srs.lobby-active #srsStatus{display:none!important}
+  .srs.lobby-active #srsSeating{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
+  .srs.lobby-active .srs-table-wrap{position:absolute;inset:0;width:100%;height:100%;min-height:100vh;margin:0}
+  .srs.lobby-active .srs-seat{width:clamp(112px,16vw,166px);min-height:90px}
+  .srs-answer-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.srs-answer-actions button{flex:1;min-width:100px;background:#6546a5;color:#fff;border-radius:12px;padding:12px}.srs-answer-actions button:hover{filter:brightness(1.08)}
+  .srs h2,.srs h3{margin-top:0}.srs p{color:#c4b8d8;line-height:1.5}.srs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
   .srs-card{padding:17px;border:1px solid #ffffff20;border-radius:16px;background:#171329;margin-top:14px}.srs label{display:block;margin:10px 0 6px;color:#c4b8d8;font-size:13px}
   .srs input,.srs select{width:100%;padding:11px;border-radius:10px;border:1px solid #ffffff25;background:#100d20;color:#fff;font:inherit}
   .srs button{padding:12px 16px;border:0;border-radius:10px;background:#7c3aed;color:white;font-weight:bold;cursor:pointer;margin-top:12px}
@@ -16,10 +23,20 @@
   .srs .room-row{padding:12px;border:1px solid #ffffff20;border-radius:12px;margin-top:9px}.srs-menu{position:relative;display:inline-block}
   .srs-menu-panel{position:absolute;right:0;top:100%;z-index:20;min-width:230px;padding:8px;border:1px solid #ffffff30;border-radius:12px;background:#171329;box-shadow:0 12px 32px #0008}
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
-  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}\n  #srsLobby{position:relative;padding-top:48px}\n  #srsHostMenu{position:absolute;top:50%;left:50%;right:auto;z-index:60;transform:translate(-50%,-50%)}\n  .srs.lobby-active #srsHostMenu{display:block!important}
+  .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}
+  #srsLobby{position:relative;padding-top:48px}
+  #srsHostMenu{position:absolute;top:50%;left:50%;right:auto;z-index:60;transform:translate(-50%,-50%)}
+  .srs.lobby-active #srsHostMenu{display:block!important}
   .srs.lobby-active.writing-active #srsWordStage{display:block!important;position:fixed;left:50%!important;top:50%!important;z-index:75;width:min(360px,calc(100vw - 36px));max-height:75vh;overflow:auto;margin:0;padding:18px;transform:translate(-50%,-50%);box-shadow:0 8px 28px #000b}
   .srs.lobby-active.writing-active #srsWordStage h3,.srs.lobby-active.writing-active #srsWordStage>p{display:none}
-  #srsWriterTag{position:absolute;z-index:64;transform:translate(-50%,-100%);padding:5px 8px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:11px;white-space:nowrap;pointer-events:none}\n  #srsMenuToggle{width:clamp(76px,11vw,108px);height:clamp(76px,11vw,108px);padding:8px;margin:0;border:2px solid #c4b5fd;border-radius:50%;background:#7c3aed;box-shadow:0 8px 30px #0008;font-size:15px}\n  #srsMenuToggle:hover{background:#8b5cf6}\n  .srs-menu-panel{top:calc(100% + 12px);left:50%;right:auto;transform:translateX(-50%)}\n  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}\n  #srsSeating h3,#srsSeating>p{display:none}\n  #srsLobbyActions{margin-top:auto;padding-top:18px}\n  #srsLobbyActions button{display:block;width:100%}
+  #srsWriterTag{position:absolute;z-index:64;transform:translate(-50%,-100%);padding:5px 8px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:11px;white-space:nowrap;pointer-events:none}
+  #srsMenuToggle{width:clamp(76px,11vw,108px);height:clamp(76px,11vw,108px);padding:8px;margin:0;border:2px solid #c4b5fd;border-radius:50%;background:#7c3aed;box-shadow:0 8px 30px #0008;font-size:15px}
+  #srsMenuToggle:hover{background:#8b5cf6}
+  .srs-menu-panel{top:calc(100% + 12px);left:50%;right:auto;transform:translateX(-50%)}
+  #srsSeating{padding:0;border:0;border-radius:0;background:transparent;margin:0}
+  #srsSeating h3,#srsSeating>p{display:none}
+  #srsLobbyActions{margin-top:auto;padding-top:18px}
+  #srsLobbyActions button{display:block;width:100%}
   .srs-table-wrap{position:relative;min-height:350px;margin:8px 0;border:0;border-radius:0;background:transparent;overflow:visible}
   .srs-seat{position:absolute;transform:translate(-50%,-50%);width:clamp(112px,27%,166px);min-height:90px;padding:8px 5px!important;margin:0!important;border:1px solid #ffffff30!important;border-radius:14px!important;background:#35294f!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;white-space:normal}
   .srs-player-word{position:absolute;z-index:45;transform:translate(-50%,-100%);min-width:54px;max-width:min(180px,30vw);padding:4px 8px;border:1px solid #c4b5fd;border-radius:7px;background:#171329;color:#f4eaff;font-size:12px;line-height:1.2;font-weight:800;overflow-wrap:anywhere;text-align:center;box-shadow:0 3px 12px #0008;pointer-events:none}.srs-seat .avatar{font-size:27px;line-height:1.1}.srs-seat .avatar.avatar-image{width:42px;height:42px;object-fit:cover;border-radius:50%;border:2px solid #c4b5fd}.srs-seat .nickname{font-size:12px;max-width:100%;overflow-wrap:anywhere}.srs-seat .seat-note{font-size:10px;color:#d6c8f4;font-weight:400}
@@ -32,7 +49,12 @@
   .srs-turn-ring strong{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);padding:3px 8px;border:1px solid #a78bfa;border-radius:8px;background:#171329;color:#f4eaff;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.5px;box-shadow:0 2px 8px #0008}
   .srs-turn-ring.warning .srs-turn-ring-progress{stroke:#f59e0b}.srs-turn-ring.warning strong{border-color:#f59e0b;color:#fbbf24}
   .srs-turn-ring.urgent .srs-turn-ring-progress{stroke:#ef4444}.srs-turn-ring.urgent strong{border-color:#ef4444;color:#fca5a5}
-  .srs.lobby-active.playing-active #srsWordStage{display:none!important}\n  .srs.lobby-active.playing-active #srsPlayPanel:not(.hidden){display:block!important;position:fixed;left:50%;top:50%;bottom:auto;z-index:77;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 36px));max-height:70vh;overflow:auto;margin:0;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;box-shadow:0 12px 36px #000b}\n  #srsPassTurn{position:fixed;left:50%;bottom:18px;z-index:78;transform:translateX(-50%);width:min(260px,calc(100vw - 36px));margin:0;padding:14px 20px;border:1px solid #c4b5fd;background:#7c3aed;box-shadow:0 5px 22px #0008;font-size:15px}\n  #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}\n  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}\n  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
+  .srs.lobby-active.playing-active #srsWordStage{display:none!important}
+  .srs.lobby-active.playing-active #srsPlayPanel:not(.hidden){display:block!important;position:fixed;left:50%;top:50%;bottom:auto;z-index:77;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 36px));max-height:70vh;overflow:auto;margin:0;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;box-shadow:0 12px 36px #000b}
+  #srsPassTurn{position:fixed;left:50%;bottom:18px;z-index:78;transform:translateX(-50%);width:min(260px,calc(100vw - 36px));margin:0;padding:14px 20px;border:1px solid #c4b5fd;background:#7c3aed;box-shadow:0 5px 22px #0008;font-size:15px}
+  #srsHelpToggle{position:fixed;right:18px;bottom:18px;z-index:80;margin:0;padding:11px 16px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}
+  #srsHelpPanel{position:fixed;right:18px;bottom:72px;z-index:81;width:min(390px,calc(100vw - 36px));max-height:min(70vh,620px);overflow:auto;padding:18px;border:1px solid #a78bfa;border-radius:16px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b}
+  #srsHelpPanel h3{margin:0 0 10px}#srsHelpPanel ol{padding-left:21px;margin:8px 0}#srsHelpPanel li{margin:8px 0;line-height:1.4}#srsHelpPanel p{margin:8px 0}#srsHelpClose{margin-top:8px}
   .srs-side-toggle{position:fixed;top:50%;z-index:82;transform:translateY(-50%);margin:0;padding:13px 12px;border:1px solid #c4b5fd;background:#211a38;box-shadow:0 5px 22px #0008}
   #srsNotebookToggle{left:12px}#srsChatToggle{right:12px}
   .srs-side-panel{position:fixed;top:50%;z-index:83;width:min(300px,calc(100vw - 64px));max-height:70vh;overflow:auto;padding:14px;border:1px solid #a78bfa;border-radius:15px;background:#171329;color:#f6f2ff;box-shadow:0 12px 36px #000b;transform:translateY(-50%)}
@@ -106,13 +128,16 @@
         <div id="srsActionButtons" class="hidden" style="display:flex;gap:10px;align-items:center"><button id="srsAskQuestion" style="flex:1;margin:0">Задать вопрос</button><button id="srsGuessButton" style="flex:1;margin:0">Попытаться отгадать</button></div>
         <input id="srsQuestionInput" class="hidden" maxlength="180" placeholder="Например: Я живое существо?">
         <input id="srsGuessInput" class="hidden" maxlength="40" placeholder="Напиши свою догадку…">
-        <div id="srsQuestionWaiting" class="hidden status">Вопрос отправлен в общий чат. Ждём ответы остальных игроков. Когда будешь готов, нажми «Завершить ход».</div>\n        <div id="srsAnswerControls" class="hidden status"><strong>Ответь на вопрос игрока:</strong><div class="srs-answer-actions"><button type="button" data-answer="yes">Да</button><button type="button" data-answer="no">Нет</button><button type="button" data-answer="unknown">Не знаю</button></div></div>
+        <div id="srsQuestionWaiting" class="hidden status">Вопрос отправлен в общий чат. Ждём ответы остальных игроков. Когда будешь готов, нажми «Завершить ход».</div>
+        <div id="srsAnswerControls" class="hidden status"><strong>Ответь на вопрос игрока:</strong><div class="srs-answer-actions"><button type="button" data-answer="yes">Да</button><button type="button" data-answer="no">Нет</button><button type="button" data-answer="unknown">Не знаю</button></div></div>
       </div>
       <button id="srsNotebookToggle" class="srs-side-toggle" type="button">📓 Блокнот</button>
       <section id="srsNotebookPanel" class="srs-side-panel hidden" aria-label="Личный блокнот">
         <h3>📓 Мой блокнот</h3>
         <p class="muted">Записывай сюда свои вопросы и догадки. Эти заметки видишь только ты.</p>
-        <textarea id="srsNotebookText" maxlength="5000" placeholder="Например:\n— Я живое?\n— Я существую сейчас?"></textarea>
+        <textarea id="srsNotebookText" maxlength="5000" placeholder="Например:
+— Я живое?
+— Я существую сейчас?"></textarea>
         <button id="srsNotebookClose" class="srs-panel-close" type="button">Закрыть</button>
       </section>
       <button id="srsChatToggle" class="srs-side-toggle" type="button">💬 Чат</button>
@@ -251,7 +276,8 @@
   $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");$("srsWordInput").value="";};
   $("srsAskQuestion").onclick=async()=>{const field=$("srsQuestionInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.askWhoAmIQuestion(field.value.trim());if(!result.ok)return status(result.message||"Не удалось задать вопрос.");field.value="";field.classList.add("hidden");$("srsActionButtons").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");status("Вопрос отправлен. Ответы будут в общем чате.");};
   $("srsGuessButton").onclick=async()=>{const field=$("srsGuessInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.guessWhoAmI(field.value.trim());if(!result.ok)return status(result.message||"Не удалось отправить догадку.");field.value="";field.classList.add("hidden");if(!result.correct)status("Пока не угадал. Ход переходит дальше.");};
-  $("srsPassTurn").textContent="Завершить ход";$("srsPassTurn").onclick=async()=>{const result=await window.onlineGame.passWhoAmITurn();if(!result.ok)status(result.message||"Не удалось передать ход.");};\n  root.querySelectorAll("[data-answer]").forEach(button=>button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.answerWhoAmIQuestion(button.dataset.answer);if(!result.ok){button.disabled=false;status(result.message||"Не удалось отправить ответ.");return;}$("srsAnswerControls").classList.add("hidden");status("Ответ отправлен.");});
+  $("srsPassTurn").textContent="Завершить ход";$("srsPassTurn").onclick=async()=>{const result=await window.onlineGame.passWhoAmITurn();if(!result.ok)status(result.message||"Не удалось передать ход.");};
+  root.querySelectorAll("[data-answer]").forEach(button=>button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.answerWhoAmIQuestion(button.dataset.answer);if(!result.ok){button.disabled=false;status(result.message||"Не удалось отправить ответ.");return;}$("srsAnswerControls").classList.add("hidden");status("Ответ отправлен.");});
   $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("srsHome");};
   document.addEventListener("who-am-i-chat-history",e=>{const list=$("srsChatMessages");list.innerHTML="";(Array.isArray(e.detail.messages)?e.detail.messages:[]).forEach(appendChatMessage);if(!list.children.length)list.innerHTML='<div class="muted">Сообщений пока нет.</div>';});
   document.addEventListener("who-am-i-chat-message",e=>appendChatMessage(e.detail));
@@ -304,7 +330,8 @@
     update();
   }
   document.addEventListener("who-am-i-turn",e=>{$("srsPlayPanel").classList.toggle("hidden",!e.detail.isYourTurn);$("srsQuestionWaiting").classList.add("hidden");$("srsTurnStatus").classList.toggle("hidden",!e.detail.isYourTurn);$("srsTurnStatus").textContent="Твой ход";$("srsActionButtons").classList.toggle("hidden",!e.detail.isYourTurn);$("srsQuestionInput").classList.add("hidden");$("srsGuessInput").classList.add("hidden");$("srsPassTurn").classList.toggle("hidden",!e.detail.isYourTurn);startTurnCountdown(e.detail.deadline,e.detail.timerSeconds);});
-  document.addEventListener("who-am-i-question",e=>{appendChatMessage({nickname:"Вопрос • Игрок №"+e.detail.askerNumber,message:e.detail.question},true);$("srsChatPanel").classList.remove("hidden");$("srsChatToggle").setAttribute("aria-expanded","true");const isAsker=e.detail.isYourQuestion===true;if(isAsker){$("srsPlayPanel").classList.remove("hidden");$("srsActionButtons").classList.add("hidden");$("srsQuestionInput").classList.add("hidden");$("srsGuessInput").classList.add("hidden");$("srsAnswerControls").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");$("srsTurnStatus").textContent="Твой ход";}else{$("srsPlayPanel").classList.remove("hidden");$("srsActionButtons").classList.add("hidden");$("srsAnswerControls").classList.remove("hidden");$("srsQuestionWaiting").classList.add("hidden");$("srsPassTurn").classList.add("hidden");}});\n  document.addEventListener("who-am-i-answer",e=>{const answer={yes:"Да",no:"Нет",unknown:"Не знаю"}[e.detail.answer]||"—";appendChatMessage({nickname:"Ответ • Игрок №"+e.detail.responderNumber,message:answer});});
+  document.addEventListener("who-am-i-question",e=>{appendChatMessage({nickname:"Вопрос • Игрок №"+e.detail.askerNumber,message:e.detail.question},true);$("srsChatPanel").classList.remove("hidden");$("srsChatToggle").setAttribute("aria-expanded","true");const isAsker=e.detail.isYourQuestion===true;if(isAsker){$("srsPlayPanel").classList.remove("hidden");$("srsActionButtons").classList.add("hidden");$("srsQuestionInput").classList.add("hidden");$("srsGuessInput").classList.add("hidden");$("srsAnswerControls").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");$("srsTurnStatus").textContent="Твой ход";}else{$("srsPlayPanel").classList.remove("hidden");$("srsActionButtons").classList.add("hidden");$("srsAnswerControls").classList.remove("hidden");$("srsQuestionWaiting").classList.add("hidden");$("srsPassTurn").classList.add("hidden");}});
+  document.addEventListener("who-am-i-answer",e=>{const answer={yes:"Да",no:"Нет",unknown:"Не знаю"}[e.detail.answer]||"—";appendChatMessage({nickname:"Ответ • Игрок №"+e.detail.responderNumber,message:answer});});
   document.addEventListener("who-am-i-guess-result",e=>status(e.detail.message));
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();winnerId=e.detail.winnerId||null;renderSeats();$("srsPlayPanel").classList.add("hidden");$("srsPassTurn").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
@@ -385,7 +412,8 @@
     const result = await window.onlineGame.createLobby(settings, gameId);
     $("srsCreate").disabled = false;
     if (!result.ok) return status(result.message || "Не удалось создать комнату.");
-    status("Комната создана! Код: " + result.code + "\nИгроков: 1/" + (result.settings.maxPlayers || settings.maxPlayers));
+    status("Комната создана! Код: " + result.code + "
+Игроков: 1/" + (result.settings.maxPlayers || settings.maxPlayers));
     syncEdit();
   };
   $("srsJoin").onclick = async () => {
@@ -393,7 +421,8 @@
     const result = await window.onlineGame.joinRoom(code, gameId);
     if (!result.ok) return status(result.message || "Не удалось подключиться.");
     const settings = result.settings || {};
-    status("Ты подключился к комнате «" + (settings.roomName || "Комната") + "». Код: " + code + "\nИгроков: " + (settings.maxPlayers || 2));
+    status("Ты подключился к комнате «" + (settings.roomName || "Комната") + "». Код: " + code + "
+Игроков: " + (settings.maxPlayers || 2));
     syncEdit();
   };
   $("srsRefresh").onclick = async () => {
