@@ -146,7 +146,7 @@
   </section>`;
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
-  let playersCount=0,maxPlayers=2,started=false,roster=[],visibleWords={},hasSecretWord=false,winnerId=null;
+  let playersCount=0,maxPlayers=2,started=false,autoStartPending=false,roster=[],visibleWords={},hasSecretWord=false,winnerId=null;
   const show = id => { ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); root.querySelector(".srs").classList.toggle("lobby-active",id==="srsLobby"); };
   function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
   const profile=getProfile();
@@ -162,7 +162,7 @@
     $("srsStart").classList.toggle("hidden",!host||started);
     $("srsEditAction").classList.toggle("hidden",!host);
     const allSeated=roster.length===playersCount&&roster.every(player=>Number.isInteger(player.seatIndex));
-    $("srsStart").disabled=playersCount!==maxPlayers||!allSeated;
+    $("srsStart").disabled=playersCount<2||!allSeated;
     if(host){
       $("srsEditName").value=settings.roomName||"";
       $("srsEditAccess").value=settings.access||"private";
@@ -170,6 +170,7 @@
       $("srsEditTimer").value=String(settings.timerSeconds??60);
     }
   }
+  async function tryAutoStart(){if(autoStartPending||started||!window.onlineGame.isRoomHost()||playersCount<2||roster.length!==playersCount||!roster.every(player=>Number.isInteger(player.seatIndex)))return;autoStartPending=true;const result=await window.onlineGame.startWordRound();if(!result.ok){autoStartPending=false;status(result.message||"Не удалось начать игру.");}}
   function renderSeats(){
     const table=$("srsTable");if(!table)return;
     table.querySelectorAll(".srs-seat").forEach(node=>node.remove());
@@ -254,12 +255,12 @@
   $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("srsHome");};
   document.addEventListener("who-am-i-chat-history",e=>{const list=$("srsChatMessages");list.innerHTML="";(Array.isArray(e.detail.messages)?e.detail.messages:[]).forEach(appendChatMessage);if(!list.children.length)list.innerHTML='<div class="muted">Сообщений пока нет.</div>';});
   document.addEventListener("who-am-i-chat-message",e=>appendChatMessage(e.detail));
-  document.addEventListener("room-roster",e=>{roster=Array.isArray(e.detail.players)?e.detail.players:roster;playersCount=Number(e.detail.playersCount??playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();renderSeats();});
+  document.addEventListener("room-roster",e=>{roster=Array.isArray(e.detail.players)?e.detail.players:roster;playersCount=Number(e.detail.playersCount??playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();renderSeats();tryAutoStart();});
   document.addEventListener("online-opponent-connected",e=>{playersCount=Number(e.detail.playersCount||playersCount+1);syncRoom();});
   document.addEventListener("online-opponent-left",e=>{playersCount=Number(e.detail.playersCount||Math.max(1,playersCount-1));syncRoom();});
   document.addEventListener("room-host-changed",()=>syncRoom());
   document.addEventListener("room-settings-updated",e=>syncRoom(e.detail));
-  document.addEventListener("word-round-start",()=>{visibleWords={};hasSecretWord=false;renderSeats();started=true;$("srsStart").classList.add("hidden");$("srsWordStage").classList.remove("hidden");$("srsWordInstruction").textContent="Игроки по очереди отправляют слова случайно назначенным игрокам. Каждый получит ровно одно слово. Получатель не увидит его до завершения раздачи.";syncRoom();});
+  document.addEventListener("word-round-start",()=>{autoStartPending=false;visibleWords={};hasSecretWord=false;renderSeats();started=true;$("srsStart").classList.add("hidden");$("srsWordStage").classList.remove("hidden");$("srsWordInstruction").textContent="Игроки по очереди отправляют слова случайно назначенным игрокам. Каждый получит ровно одно слово. Получатель не увидит его до завершения раздачи.";syncRoom();});
   document.addEventListener("word-entry-turn",e=>{
     $("srsWordStage").classList.remove("hidden");$("srsWordEntry").classList.remove("hidden");$("srsWordWaiting").classList.add("hidden");
     const me=roster.find(p=>p.id===window.onlineGame.getPlayerId());const target=roster.find(p=>p.id===e.detail.targetPlayerId);
@@ -307,7 +308,7 @@
   document.addEventListener("who-am-i-guess-result",e=>status(e.detail.message));
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();winnerId=e.detail.winnerId||null;renderSeats();$("srsPlayPanel").classList.add("hidden");$("srsPassTurn").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
-  document.addEventListener("word-round-reset",e=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();visibleWords={};hasSecretWord=false;winnerId=null;renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
+  document.addEventListener("word-round-reset",e=>{autoStartPending=false;root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();visibleWords={};hasSecretWord=false;winnerId=null;renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
   document.addEventListener("online-room-left",()=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();$("srsNotebookPanel").classList.add("hidden");$("srsChatPanel").classList.add("hidden");$("srsChatMessages").innerHTML='<div class="muted">Сообщений пока нет.</div>';$("srsNotebookText").value="";show("srsHome");started=false;});
 })();
 (() => {
