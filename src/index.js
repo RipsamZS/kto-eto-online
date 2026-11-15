@@ -835,8 +835,8 @@ export class GameRoom {
         // Private rooms are joinable only when the player supplies the exact code.
       }
 
-      if (this.gameId === "alias" && this.partyState) {
-        reply({ ok:false, message:"Партия Alias уже началась. Создай новую комнату для следующей игры." });
+      if (this.partyState || (this.gameId === "who-am-i" && this.gamePhase !== "lobby")) {
+        reply({ ok:false, message:"Игра уже началась. Для следующей партии создай новую комнату." });
         return;
       }
 
