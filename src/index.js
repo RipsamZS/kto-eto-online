@@ -801,7 +801,7 @@ export class GameRoom {
       this.players.set(playerId, socket);
       this.playerProfiles.set(playerId, {
         nickname: String(settings.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
-        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(settings.avatar) ? settings.avatar : "🙂",
+        avatar: typeof settings.avatar === "string" && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(settings.avatar) && settings.avatar.length <= 700000 ? settings.avatar : "🙂",
         seatIndex: null
       });
 
@@ -853,7 +853,7 @@ export class GameRoom {
       const profile = data.profile || {};
       this.playerProfiles.set(playerId, {
         nickname: String(profile.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
-        avatar: ["🙂","😎","🐱","🐼","🦊","🐸","🐵","🐯","🐧","🐨","🦄","🐙"].includes(profile.avatar) ? profile.avatar : "🙂",
+        avatar: typeof profile.avatar === "string" && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(profile.avatar) && profile.avatar.length <= 700000 ? profile.avatar : "🙂",
         seatIndex: null
       });
       reply({
