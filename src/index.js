@@ -380,6 +380,7 @@ export class GameRoom {
       }
       this.broadcastRoster();
       this.broadcast("player-joined",{playersCount:this.players.size,maxPlayers:this.maxPlayers,hostPlayerId:this.hostPlayerId});
+      if(this.gameId==="who-is-it"&&amount>0)this.broadcast("player-ready",{});
       this.updateDirectory();
       return {ok:true,added:amount};
     }
