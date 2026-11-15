@@ -975,7 +975,7 @@ export class GameRoom {
         reply({ ok:false, message:"Каждый игрок должен выбрать своё место за столом." });
         return;
       }
-      if (this.gamePhase !== "lobby" || this.players.size !== this.maxPlayers) {
+      if (this.gamePhase !== "lobby" || this.players.size < 2) {
         reply({ ok:false, message:"Для начала игры должны подключиться все игроки." });
         return;
       }
@@ -1023,7 +1023,7 @@ export class GameRoom {
       }
       const ids = [...this.players.keys()];
       const index = this.wordWriterOrder.indexOf(playerId);
-      if (index < 0 || ids.length !== this.maxPlayers || index !== this.wordSubmitted.size) {
+      if (index < 0 || ids.length < 2 || index !== this.wordSubmitted.size) {
         reply({ok:false, message:"Сейчас очередь другого игрока."});
         return;
       }
