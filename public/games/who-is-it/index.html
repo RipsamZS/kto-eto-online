@@ -954,7 +954,7 @@ function openRoomSettings(access='private'){
   Array.from(document.getElementById('roomCardCount').options).forEach(o=>o.disabled=false);
   showScreen('roomSettingsScreen');
 }
-async function createConfiguredRoom(){
+async async function createConfiguredRoom(){
   if(!selectedRoomPack){toast('Сначала выбери пак.');return}
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
