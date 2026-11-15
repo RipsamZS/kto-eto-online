@@ -109,7 +109,7 @@
       </div>
       <div id="srsHostMenu" class="srs-menu hidden">
         <button id="srsMenuToggle" class="alt" type="button" aria-expanded="false">☰ Меню</button>
-        <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsStart" class="wide hidden" type="button">▶ Начать игру</button><button id="srsAddBots" class="wide alt hidden" type="button">🤖 Добавить тестового бота</button><button id="srsEditAction" type="button">⚙ Редактировать комнату</button><button id="srsLeave" class="wide alt" type="button">Выйти из игры</button></div>
+        <div id="srsMenuPanel" class="srs-menu-panel hidden"><button id="srsStart" class="wide hidden" type="button">▶ Начать игру</button><button id="srsAddBots" class="wide alt hidden" type="button">🤖 Добавить тестовых ботов</button><button id="srsEditAction" type="button">⚙ Редактировать комнату</button><button id="srsLeave" class="wide alt" type="button">Выйти из игры</button></div>
       </div>
       <div id="srsEdit" class="srs-card hidden"><h3>Редактирование комнаты</h3>
         <label for="srsEditName">Название</label><input id="srsEditName" maxlength="50">
@@ -274,7 +274,7 @@
   $("srsSave").onclick=async()=>{const result=await window.onlineGame.updateRoomSettings(settingsFrom("srsEdit"));if(!result.ok)return status(result.message||"Не удалось сохранить настройки.");$("srsEdit").classList.add("hidden");syncRoom(result.settings);status("Настройки комнаты сохранены.");};
   $("srsLeave").onclick=()=>window.onlineGame.leaveRoom();
   $("srsStart").onclick=async()=>{const result=await window.onlineGame.startWordRound();if(!result.ok)status(result.message||"Не удалось начать игру.");};
-  $("srsAddBots").onclick=async()=>{const result=await window.onlineGame.sendGameAction("test-bots-add",{count:1});if(!result.ok)status(result.message||"Не удалось добавить бота.");else status("Тестовый бот добавлен. Раздача начнётся автоматически.");};
+  $("srsAddBots").onclick=async()=>{const result=await window.onlineGame.sendGameAction("test-bots-add",{count:Math.max(1,maxPlayers-playersCount)});if(!result.ok)status(result.message||"Не удалось добавить бота.");else status("Тестовые боты добавлены. Раздача начнётся автоматически.");};
   $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");$("srsWordInput").value="";};
   $("srsAskQuestion").onclick=async()=>{const field=$("srsQuestionInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.askWhoAmIQuestion(field.value.trim());if(!result.ok)return status(result.message||"Не удалось задать вопрос.");field.value="";field.classList.add("hidden");$("srsActionButtons").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");status("Вопрос отправлен. Ответы будут в общем чате.");};
   $("srsGuessButton").onclick=async()=>{const field=$("srsGuessInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.guessWhoAmI(field.value.trim());if(!result.ok)return status(result.message||"Не удалось отправить догадку.");field.value="";field.classList.add("hidden");if(!result.correct)status("Пока не угадал. Ход переходит дальше.");};
