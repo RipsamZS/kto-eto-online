@@ -160,7 +160,7 @@ a{color:#6546a5}
     <div class="menu-grid">
       <button class="menu-card" onclick="showBotNotice()">
         <span class="emoji">🤖</span><strong>Играть с ботом</strong>
-        <small>Режим находится в разработке</small>
+        <small>Создай тренировочную комнату с пассивным соперником</small>
       </button>
       <button class="menu-card" onclick="openJoinPicker('private')">
         <span class="emoji">🔒</span><strong>Закрытая игра</strong>
@@ -463,6 +463,7 @@ let currentGameMode='local';
 let gameCrossed=new Set();
 let selectedLocalPack=null;
 let activeRoomSettings=null;
+let autoAddTestBot=false;
 
 function loadStorage(key,fallback){
   try{const value=JSON.parse(localStorage.getItem(key)||'null');return value??fallback}
@@ -488,7 +489,7 @@ function toast(message){
   clearTimeout(window.toastTimer);
   window.toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
-function showBotNotice(){toast('Режим игры с ботом пока находится в разработке.')}
+function showBotNotice(){autoAddTestBot=true;openRoomSettings('private');toast('Выбери пак персонажей и создай комнату — тестовый соперник добавится автоматически.')}
 
 /* -------------------------------------------------------
    ГЛАВНОЕ МЕНЮ И ПАКИ
@@ -976,9 +977,14 @@ async function createConfiguredRoom(){
   activeRoomSettings=settings;
   try{
     await window.onlineGame.createRoom(pack,settings);
+    if(autoAddTestBot){
+      const botResult=await window.onlineGame.sendGameAction('test-bots-add',{count:1});
+      if(!botResult.ok)throw new Error(botResult.message||'Не удалось добавить тестового соперника.');
+      autoAddTestBot=false;
+    }
     currentGameMode='online';toast('Комната создана.');
     startGameFromCharacters(pack.characters,pack.name,'online');
-  }catch(error){toast(error.message||'Не удалось создать комнату.')}
+  }catch(error){autoAddTestBot=false;toast(error.message||'Не удалось создать комнату.')}
 }
 function openJoinPicker(type='private'){
   showScreen('joinScreen');document.getElementById('joinCode').value='';
