@@ -185,7 +185,8 @@
     const host=!!window.onlineGame.isRoomHost();
     $("srsHostMenu").classList.remove("hidden");
     $("srsStart").classList.toggle("hidden",!host||started);
-    $("srsEditAction").classList.toggle("hidden",!host);\n    $("srsAddBots").classList.toggle("hidden",!host||started||playersCount>=maxPlayers);
+    $("srsEditAction").classList.toggle("hidden",!host);
+  $("srsAddBots").classList.toggle("hidden",!host||started||playersCount>=maxPlayers);
     const allSeated=roster.length===playersCount&&roster.every(player=>Number.isInteger(player.seatIndex));
     $("srsStart").disabled=playersCount<2||!allSeated;
     if(host){
@@ -272,7 +273,8 @@
   $("srsCancelEdit").onclick=()=>$("srsEdit").classList.add("hidden");
   $("srsSave").onclick=async()=>{const result=await window.onlineGame.updateRoomSettings(settingsFrom("srsEdit"));if(!result.ok)return status(result.message||"Не удалось сохранить настройки.");$("srsEdit").classList.add("hidden");syncRoom(result.settings);status("Настройки комнаты сохранены.");};
   $("srsLeave").onclick=()=>window.onlineGame.leaveRoom();
-  $("srsStart").onclick=async()=>{const result=await window.onlineGame.startWordRound();if(!result.ok)status(result.message||"Не удалось начать игру.");};\n  $("srsAddBots").onclick=async()=>{const result=await window.onlineGame.sendGameAction("test-bots-add",{count:1});if(!result.ok)status(result.message||"Не удалось добавить бота.");else status("Тестовый бот добавлен. Раздача начнётся автоматически.");};
+  $("srsStart").onclick=async()=>{const result=await window.onlineGame.startWordRound();if(!result.ok)status(result.message||"Не удалось начать игру.");};
+  $("srsAddBots").onclick=async()=>{const result=await window.onlineGame.sendGameAction("test-bots-add",{count:1});if(!result.ok)status(result.message||"Не удалось добавить бота.");else status("Тестовый бот добавлен. Раздача начнётся автоматически.");};
   $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");$("srsWordInput").value="";};
   $("srsAskQuestion").onclick=async()=>{const field=$("srsQuestionInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.askWhoAmIQuestion(field.value.trim());if(!result.ok)return status(result.message||"Не удалось задать вопрос.");field.value="";field.classList.add("hidden");$("srsActionButtons").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");status("Вопрос отправлен. Ответы будут в общем чате.");};
   $("srsGuessButton").onclick=async()=>{const field=$("srsGuessInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.guessWhoAmI(field.value.trim());if(!result.ok)return status(result.message||"Не удалось отправить догадку.");field.value="";field.classList.add("hidden");if(!result.correct)status("Пока не угадал. Ход переходит дальше.");};
