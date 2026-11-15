@@ -106,7 +106,7 @@ export class GameRoom {
   rosterData() {
     const players = [...this.players.keys()].map((id, index) => {
       const profile = this.playerProfiles.get(id) || {};
-      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, team: this.aliasTeams?.[id] || null, isHost: id === this.hostPlayerId };
+      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, team: this.aliasTeams?.[id] || null, isHost: id === this.hostPlayerId, testBot: profile.testBot === true };
     });
     return { players, playersCount: players.length, maxPlayers: this.maxPlayers, hostPlayerId: this.hostPlayerId };
   }
@@ -360,8 +360,9 @@ export class GameRoom {
         this.playerProfiles.set(id, {nickname:"Бот "+(i+1),avatar:"🤖",seatIndex:null,testBot:true});
         if (this.gameId === "alias") {
           this.aliasTeams = this.aliasTeams || {};
-          const countA=[...this.aliasTeams.values ? this.aliasTeams.values() : Object.values(this.aliasTeams)].filter(x=>x==="A").length;
-          const countB=Object.values(this.aliasTeams).filter(x=>x==="B").length;
+          const currentIds=[...this.players.keys()].filter(x=>x!==id);
+          const countA=currentIds.filter((x,index)=>(this.aliasTeams[x] || (index%2===0?"A":"B"))==="A").length;
+          const countB=currentIds.filter((x,index)=>(this.aliasTeams[x] || (index%2===0?"A":"B"))==="B").length;
           this.aliasTeams[id]=countA<=countB?"A":"B";
         }
       }
