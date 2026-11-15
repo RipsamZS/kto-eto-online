@@ -80,51 +80,59 @@
   .srs .status{background:#f0ebf7!important;color:#513b78!important;border:1px solid #ded3ef!important}
   body[data-game="who-am-i"]{background-color:#f3f0e9!important;background-image:radial-gradient(rgba(118,86,168,.12) .7px,transparent .7px),radial-gradient(ellipse at 15% 10%,#ded2f0,transparent 42%),radial-gradient(ellipse at 90% 80%,#f1dfd0,transparent 38%)!important;background-size:20px 20px,auto,auto!important;color:#292536!important}
 
-  /* Dedicated, fully redesigned room-creation panel for Who Am I */
-  #srsCreateView{position:relative;isolation:isolate;max-width:570px;margin:28px auto 8px;padding:clamp(22px,4vw,34px);overflow:hidden;border:1px solid #e1d8ec;border-radius:26px;background:linear-gradient(145deg,#fffefa 0%,#f8f4fc 58%,#f0eaf8 100%);box-shadow:0 22px 60px rgba(56,39,82,.13)}
-  #srsCreateView:before{content:"";position:absolute;z-index:-1;right:-72px;top:-100px;width:245px;height:245px;border-radius:50%;background:radial-gradient(circle,#c7b3e5 0%,rgba(199,179,229,0) 70%)}
-  #srsCreateView:after{content:"";position:absolute;z-index:-1;left:-75px;bottom:-125px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,#f1d7c3 0%,rgba(241,215,195,0) 70%)}
-  #srsCreateView #srsBackCreate{display:inline-flex;align-items:center;gap:7px;margin:0 0 18px;padding:9px 15px;background:#eee8f6;color:#62458f;border:1px solid #e0d6ee;box-shadow:none;font-size:13px}
-  #srsCreateView h2{margin:0 0 22px;color:#292438;font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(26px,5vw,34px);letter-spacing:-.8px}
-  #srsCreateView h2:before{content:"🎭";display:inline-grid;place-items:center;width:43px;height:43px;margin-right:12px;border-radius:14px;background:#eee7f7;font-size:23px;vertical-align:middle}
-  #srsCreateView label{margin:17px 0 7px;color:#655b72;font-size:12px;font-weight:800;letter-spacing:.035em}
-  #srsCreateView input,#srsCreateView select{min-height:48px;padding:12px 14px;border:1px solid #e0d9e8;border-radius:13px;background:rgba(255,255,255,.88);color:#292438;font-size:15px;box-shadow:0 2px 7px rgba(42,31,57,.025);transition:border-color .15s,box-shadow .15s}
-  #srsCreateView input:focus,#srsCreateView select:focus{outline:none;border-color:#9c82c4;box-shadow:0 0 0 4px rgba(118,86,168,.12)}
-  #srsCreateView .muted{display:block;margin-top:7px;color:#8b8296;font-size:12px;line-height:1.5}
-  #srsCreateView #srsCodeField{margin-top:3px;padding:14px 15px 15px;border:1px dashed #d7c9e8;border-radius:16px;background:rgba(239,232,248,.58)}
-  #srsCreateView #srsCodeField label{margin-top:0}
-  #srsCreateView #srsCreate{min-height:51px;margin-top:25px;border-radius:15px;background:linear-gradient(105deg,#7656a8,#6546a5);box-shadow:0 9px 22px rgba(101,70,165,.23);font-size:15px;letter-spacing:.01em}
-  #srsCreateView #srsCreate:hover{filter:brightness(1.06);transform:translateY(-1px)}
-  #srsHome{max-width:570px;margin:28px auto;padding:clamp(22px,4vw,34px);border:1px solid #e1d8ec;border-radius:26px;background:linear-gradient(145deg,#fffefa,#f1ebf8);box-shadow:0 22px 60px rgba(56,39,82,.1);text-align:center}
-  #srsHome>p{margin:0 0 22px;color:#777181;font-size:15px}
-  #srsHome .srs-grid{grid-template-columns:1fr 1fr;gap:12px}
-  #srsHome button{min-height:50px;border-radius:15px}
-  #srsHome #srsShowCreate{background:#7656a8;box-shadow:0 8px 18px rgba(101,70,165,.2)}
-  #srsHome #srsShowJoin{background:#eee8f6;color:#6546a5;border:1px solid #ded3ef;box-shadow:none}
-  @media(max-width:520px){#srsCreateView{margin:16px auto;padding:20px 17px;border-radius:21px}#srsCreateView h2{font-size:25px}#srsHome .srs-grid{grid-template-columns:1fr}#srsHome{margin:16px auto;padding:20px 17px}}
+  /* Match the shared Kazo room setup used by the other party games */
+  .srs{max-width:1080px;margin:0 auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#252231}
+  #srsHome{position:relative;max-width:1080px;margin:0 auto;padding:clamp(20px,4vw,34px);overflow:hidden;border:1px solid #ded8ce;border-radius:22px;background:linear-gradient(145deg,#fffdf8,#eee9df);box-shadow:0 18px 48px rgba(38,30,22,.08)}
+  #srsHome:before{content:"";position:absolute;right:-58px;top:-88px;width:220px;height:220px;border-radius:50%;background:#7656a8;opacity:.055;pointer-events:none}
+  .srs-setup-grid{position:relative;display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(18px,3vw,30px)}
+  .srs-setup-card{min-width:0;padding:clamp(15px,2.5vw,24px);border:1px solid #ded8ce;border-radius:19px;background:#fffefa;box-shadow:0 8px 24px rgba(40,30,50,.045)}
+  .srs-setup-kicker{margin-bottom:9px;color:#7656a8;font-size:10px;font-weight:900;letter-spacing:.16em}
+  #srsHome h2{margin:0 0 7px;color:#252231;font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(20px,3vw,26px);letter-spacing:-.35px}
+  #srsHome p{margin:0 0 14px;color:#777181;font-size:14px;line-height:1.55}
+  #srsHome label{display:block;margin:15px 0 7px;color:#777181;font-size:13px;font-weight:650}
+  #srsHome input,#srsHome select{box-sizing:border-box;width:100%;min-height:44px;padding:12px 14px;border:1px solid #ded8ce;border-radius:12px;background:#fffefa;color:#252231;font:inherit}
+  #srsHome input:focus,#srsHome select:focus{outline:none;border-color:#7656a8;box-shadow:0 0 0 3px #7656a51a}
+  #srsHome .srs-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #srsHome .srs-form-grid .srs-field{min-width:0}
+  #srsHome .srs-hint{margin-top:7px;color:#777181;font-size:12px;line-height:1.45}
+  #srsHome .srs-code-box{margin-top:14px;padding:12px 13px;border:1px dashed #d8cdec;border-radius:14px;background:#f7f3fa}
+  #srsHome .srs-code-box label{margin-top:0}
+  #srsHome button{width:100%;min-height:46px;margin-top:15px;padding:12px 18px;border:0;border-radius:999px;background:#7656a8;color:white;font:750 14px "DM Sans",sans-serif;box-shadow:0 5px 14px #7656a822;cursor:pointer}
+  #srsHome button.alt{margin-top:9px;background:#eee8f6;color:#7656a8;border:1px solid #ded3ef;box-shadow:none}
+  #srsHome button:disabled{opacity:.5;cursor:not-allowed}
+  #srsHome .srs-public-list{margin-top:12px;color:#777181;font-size:13px}
+  #srsHome .room-row{padding:12px;border:1px solid #ded8ce;border-radius:12px;margin-top:9px;background:#fffefa}
+  @media(max-width:700px){.srs-setup-grid{grid-template-columns:1fr}.srs-setup-card{padding:17px}}
+  @media(max-width:520px){#srsHome{padding:16px 12px;border-radius:18px}.srs-setup-grid{gap:14px}#srsHome .srs-form-grid{grid-template-columns:1fr 1fr}}
 </style>
   <section class="srs">
     <div id="srsHome">
-      <p>Создай свою комнату или подключись к друзьям по коду.</p>
-      
-      <div class="srs-grid">
-        <button id="srsShowCreate" class="wide">Создать комнату</button>
-        <button id="srsShowJoin" class="wide alt">Подключиться</button>
+      <div class="srs-setup-grid">
+        <section class="srs-setup-card">
+          <div class="srs-setup-kicker">НОВАЯ ИГРА</div>
+          <h2>Создать комнату</h2>
+          <p>Настрой игру и пригласи друзей по коду.</p>
+          <label for="srsName">Название комнаты</label>
+          <input id="srsName" maxlength="50" placeholder="Например, Вечерняя игра">
+          <div class="srs-form-grid">
+            <div class="srs-field"><label for="srsPlayers">Количество игроков</label><select id="srsPlayers"><option value="2">2 игрока</option><option value="3">3 игрока</option><option value="4">4 игрока</option><option value="5">5 игроков</option><option value="6">6 игроков</select></div>
+            <div class="srs-field"><label for="srsAccess">Тип комнаты</label><select id="srsAccess"><option value="public">Открытая</option><option value="private">Закрытая</option></select></div>
+            <div class="srs-field"><label for="srsTimer">Время раунда</label><select id="srsTimer"><option value="0">Без ограничения</option><option value="30">30 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option></select></div>
+          </div>
+          <div id="srsCodeField" class="srs-code-box"><label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код"><div class="srs-hint">3–16 символов: латинские буквы, цифры, дефис или подчёркивание. Для открытой комнаты код не нужен.</div></div>
+          <button id="srsCreate">Создать комнату</button>
+        </section>
+        <section class="srs-setup-card">
+          <div class="srs-setup-kicker">УЖЕ ЕСТЬ КОД?</div>
+          <h2>Присоединиться</h2>
+          <p>Введи код комнаты друга или найди открытую игру.</p>
+          <label for="srsJoinCode">Код комнаты</label>
+          <input id="srsJoinCode" maxlength="16" placeholder="Например, 482193">
+          <button id="srsJoin" class="alt">Войти по коду</button>
+          <button id="srsRefresh" class="alt">Найти открытые комнаты</button>
+          <div id="srsPublicList" class="srs-public-list"></div>
+        </section>
       </div>
-    </div>
-    <div id="srsCreateView" class="hidden">
-      <button id="srsBackCreate" class="alt">← Назад</button><h2>Создать комнату</h2>
-      <label for="srsName">Название комнаты</label><input id="srsName" maxlength="50" placeholder="Например, Вечерняя игра">
-      <div id="srsCodeField" class="srs-code-field"><label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код"><div class="muted">3–16 символов: латинские буквы, цифры, дефис или подчёркивание</div></div>
-      <label for="srsAccess">Доступ</label><select id="srsAccess"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
-      <label for="srsPlayers">Количество игроков</label><select id="srsPlayers"><option value="2">2 игрока</option><option value="3">3 игрока</option><option value="4">4 игрока</option><option value="5">5 игроков</option><option value="6">6 игроков</option></select>
-      <label for="srsTimer">Время на вопрос</label><select id="srsTimer"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option><option value="0">Без ограничения</option></select>
-      <button id="srsCreate" class="wide">Создать комнату</button>
-    </div>
-    <div id="srsJoinView" class="hidden">
-      <button id="srsBackJoin" class="alt">← Назад</button><h2>Подключиться</h2>
-      <label for="srsJoinCode">Код комнаты</label><input id="srsJoinCode" maxlength="16" placeholder="Введи код от создателя">
-      <button id="srsJoin" class="wide">Войти по коду</button><button id="srsRefresh" class="wide alt">Найти открытые комнаты</button><div id="srsPublicList"></div>
     </div>
     <div id="srsLobby" class="hidden">
       <h2 id="srsRoomTitle">Комната</h2><p id="srsRoomInfo">Ожидаем игроков…</p>
@@ -202,7 +210,7 @@
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
   let playersCount=0,maxPlayers=2,started=false,autoStartPending=false,roster=[],visibleWords={},hasSecretWord=false,winnerId=null;
-  const show = id => { ["srsHome","srsCreateView","srsJoinView","srsLobby"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); root.querySelector(".srs").classList.toggle("lobby-active",id==="srsLobby"); };
+  const show = id => { const lobby=id==="srsLobby"; $("srsHome").classList.toggle("hidden",lobby); $("srsLobby").classList.toggle("hidden",!lobby); root.querySelector(".srs").classList.toggle("lobby-active",lobby); };
   function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
   const profile=getProfile();
   const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:profile.nickname,avatar:profile.avatar});
@@ -274,11 +282,7 @@
   $("srsChatSend").onclick=sendChatMessage;
   $("srsChatInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sendChatMessage();}});
   $("srsHelpClose").onclick=()=>{$("srsHelpPanel").classList.add("hidden");$("srsHelpToggle").setAttribute("aria-expanded","false");};
-  $("srsShowCreate").onclick=()=>show("srsCreateView");
   $("srsAccess").addEventListener("change",()=>{$("srsCodeField").classList.toggle("hidden",$("srsAccess").value==="public");});
-  $("srsShowJoin").onclick=()=>show("srsJoinView");
-  $("srsBackCreate").onclick=()=>show("srsHome");
-  $("srsBackJoin").onclick=()=>show("srsHome");
   $("srsCreate").onclick=async()=>{
     const settings=settingsFrom("srs");settings.roomCode=settings.access==="public"?("PUB"+Math.random().toString(36).slice(2,9).toUpperCase()):$("srsCode").value.trim().toUpperCase();
     if(!settings.roomName)return status("Введи название комнаты.");
