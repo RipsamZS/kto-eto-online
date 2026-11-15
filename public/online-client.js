@@ -356,6 +356,9 @@
 
       case "who-am-i-chat-history":
       case "who-am-i-chat-message":
+      case "party-state":
+      case "party-private":
+      case "party-message":
         dispatch(event, data);
         break;
 
@@ -731,6 +734,8 @@
   function guessWhoAmI(guess) { return send("who-am-i-guess", {guess}); }
   function passWhoAmITurn() { return send("who-am-i-pass"); }
   function sendWhoAmIChat(message) { return send("who-am-i-chat", {message:String(message||"").trim().slice(0,300)}); }
+  function sendGameAction(action, payload = {}) { return send("party-action", {action, payload}); }
+  function startGame() { return send("party-start", {}); }
 
   async function listPublicRooms(gameId = "who-is-it") {
     try {
@@ -1161,6 +1166,8 @@
     guessWhoAmI,
     passWhoAmITurn,
     sendWhoAmIChat,
+    sendGameAction,
+    startGame,
     joinRoom,
     playerReady,
     askQuestion,
