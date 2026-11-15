@@ -14,12 +14,9 @@ body{margin:0;min-height:100vh;color:var(--text);font-family:'DM Sans',system-ui
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#8e867b .65px,transparent .65px);background-size:7px 7px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
 .wrap{position:relative;width:min(1120px,calc(100% - 40px));margin:auto;padding:30px 0 56px}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 12px}
-.logo{display:inline-flex;align-items:center;gap:1px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;letter-spacing:-2.1px;line-height:1}
-.logo-word{display:inline-block}
-.logo-mascot{display:block;width:34px;height:39px;margin:0 -1px 0 0;overflow:visible}
-.logo-signature{align-self:flex-start;margin:0 0 0 5px;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:800;letter-spacing:0;transform:rotate(12deg)}
-.logo:hover .logo-mascot{transform:translateY(-2px) rotate(-5deg)}
-.logo-mascot{transition:transform .18s ease}
+.logo{display:inline-flex;align-items:center;line-height:0;text-decoration:none}
+.logo-image{display:block;width:120px;height:auto;max-height:68px;object-fit:contain;object-position:left center;transition:transform .18s ease}
+.logo:hover .logo-image{transform:translateY(-1px)}
 .hero{text-align:left;max-width:790px;margin:0 auto;padding:78px 10px 42px}
 .hero:before{content:"ИГРЫ ДЛЯ КОМПАНИИ";display:inline-flex;align-items:center;margin-bottom:18px;padding:7px 11px;border:1px solid #d9d2c6;border-radius:6px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.6px}
 .hero h1{margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(46px,8vw,78px);line-height:.98;letter-spacing:-4px;font-weight:700}
@@ -61,7 +58,7 @@ body.needs-profile .profile-gate{display:block}
 </head>
 <body class="needs-profile">
 <div class="wrap">
-<header><div class="logo" aria-label="KAZO" title="KAZO"><span class="logo-word">KAZ</span><svg class="logo-mascot" viewBox="0 0 40 46" role="img" aria-label="O-человечек"><path d="M10 10 L13 3 L19 8 L25 2 L28 10" fill="none" stroke="#6546a5" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="24" r="13" fill="#d7f36a" stroke="#252231" stroke-width="2.4"/><circle cx="15.5" cy="22" r="1.7" fill="#252231"/><circle cx="24.5" cy="22" r="1.7" fill="#252231"/><path d="M16 28 Q20 31 24 28" fill="none" stroke="#252231" stroke-width="1.8" stroke-linecap="round"/><path d="M14 36 L11 42 M26 36 L29 42" fill="none" stroke="#252231" stroke-width="2.5" stroke-linecap="round"/></svg><span class="logo-signature" aria-hidden="true">✳</span></div></header>
+<header><img class="logo-image" src="/assets/kazo-logo.webp.svg" alt="KAZO" width="120" height="68"></header>
 <section id="profileGate" class="profile-gate" aria-labelledby="profileTitle">
 <h1 id="profileTitle">Добро пожаловать!</h1><p>Перед выбором игры придумай ник и выбери аватар. Они будут отображаться в игровых комнатах.</p>
 <form id="profileForm"><label for="profileNickname">Твой никнейм</label><input id="profileNickname" maxlength="20" autocomplete="nickname" placeholder="Например, Игрок" required>
