@@ -222,7 +222,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
       <div id="srsFinished" class="hidden status"><h3>Игра завершена</h3><p id="srsFinishedText"></p><button id="srsPlayAgain" class="alt">В меню</button></div>
       <div id="srsLobbyActions"></div>
     </div>
-    <div id="srsStatus" class="status">Выбери действие, чтобы продолжить.</div>
+    <div id="srsStatus" class="status hidden">Выбери действие, чтобы продолжить.</div>
     <button id="srsHelpToggle" type="button" aria-expanded="false">? Справка</button>
     <section id="srsHelpPanel" class="hidden" role="dialog" aria-label="Правила игры">
       <h3>Как играть в «Кто я?»</h3>
@@ -240,14 +240,14 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
     </section>
   </section>`;
   const $ = id => root.querySelector("#"+id);
-  const status = message => $("srsStatus").textContent = message;
+  const status = message => { $("srsStatus").textContent = message; $("srsStatus").classList.remove("hidden"); };
   let playersCount=0,maxPlayers=2,started=false,autoStartPending=false,roster=[],visibleWords={},hasSecretWord=false,winnerId=null,botMode=false;
   const show = id => { const lobby=id==="srsLobby",menu=id==="menu"; $("srsModeMenu").classList.toggle("hidden",!menu); $("srsHome").classList.toggle("hidden",lobby||menu); $("srsLobby").classList.toggle("hidden",!lobby); root.querySelector(".srs").classList.toggle("lobby-active",lobby); };
   function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
   const profile=getProfile();
-  function openMode(mode){botMode=mode==="bots";$("srsModeMenu").classList.add("hidden");$("srsHome").classList.remove("hidden");$("srsLobby").classList.add("hidden");$("srsCreateCard").classList.toggle("hidden",mode!=="create"&&mode!=="bots");$("srsJoinCard").classList.toggle("hidden",mode!=="private"&&mode!=="public");$("srsHome").querySelector(".srs-setup-grid").classList.toggle("single",mode!=="create"&&mode!=="bots");$("srsPublicList").innerHTML="";if(mode==="public")$("srsRefresh").click();}
+  function openMode(mode){botMode=mode==="bots";if(botMode)$("srsAccess").value="private";$("srsStatus").classList.remove("hidden");$("srsModeMenu").classList.add("hidden");$("srsHome").classList.remove("hidden");$("srsLobby").classList.add("hidden");$("srsCreateCard").classList.toggle("hidden",mode!=="create"&&mode!=="bots");$("srsJoinCard").classList.toggle("hidden",mode!=="private"&&mode!=="public");$("srsHome").querySelector(".srs-setup-grid").classList.toggle("single",mode!=="create"&&mode!=="bots");$("srsPublicList").innerHTML="";if(mode==="public")$("srsRefresh").click();}
   root.querySelectorAll("[data-srs-mode]").forEach(button=>button.addEventListener("click",()=>openMode(button.dataset.srsMode)));
-  $("srsBackMenu").onclick=()=>{botMode=false;show("menu");};
+  $("srsBackMenu").onclick=()=>{botMode=false;$("srsStatus").classList.add("hidden");show("menu");};
   const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:profile.nickname,avatar:profile.avatar});
   function syncRoom(settings){
     settings=settings||window.onlineGame.getSettings()||{};
