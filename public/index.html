@@ -33,24 +33,24 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 .game .emoji{position:relative;z-index:1;display:grid;place-items:center;width:57px;height:57px;margin:0 0 22px;border:1px solid rgba(37,34,49,.07);border-radius:16px;background:rgba(255,255,255,.78);font-size:29px;box-shadow:0 5px 12px rgba(37,34,49,.06)}
 .game strong{position:relative;z-index:1;font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:-.6px}
 .game small{position:relative;z-index:1;max-width:245px;margin-top:7px;color:var(--muted);font-size:13px;line-height:1.5}
-.game.disabled{opacity:.68;cursor:default}
+.game.disabled{opacity:.43;filter:grayscale(.82) saturate(.45);cursor:not-allowed;pointer-events:none;box-shadow:none}.game.disabled:before{background:#aaa4b2}.game.disabled .emoji{filter:grayscale(1);background:#d9d6dc}.game.disabled .tag{background:#d0ccd5;color:#514b5b;letter-spacing:.2px}
 .tag{position:absolute;top:13px;right:13px;padding:5px 9px;border-radius:6px;background:var(--lime);color:#343044;font-size:10px;font-weight:800}
 footer{margin-top:32px;text-align:center;color:#96909d;font-size:12px;letter-spacing:.1px}
 body.needs-profile main,body.needs-profile footer{display:none}
-.profile-gate{display:none;position:relative;max-width:470px;margin:54px auto 30px;padding:34px;border:1px solid #e1dacf;border-radius:20px;background:var(--panel);box-shadow:0 22px 70px rgba(45,35,66,.12)}
-.profile-gate:before{content:"ПЕРЕД СТАРТОМ";display:block;margin-bottom:14px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.7px;text-align:center}
-body.needs-profile .profile-gate{display:block}
+.profile-gate{display:none;position:relative;max-width:470px;margin:54px auto 30px;padding:34px;border:1px solid #51466c;border-radius:20px;background:#211b35;color:#f6f2ff;box-shadow:0 24px 80px rgba(10,7,20,.42)}
+.profile-gate:before{content:"ПЕРЕД СТАРТОМ";display:block;margin-bottom:14px;color:#c4b5fd;font-size:10px;font-weight:800;letter-spacing:1.7px;text-align:center}
+body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(101,70,165,.18),transparent 30%),#100d20;color:#f6f2ff}body.needs-profile:before{opacity:.08}body.needs-profile .wrap>header{opacity:.72}body.needs-profile .profile-gate{display:block}
 .profile-gate h1{margin:0;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:32px;letter-spacing:-1.2px}
-.profile-gate p{color:var(--muted);text-align:center;line-height:1.55;font-size:14px}
-.profile-gate label{display:block;margin:17px 0 7px;color:#5e5969;font-size:13px;font-weight:700}
-.profile-gate input,.profile-gate select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #ddd6cb;background:#faf8f3;color:var(--text);font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
-.profile-gate input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(101,70,165,.12)}
+.profile-gate p{color:#b9b0ca;text-align:center;line-height:1.55;font-size:14px}
+.profile-gate label{display:block;margin:17px 0 7px;color:#e0d9ee;font-size:13px;font-weight:700}
+.profile-gate input,.profile-gate select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #51466c;background:#171326;color:#f6f2ff;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.profile-gate input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.18)}
 .profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:var(--accent);color:white;font:inherit;font-weight:800;cursor:pointer;transition:background .15s,transform .15s}
 .profile-gate button:hover{background:var(--accent2);transform:translateY(-1px)}
 .profile-avatar{display:flex;align-items:center;gap:14px;margin-top:8px}
 .profile-avatar-preview{width:76px;height:76px;flex:0 0 76px;border-radius:18px;object-fit:cover;border:2px solid var(--lime);background:#eee8f7}
 .profile-avatar input[type=file]{padding:9px;font-size:12px}
-.profile-error{min-height:18px;color:#c64d45;font-size:13px;text-align:left!important;margin:8px 0 0!important}
+.profile-error{min-height:18px;color:#ff9caa;font-size:13px;text-align:left!important;margin:8px 0 0!important}
 @media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:58px}.hero h1{letter-spacing:-2.8px}}
 @media(max-width:480px){.wrap{width:min(100% - 28px,1120px);padding-top:20px}.grid{grid-template-columns:1fr;gap:11px}.game{min-height:160px;padding:19px}.game .emoji{width:48px;height:48px;margin-bottom:14px}.hero{padding:42px 2px 28px}.hero h1{font-size:48px;letter-spacing:-2.5px}.hero p{font-size:14px;margin-top:18px}.profile-gate{margin:30px auto;padding:25px 21px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
@@ -72,24 +72,24 @@ body.needs-profile .profile-gate{display:block}
 <p>Выбирай игру, собирай компанию и начинай веселье. Все игры будут жить на одной площадке.</p>
 </section>
 <nav class="grid" aria-label="Выбор игры">
-<a class="game" href="/games/who-is-it/">
+<div class="game disabled" role="group" aria-disabled="true" data-status="development">
 <span class="emoji">🕵️</span><strong>Кто это?</strong><small>Задавай вопросы, исключай персонажей и угадывай первым</small>
-</a>
+<span class="tag">В разработке</span></div>
 <a class="game" href="/games/alias/">
 <span class="emoji">💬</span><strong>Alias</strong><small>Объясняй слова команде, не называя их</small>
 </a>
-<a class="game" href="/games/codenames/">
+<div class="game disabled" role="group" aria-disabled="true" data-status="development">
 <span class="emoji">🗝️</span><strong>Code Names</strong><small>Находи слова своей команды по подсказкам капитана</small>
-</a>
-<a class="game" href="/games/spy/">
+<span class="tag">В разработке</span></div>
+<div class="game disabled" role="group" aria-disabled="true" data-status="development">
 <span class="emoji">🕶️</span><strong>Шпион</strong><small>Вычисли шпиона, задавая правильные вопросы</small>
-</a>
-<a class="game" href="/games/imaginarium/">
+<span class="tag">В разработке</span></div>
+<div class="game disabled" role="group" aria-disabled="true" data-status="development">
 <span class="emoji">🎨</span><strong>Имаджинариум</strong><small>Придумывай ассоциации и угадывай карты</small>
-</a>
-<a class="game" href="/games/who-am-i/">
+<span class="tag">В разработке</span></div>
+<div class="game disabled" role="group" aria-disabled="true" data-status="development">
 <span class="emoji">🎭</span><strong>Кто я?</strong><small>Раздавай слова по кругу, задавай вопросы и угадывай своё слово</small>
-</a>
+<span class="tag">В разработке</span></div>
 </nav>
 </main>
 <footer>Новые игры будут появляться здесь. Выбранная игра загружается отдельно.</footer>
