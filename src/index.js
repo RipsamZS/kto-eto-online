@@ -224,6 +224,168 @@ export class GameRoom {
     this.pending = null;
     await this.broadcastWhoAmITurn();
   }
+
+  partySendState() {
+    if (!this.partyState) return;
+    const s = this.partyState;
+    for (const [id, socket] of this.players) {
+      let view = JSON.parse(JSON.stringify(s));
+      if (this.gameId === "alias") {
+        view.secretWord = id === s.activePlayerId ? s.currentWord : null;
+      } else if (this.gameId === "codenames") {
+        const captain = s.captains?.[s.teams?.[id]];
+        view.grid = s.grid.map(cell => ({...cell, color: (captain === id || cell.revealed) ? cell.color : null}));
+        view.myRole = captain === id ? "captain" : "operative";
+        view.myTeam = s.teams[id];
+      } else if (this.gameId === "spy") {
+        view.location = s.spyId === id ? null : s.location;
+        view.isSpy = s.spyId === id;
+        view.myVote = s.votes?.[id] || null;
+      } else if (this.gameId === "imaginarium") {
+        view.myHand = s.hands?.[id] || [];
+        view.mySubmission = s.submissions?.[id] || null;
+        view.myVote = s.votes?.[id] || null;
+      }
+      this.send(socket, "party-state", view);
+    }
+  }
+
+  partyPrivate(id, data) {
+    const socket = this.players.get(id);
+    if (socket) this.send(socket, "party-private", data);
+  }
+
+  partyShuffle(items) {
+    const a = [...items];
+    for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+
+  partyStart() {
+    const ids = [...this.players.keys()];
+    const profiles = Object.fromEntries(ids.map(id => [id, this.playerProfiles.get(id) || {nickname:"Игрок",avatar:"🙂"}]));
+    if (this.gameId === "alias") {
+      if (ids.length < 2) return {ok:false,message:"Для Alias нужно минимум 2 игрока."};
+      const words = ["Астроном","Велосипед","Крокодил","Библиотека","Парашют","Мороженое","Телескоп","Самолёт","Подводная лодка","Фонарик","Муравей","Чемодан","Клавиатура","Вулкан","Скейтборд","Пингвин","Аквариум","Робот","Космонавт","Пианино","Маяк","Черепаха","Компас","Карусель","Снеговик","Микроскоп","Гитара","Попкорн","Пылесос","Динозавр"];
+      const teams = Object.fromEntries(ids.map((id,i)=>[id,i%2===0?"A":"B"]));
+      this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,correct:0,skipped:0,seconds:60};
+      this.partyAliasNextWord();
+    } else if (this.gameId === "codenames") {
+      if (ids.length < 2) return {ok:false,message:"Для Code Names нужно минимум 2 игрока; интереснее играть вчетвером."};
+      const teams = Object.fromEntries(ids.map((id,i)=>[id,this.partyShuffle(["red","blue"])[0]]));
+      const redCaptain=ids.find(id=>teams[id]==="red"), blueCaptain=ids.find(id=>teams[id]==="blue");
+      const words=this.partyShuffle(["ЛУНА","МОСТ","КОШКА","БАНК","КЛЮЧ","ЗВЕЗДА","КРАН","ОРЁЛ","ПИРАТ","ШКОЛА","КОСМОС","СТЕКЛО","МЫШЬ","КОРЕНЬ","БАТАРЕЯ","ПАРК","ЛИСТ","РУЧКА","КРЕСТ","СНЕГ","КОД","ЗАМОК","ТЕАТР","МЕДЬ","ТЕНЬ","МОРЕ","ПЕРО","СЕТЬ","ГРИБ","КОМЕТА","РОБОТ","ПОЛЕ","ШАХТА","ЛАВА","ЧАСЫ"]);
+      const colors=this.partyShuffle([...Array(9).fill("red"),...Array(8).fill("blue"),...Array(7).fill("neutral"),"assassin"]);
+      this.partyState={phase:"clue",players:profiles,teams,captains:{red:redCaptain,blue:blueCaptain},currentTeam:"red",grid:words.slice(0,25).map((word,i)=>({id:i,word,color:colors[i],revealed:false})),clue:null,remaining:{red:9,blue:8},winner:null};
+      for(const id of ids)this.partyPrivate(id,{role:this.partyState.captains[teams[id]]===id?"captain":"operative",team:teams[id]});
+    } else if (this.gameId === "spy") {
+      if(ids.length<3)return {ok:false,message:"Для игры «Шпион» нужно минимум 3 игрока."};
+      const places=["Школа","Аэропорт","Космическая станция","Больница","Пляж","Ресторан","Музей","Поезд","Цирк","Отель","Пиратский корабль","Стадион","Библиотека","Полицейский участок","Горнолыжный курорт","Супермаркет"];
+      const spyId=ids[Math.floor(Math.random()*ids.length)];
+      this.partyState={phase:"discussion",players:profiles,spyId,location:places[Math.floor(Math.random()*places.length)],votes:{},turnIndex:0,order:this.partyShuffle(ids),winner:null};
+    } else if (this.gameId === "imaginarium") {
+      if(ids.length<3)return {ok:false,message:"Для Имаджинариума нужно минимум 3 игрока."};
+      const deck=this.partyShuffle(["🌙","🚀","🦋","🏰","🌊","🗝️","🎭","🌲","🔥","🪞","🐈","🎈","⏳","🌈","🕯️","🧩","🦉","🍄","🌋","🎻","🧸","⚡","🪐","🦚","🧭","💎","🌧️","🎠","📚","🪁"]);
+      const hands={}; for(const id of ids)hands[id]=deck.splice(0,6);
+      this.partyState={phase:"story",players:profiles,order:this.partyShuffle(ids),turnIndex:0,storyteller:null,hands,submissions:{},votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),deck,round:1,clue:"",storyCard:null};
+      this.partyImaginariumBegin();
+    } else return {ok:false,message:"Эта игра пока не поддерживает общий запуск."};
+    this.gamePhase="playing"; this.ended=false;
+    this.partySendState();
+    return {ok:true};
+  }
+
+  partyAliasNextWord() {
+    const s=this.partyState;
+    if(!s || this.gameId!=="alias")return;
+    if(s.wordIndex>=s.words.length){s.words=this.partyShuffle(s.words);s.wordIndex=0;}
+    s.currentWord=s.words[s.wordIndex++];
+    s.activePlayerId=s.order[s.turnIndex%s.order.length];
+    this.partySendState();
+  }
+
+  partyImaginariumBegin() {
+    const s=this.partyState; if(!s)return;
+    s.storyteller=s.order[(s.round-1)%s.order.length];
+    s.phase="story";s.submissions={};s.votes={};s.clue="";s.storyCard=null;
+    for(const id of s.order){if(s.hands[id].length<6&&s.deck.length)s.hands[id].push(...s.deck.splice(0,Math.min(6-s.hands[id].length,s.deck.length)));}
+    this.partySendState();
+  }
+
+  partyHandleAction(playerId, action, payload) {
+    const s=this.partyState, ids=[...this.players.keys()];
+    if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
+    if(this.gameId==="alias"){
+      if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
+      if(action==="alias-correct"){s.scores[s.teams[playerId]]++;s.correct++;this.partyAliasNextWord();}
+      else if(action==="alias-skip"){s.skipped++;this.partyAliasNextWord();}
+      else if(action==="alias-end"){s.turnIndex++;s.activePlayerId=s.order[s.turnIndex%s.order.length];s.correct=0;s.skipped=0;this.partyAliasNextWord();}
+      else return {ok:false,message:"Неизвестное действие."};
+    } else if(this.gameId==="codenames"){
+      const team=s.teams[playerId], captain=s.captains[team];
+      if(action==="codenames-clue"){
+        if(playerId!==captain||s.phase!=="clue"||team!==s.currentTeam)return {ok:false,message:"Подсказку даёт капитан своей команды."};
+        const clue=String(payload.clue||"").trim().slice(0,40), count=Math.max(1,Math.min(9,Number(payload.count)||1));
+        if(!clue)return {ok:false,message:"Введи слово-подсказку."};
+        s.clue={word:clue,count,remaining:count};s.phase="guess";
+      } else if(action==="codenames-guess"){
+        if(s.phase!=="guess"||team!==s.currentTeam||playerId===captain)return {ok:false,message:"Сейчас нельзя выбирать слово."};
+        const cell=s.grid[Number(payload.index)];if(!cell||cell.revealed)return {ok:false,message:"Эта карточка недоступна."};
+        cell.revealed=true;
+        if(cell.color==="assassin"){s.winner=team==="red"?"blue":"red";s.phase="finished";}
+        else if(cell.color==="red"||cell.color==="blue"){s.remaining[cell.color]--;if(s.remaining[cell.color]<=0){s.winner=cell.color;s.phase="finished";}else if(cell.color!==team){s.currentTeam=cell.color;s.phase="clue";s.clue=null;}}
+        else {s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}
+        if(s.phase==="guess"&&s.clue){s.clue.remaining--;if(s.clue.remaining<=0){s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}}
+      } else if(action==="codenames-end"){if(s.phase!=="guess"||team!==s.currentTeam)return {ok:false,message:"Сейчас нельзя завершить ход."};s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}
+      else return {ok:false,message:"Неизвестное действие."};
+      if(s.phase==="finished")this.ended=true;
+    } else if(this.gameId==="spy"){
+      if(action==="spy-vote"){
+        if(s.phase!=="discussion")return {ok:false,message:"Голосование сейчас закрыто."};
+        const target=String(payload.target||"");if(!ids.includes(target)||target===playerId)return {ok:false,message:"Выбери другого игрока."};
+        s.votes[playerId]=target;
+        if(Object.keys(s.votes).length===ids.length){
+          const tally={};Object.values(s.votes).forEach(id=>tally[id]=(tally[id]||0)+1);
+          const top=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+          s.accused=top[0][0];s.phase=s.accused===s.spyId?"spy-guess":"finished";s.winner=s.accused===s.spyId?"players":"spy";
+        }
+      } else if(action==="spy-guess"){
+        if(playerId!==s.spyId||s.phase!=="spy-guess")return {ok:false,message:"Только шпион может назвать место."};
+        const guess=String(payload.location||"").trim().toLocaleLowerCase("ru");
+        s.winner=guess===s.location.toLocaleLowerCase("ru")?"spy":"players";s.phase="finished";this.ended=true;
+      } else return {ok:false,message:"Неизвестное действие."};
+      if(s.phase==="finished")this.ended=true;
+    } else if(this.gameId==="imaginarium"){
+      if(action==="imaginarium-story"){
+        if(s.phase!=="story"||playerId!==s.storyteller)return {ok:false,message:"Сейчас не твоя очередь быть рассказчиком."};
+        const card=String(payload.card||"");if(!s.hands[playerId].includes(card))return {ok:false,message:"Выбери карту из своей руки."};
+        const clue=String(payload.clue||"").trim().slice(0,120);if(!clue)return {ok:false,message:"Добавь ассоциацию."};
+        s.storyCard=card;s.clue=clue;s.submissions[playerId]=card;s.phase="submit";
+      } else if(action==="imaginarium-submit"){
+        if(s.phase!=="submit"||playerId===s.storyteller||s.submissions[playerId])return {ok:false,message:"Сейчас нельзя положить карту."};
+        const card=String(payload.card||"");if(!s.hands[playerId].includes(card))return {ok:false,message:"Такой карты нет в руке."};
+        s.submissions[playerId]=card;
+        if(Object.keys(s.submissions).length===ids.length)s.phase="vote";
+      } else if(action==="imaginarium-vote"){
+        if(s.phase!=="vote"||playerId===s.storyteller||s.votes[playerId])return {ok:false,message:"Сейчас нельзя голосовать."};
+        const target=String(payload.target||"");if(!Object.keys(s.submissions).includes(target)||target===playerId)return {ok:false,message:"Нельзя голосовать за свою карту."};
+        s.votes[playerId]=target;
+        if(Object.keys(s.votes).length===ids.length-1){
+          const votes={};Object.values(s.votes).forEach(id=>votes[id]=(votes[id]||0)+1);
+          for(const [id,n] of Object.entries(votes))s.scores[id]=(s.scores[id]||0)+n*2;
+          s.scores[s.storyteller]=(s.scores[s.storyteller]||0)+2;
+          s.phase="result";s.correctVotes=votes[s.storyteller]||0;
+        }
+      } else if(action==="imaginarium-next"){
+        if(playerId!==this.hostPlayerId||s.phase!=="result")return {ok:false,message:"Следующий раунд запускает создатель комнаты."};
+        for(const [id,card] of Object.entries(s.submissions)){const hand=s.hands[id];const i=hand.indexOf(card);if(i>=0)hand.splice(i,1);}
+        s.round++;this.partyImaginariumBegin();
+      } else return {ok:false,message:"Неизвестное действие."};
+    }
+    this.partySendState();
+    return {ok:true};
+  }
+
   async removePlayer(playerId) {
     if (!this.players.has(playerId)) return;
 
@@ -904,6 +1066,19 @@ export class GameRoom {
     if (this.gameId === "who-am-i" && event === "who-am-i-pass") {
       if (this.gamePhase !== "playing" || this.currentTurn !== playerId || (this.pending && !(this.pending.type === "who-am-i-question" && this.pending.from === playerId))) { reply({ok:false,message:"Сейчас нельзя передать ход."}); return; }
       await this.advanceWhoAmITurn(); reply({ok:true}); return;
+    }
+
+    if (event === "party-start") {
+      if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size !== this.maxPlayers) {
+        reply({ok:false,message:"Начать игру может создатель, когда все места заняты."}); return;
+      }
+      const result=this.partyStart(); reply(result); return;
+    }
+    if (event === "party-action") {
+      const action=String(data.action||"");
+      const payload=data.payload&&typeof data.payload==="object"?data.payload:{};
+      const result=this.partyHandleAction(playerId,action,payload);
+      reply(result); return;
     }
     if (event === "player-ready") {
       const secretCharacterId = String(
