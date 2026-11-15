@@ -136,6 +136,7 @@
   };
 
   window.addEventListener("load", markReady, { once: true });
+  window.addEventListener("pagehide", stopGameplay);
   document.addEventListener("visibilitychange", () => {
     state.visibilityPaused = document.visibilityState !== "visible";
     syncGameplay();
