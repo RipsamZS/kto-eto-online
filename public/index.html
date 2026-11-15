@@ -36,6 +36,10 @@ body.needs-profile .profile-gate{display:block}
 .profile-gate label{display:block;margin:17px 0 7px;color:var(--muted);font-size:14px}
 .profile-gate input,.profile-gate select{width:100%;padding:13px;border-radius:11px;border:1px solid var(--border);background:#100d20;color:var(--text);font:inherit}
 .profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--accent2);color:white;font:inherit;font-weight:800;cursor:pointer}
+.profile-avatar{display:flex;align-items:center;gap:14px;margin-top:8px}
+.profile-avatar-preview{width:76px;height:76px;flex:0 0 76px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)}
+.profile-avatar input[type=file]{padding:9px;font-size:13px}
+.profile-error{min-height:18px;color:#fca5a5;font-size:13px;text-align:left!important;margin:8px 0 0!important}
 </style>
 </head>
 <body class="needs-profile">
@@ -44,7 +48,9 @@ body.needs-profile .profile-gate{display:block}
 <section id="profileGate" class="profile-gate" aria-labelledby="profileTitle">
 <h1 id="profileTitle">Добро пожаловать!</h1><p>Перед выбором игры придумай ник и выбери аватар. Они будут отображаться в игровых комнатах.</p>
 <form id="profileForm"><label for="profileNickname">Твой никнейм</label><input id="profileNickname" maxlength="20" autocomplete="nickname" placeholder="Например, Игрок" required>
-<label for="profileAvatar">Аватар</label><select id="profileAvatar"><option>🙂</option><option>😎</option><option>🐱</option><option>🐼</option><option>🦊</option><option>🐸</option><option>🐵</option><option>🐯</option><option>🐧</option><option>🐨</option><option>🦄</option><option>🐙</option></select>
+<label for="profileAge">Возраст</label><input id="profileAge" type="number" min="13" max="99" inputmode="numeric" placeholder="Сколько тебе лет?" required>
+<label for="profileAvatarFile">Аватарка</label><div class="profile-avatar"><img id="profileAvatarPreview" class="profile-avatar-preview" alt="Предпросмотр аватарки" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='48' fill='%23282044'/%3E%3Ctext x='48' y='62' text-anchor='middle' font-size='48'%3E🙂%3C/text%3E%3C/svg%3E"><input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+<p id="profileError" class="profile-error" role="alert"></p>
 <button type="submit">Продолжить к играм</button></form></section>
 <main>
 <section class="hero">
@@ -75,7 +81,20 @@ body.needs-profile .profile-gate{display:block}
 <footer>Новые игры будут появляться здесь. Выбранная игра загружается отдельно.</footer>
 </div>
 <script>
-(()=>{const KEY="kto-eto-profile-v1";const gate=document.getElementById("profileGate");const form=document.getElementById("profileForm");const nick=document.getElementById("profileNickname");const avatar=document.getElementById("profileAvatar");let saved=null;try{saved=JSON.parse(localStorage.getItem(KEY)||"null")}catch{};if(saved&&typeof saved.nickname==="string"&&saved.nickname.trim()){document.body.classList.remove("needs-profile");}else{document.body.classList.add("needs-profile");}form.addEventListener("submit",event=>{event.preventDefault();const profile={nickname:nick.value.trim().slice(0,20),avatar:avatar.value};if(!profile.nickname){nick.focus();return;}try{localStorage.setItem(KEY,JSON.stringify(profile));}catch{};document.body.classList.remove("needs-profile");});})();
+(()=>{
+  const KEY="kto-eto-profile-v1",form=document.getElementById("profileForm"),nick=document.getElementById("profileNickname"),age=document.getElementById("profileAge"),fileInput=document.getElementById("profileAvatarFile"),preview=document.getElementById("profileAvatarPreview"),error=document.getElementById("profileError");
+  let avatarData="",saved=null;
+  try{saved=JSON.parse(localStorage.getItem(KEY)||"null")}catch{}
+  if(saved&&typeof saved.nickname==="string"&&saved.nickname.trim()&&Number.isInteger(saved.age)&&saved.age>=13&&saved.avatar){document.body.classList.remove("needs-profile");}
+  else{document.body.classList.add("needs-profile");if(saved){nick.value=saved.nickname||"";age.value=saved.age||"";if(saved.avatar){avatarData=saved.avatar;preview.src=avatarData;}}}
+  fileInput.addEventListener("change",()=>{
+    error.textContent="";const file=fileInput.files&&fileInput.files[0];if(!file)return;
+    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){error.textContent="Выбери изображение PNG, JPG, WEBP или GIF.";fileInput.value="";return;}
+    if(file.size>5*1024*1024){error.textContent="Изображение должно быть не больше 5 МБ.";fileInput.value="";return;}
+    const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const canvas=document.createElement("canvas"),side=256;canvas.width=side;canvas.height=side;const ctx=canvas.getContext("2d"),scale=Math.max(side/img.width,side/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(side-w)/2,(side-h)/2,w,h);avatarData=canvas.toDataURL("image/webp",0.82);preview.src=avatarData;};img.onerror=()=>error.textContent="Не удалось прочитать изображение.";img.src=reader.result;};reader.onerror=()=>error.textContent="Не удалось загрузить изображение.";reader.readAsDataURL(file);
+  });
+  form.addEventListener("submit",event=>{event.preventDefault();error.textContent="";const nickname=nick.value.trim().replace(/\s+/g," ").slice(0,20),playerAge=Number(age.value);if(!nickname){nick.focus();return;}if(!Number.isInteger(playerAge)||playerAge<13||playerAge>99){error.textContent="Укажи возраст от 13 до 99 лет.";age.focus();return;}if(!avatarData){error.textContent="Пожалуйста, выбери изображение для аватарки.";fileInput.focus();return;}try{localStorage.setItem(KEY,JSON.stringify({nickname,age:playerAge,avatar:avatarData}));}catch{error.textContent="Не удалось сохранить профиль. Попробуй выбрать изображение поменьше.";return;}document.body.classList.remove("needs-profile");});
+})();
 </script>
 </body>
 </html>
