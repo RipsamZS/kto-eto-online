@@ -246,6 +246,8 @@ export class GameRoom {
         view.myVote = s.votes?.[id] || null;
       } else if (this.gameId === "imaginarium") {
         delete view.hands;
+        view.submissionCount = Object.keys(s.submissions || {}).length;
+        if (s.phase !== "vote" && s.phase !== "result") view.submissions = {};
         if (s.phase !== "result") view.storyCard = null;
         view.myHand = s.hands?.[id] || [];
         view.mySubmission = s.submissions?.[id] || null;
@@ -277,7 +279,8 @@ export class GameRoom {
       this.partyAliasNextWord();
     } else if (this.gameId === "codenames") {
       if (ids.length < 2) return {ok:false,message:"Для Code Names нужно минимум 2 игрока; интереснее играть вчетвером."};
-      const teams = Object.fromEntries(ids.map((id,i)=>[id,this.partyShuffle(["red","blue"])[0]]));
+      const shuffledIds = this.partyShuffle(ids);
+      const teams = Object.fromEntries(shuffledIds.map((id,i)=>[id,i%2===0?"red":"blue"]));
       const redCaptain=ids.find(id=>teams[id]==="red"), blueCaptain=ids.find(id=>teams[id]==="blue");
       const words=this.partyShuffle(["ЛУНА","МОСТ","КОШКА","БАНК","КЛЮЧ","ЗВЕЗДА","КРАН","ОРЁЛ","ПИРАТ","ШКОЛА","КОСМОС","СТЕКЛО","МЫШЬ","КОРЕНЬ","БАТАРЕЯ","ПАРК","ЛИСТ","РУЧКА","КРЕСТ","СНЕГ","КОД","ЗАМОК","ТЕАТР","МЕДЬ","ТЕНЬ","МОРЕ","ПЕРО","СЕТЬ","ГРИБ","КОМЕТА","РОБОТ","ПОЛЕ","ШАХТА","ЛАВА","ЧАСЫ"]);
       const colors=this.partyShuffle([...Array(9).fill("red"),...Array(8).fill("blue"),...Array(7).fill("neutral"),"assassin"]);
@@ -341,7 +344,7 @@ export class GameRoom {
         else if(cell.color==="red"||cell.color==="blue"){s.remaining[cell.color]--;if(s.remaining[cell.color]<=0){s.winner=cell.color;s.phase="finished";}else if(cell.color!==team){s.currentTeam=cell.color;s.phase="clue";s.clue=null;}}
         else {s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}
         if(s.phase==="guess"&&s.clue){s.clue.remaining--;if(s.clue.remaining<=0){s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}}
-      } else if(action==="codenames-end"){if(s.phase!=="guess"||team!==s.currentTeam)return {ok:false,message:"Сейчас нельзя завершить ход."};s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}
+      } else if(action==="codenames-end"){if(s.phase!=="guess"||team!==s.currentTeam||playerId===captain)return {ok:false,message:"Сейчас нельзя завершить ход."};s.currentTeam=team==="red"?"blue":"red";s.phase="clue";s.clue=null;}
       else return {ok:false,message:"Неизвестное действие."};
       if(s.phase==="finished")this.ended=true;
     } else if(this.gameId==="spy"){
