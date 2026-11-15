@@ -80,6 +80,17 @@
   .srs .status{background:#f0ebf7!important;color:#513b78!important;border:1px solid #ded3ef!important}
   body[data-game="who-am-i"]{background-color:#f3f0e9!important;background-image:radial-gradient(rgba(118,86,168,.12) .7px,transparent .7px),radial-gradient(ellipse at 15% 10%,#ded2f0,transparent 42%),radial-gradient(ellipse at 90% 80%,#f1dfd0,transparent 38%)!important;background-size:20px 20px,auto,auto!important;color:#292536!important}
 
+  .srs-mode-menu{position:relative;max-width:650px;margin:0 auto;padding:clamp(20px,4vw,34px);border:1px solid #ded8ce;border-radius:22px;background:linear-gradient(145deg,#fffdf8,#eee9df);box-shadow:0 18px 48px rgba(38,30,22,.08);color:#252231}
+  .srs-mode-menu h2{margin:4px 0 8px;color:#252231;font-size:clamp(25px,4vw,32px)}
+  .srs-mode-menu p{margin:0;color:#777181}
+  .srs-mode-options{display:flex;flex-direction:column;gap:11px;margin-top:22px}
+  .srs-mode-options button{display:flex;align-items:center;gap:15px;width:100%;min-height:76px;margin:0;padding:14px 18px;border:1px solid #ded8ce;border-radius:15px;background:linear-gradient(145deg,#fffdf8,#f1ede5);color:#252231;text-align:left;box-shadow:0 4px 0 #e4dfd5;transition:transform .16s,border-color .16s}
+  .srs-mode-options button>span:first-child{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:13px;background:#eee8f6;font-size:23px}
+  .srs-mode-options strong,.srs-mode-options small{display:block}.srs-mode-options strong{font-size:16px}.srs-mode-options small{margin-top:4px;color:#777181;font-size:13px;font-weight:400}
+  .srs-mode-options button:hover{transform:translateY(-2px);border-color:#7656a8}
+  .srs-back-menu{margin:0 0 16px!important;background:#eee8f6!important;color:#6546a5!important;border:1px solid #ded3ef!important}
+  .srs-setup-grid.single{grid-template-columns:minmax(0,620px);justify-content:center}
+  @media(max-width:600px){.srs-mode-menu{padding:18px}.srs-mode-options button{min-height:70px;padding:12px}}
   /* Match the shared Kazo room setup used by the other party games */
   .srs{max-width:1080px;margin:0 auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#252231}
   #srsHome{position:relative;max-width:1080px;margin:0 auto;padding:clamp(20px,4vw,34px);overflow:hidden;border:1px solid #ded8ce;border-radius:22px;background:linear-gradient(145deg,#fffdf8,#eee9df);box-shadow:0 18px 48px rgba(38,30,22,.08)}
@@ -125,9 +136,11 @@ body[data-game="who-am-i"] #srsHome .srs-hint{color:#88745e}
 body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
 </style>
   <section class="srs">
-    <div id="srsHome">
+    <div id="srsModeMenu" class="srs-mode-menu"><div class="srs-setup-kicker">KAZO · КТО Я?</div><h2>Выбери режим</h2><p>Как хочешь сыграть сегодня?</p><div class="srs-mode-options"><button type="button" data-srs-mode="bots"><span>🤖</span><span><strong>Играть с ботами</strong><small>Потренируйся в одиночку</small></span></button><button type="button" data-srs-mode="private"><span>🔒</span><span><strong>Закрытая игра</strong><small>Подключись к комнате по коду</small></span></button><button type="button" data-srs-mode="public"><span>🌍</span><span><strong>Публичная игра</strong><small>Найди открытую комнату</small></span></button><button type="button" data-srs-mode="create"><span>＋</span><span><strong>Создать комнату</strong><small>Настрой собственную игру</small></span></button></div></div>
+    <div id="srsHome" class="hidden">
+      <button id="srsBackMenu" class="srs-back-menu" type="button">← Назад к режимам</button>
       <div class="srs-setup-grid">
-        <section class="srs-setup-card">
+        <section id="srsCreateCard" class="srs-setup-card">
           <div class="srs-setup-kicker">НОВАЯ ИГРА</div>
           <h2>Создать комнату</h2>
           <p>Настрой игру и пригласи друзей по коду.</p>
@@ -141,7 +154,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
           <div id="srsCodeField" class="srs-code-box hidden"><label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код"><div class="srs-hint">3–16 символов: латинские буквы, цифры, дефис или подчёркивание. Для открытой комнаты код не нужен.</div></div>
           <button id="srsCreate">Создать комнату</button>
         </section>
-        <section class="srs-setup-card">
+        <section id="srsJoinCard" class="srs-setup-card">
           <div class="srs-setup-kicker">УЖЕ ЕСТЬ КОД?</div>
           <h2>Присоединиться</h2>
           <p>Введи код комнаты друга или найди открытую игру.</p>
@@ -228,10 +241,13 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
   </section>`;
   const $ = id => root.querySelector("#"+id);
   const status = message => $("srsStatus").textContent = message;
-  let playersCount=0,maxPlayers=2,started=false,autoStartPending=false,roster=[],visibleWords={},hasSecretWord=false,winnerId=null;
-  const show = id => { const lobby=id==="srsLobby"; $("srsHome").classList.toggle("hidden",lobby); $("srsLobby").classList.toggle("hidden",!lobby); root.querySelector(".srs").classList.toggle("lobby-active",lobby); };
+  let playersCount=0,maxPlayers=2,started=false,autoStartPending=false,roster=[],visibleWords={},hasSecretWord=false,winnerId=null,botMode=false;
+  const show = id => { const lobby=id==="srsLobby",menu=id==="menu"; $("srsModeMenu").classList.toggle("hidden",!menu); $("srsHome").classList.toggle("hidden",lobby||menu); $("srsLobby").classList.toggle("hidden",!lobby); root.querySelector(".srs").classList.toggle("lobby-active",lobby); };
   function getProfile(){try{const profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"null");if(profile&&typeof profile.nickname==="string"&&profile.nickname.trim())return {nickname:profile.nickname.trim().slice(0,20),avatar:profile.avatar||"🙂"};}catch{}window.location.replace("/");return {nickname:"Игрок",avatar:"🙂"};}
   const profile=getProfile();
+  function openMode(mode){botMode=mode==="bots";$("srsModeMenu").classList.add("hidden");$("srsHome").classList.remove("hidden");$("srsLobby").classList.add("hidden");$("srsCreateCard").classList.toggle("hidden",mode!=="create"&&mode!=="bots");$("srsJoinCard").classList.toggle("hidden",mode!=="private"&&mode!=="public");$("srsHome").querySelector(".srs-setup-grid").classList.toggle("single",mode!=="create"&&mode!=="bots");$("srsPublicList").innerHTML="";if(mode==="public")$("srsRefresh").click();}
+  root.querySelectorAll("[data-srs-mode]").forEach(button=>button.addEventListener("click",()=>openMode(button.dataset.srsMode)));
+  $("srsBackMenu").onclick=()=>{botMode=false;show("menu");};
   const settingsFrom = prefix => ({roomName:$(prefix+"Name").value.trim(),access:$(prefix+"Access").value,maxPlayers:Number($(prefix+"Players").value),timerSeconds:Number($(prefix+"Timer").value),nickname:profile.nickname,avatar:profile.avatar});
   function syncRoom(settings){
     settings=settings||window.onlineGame.getSettings()||{};
@@ -333,7 +349,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
   $("srsGuessButton").onclick=async()=>{const field=$("srsGuessInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.guessWhoAmI(field.value.trim());if(!result.ok)return status(result.message||"Не удалось отправить догадку.");field.value="";field.classList.add("hidden");if(!result.correct)status("Пока не угадал. Ход переходит дальше.");};
   $("srsPassTurn").textContent="Завершить ход";$("srsPassTurn").onclick=async()=>{const result=await window.onlineGame.passWhoAmITurn();if(!result.ok)status(result.message||"Не удалось передать ход.");};
   root.querySelectorAll("[data-answer]").forEach(button=>button.onclick=async()=>{button.disabled=true;const result=await window.onlineGame.answerWhoAmIQuestion(button.dataset.answer);if(!result.ok){button.disabled=false;status(result.message||"Не удалось отправить ответ.");return;}$("srsAnswerControls").classList.add("hidden");status("Ответ отправлен.");});
-  $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("srsHome");};
+  $("srsPlayAgain").onclick=()=>{window.onlineGame.leaveRoom();show("menu");};
   document.addEventListener("who-am-i-chat-history",e=>{const list=$("srsChatMessages");list.innerHTML="";(Array.isArray(e.detail.messages)?e.detail.messages:[]).forEach(appendChatMessage);if(!list.children.length)list.innerHTML='<div class="muted">Сообщений пока нет.</div>';});
   document.addEventListener("who-am-i-chat-message",e=>appendChatMessage(e.detail));
   document.addEventListener("room-roster",e=>{roster=Array.isArray(e.detail.players)?e.detail.players:roster;playersCount=Number(e.detail.playersCount??playersCount);maxPlayers=Number(e.detail.maxPlayers||maxPlayers);syncRoom();renderSeats();tryAutoStart();});
@@ -391,7 +407,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
   document.addEventListener("who-am-i-turn-timeout",e=>status(e.detail.message));
   document.addEventListener("who-am-i-finished",e=>{stopTurnCountdown();winnerId=e.detail.winnerId||null;renderSeats();$("srsPlayPanel").classList.add("hidden");$("srsPassTurn").classList.add("hidden");$("srsFinished").classList.remove("hidden");$("srsFinishedText").textContent=e.detail.message;status("Партия завершена.");});
   document.addEventListener("word-round-reset",e=>{autoStartPending=false;root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();visibleWords={};hasSecretWord=false;winnerId=null;renderSeats();started=false;$("srsPlayPanel").classList.add("hidden");$("srsFinished").classList.add("hidden");$("srsWordStage").classList.add("hidden");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.add("hidden");syncRoom();status(e.detail.message||"Раздача слов сброшена.");});
-  document.addEventListener("online-room-left",()=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();$("srsNotebookPanel").classList.add("hidden");$("srsChatPanel").classList.add("hidden");$("srsChatMessages").innerHTML='<div class="muted">Сообщений пока нет.</div>';$("srsNotebookText").value="";show("srsHome");started=false;});
+  document.addEventListener("online-room-left",()=>{root.querySelector(".srs").classList.remove("playing-active");stopTurnCountdown();root.querySelector(".srs").classList.remove("writing-active");$("srsWriterTag")?.remove();$("srsNotebookPanel").classList.add("hidden");$("srsChatPanel").classList.add("hidden");$("srsChatMessages").innerHTML='<div class="muted">Сообщений пока нет.</div>';$("srsNotebookText").value="";show("menu");started=false;});
 })();
 (() => {
   "use strict";
@@ -468,6 +484,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
     $("srsCreate").disabled = false;
     if (!result.ok) return status(result.message || "Не удалось создать комнату.");
     status("Комната создана! Код: " + result.code + "\nИгроков: 1/" + (result.settings.maxPlayers || settings.maxPlayers));
+    if(botMode){botMode=false;const botResult=await window.onlineGame.sendGameAction("test-bots-add",{count:Math.max(1,Number(settings.maxPlayers||2)-1)});if(!botResult.ok)status(botResult.message||"Комната создана, но не удалось добавить тестовых ботов.");}
     syncEdit();
   };
   $("srsJoin").onclick = async () => {

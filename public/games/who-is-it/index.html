@@ -161,6 +161,13 @@ body[data-game="who-is-it"] .notice{border:1px solid #c6cbb9;border-left:5px sol
 body[data-game="who-is-it"] .badge{background:#e3eadc;color:#42604a}
 body[data-game="who-is-it"] .topbar a{color:#416b58}
 body[data-game="who-is-it"] .muted{color:#6c776c}
+
+/* Режимы игры — вертикальный список, как единое меню Kazo */
+#playScreen .menu-grid{display:flex;flex-direction:column;gap:12px;width:min(560px,100%);margin:0 auto}
+#playScreen .menu-card{display:flex;align-items:center;gap:16px;width:100%;min-height:82px;padding:15px 18px;text-align:left}
+#playScreen .menu-card .emoji{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:14px;font-size:27px}
+#playScreen .menu-card strong,#playScreen .menu-card small{display:block}
+#playScreen .menu-card small{margin-top:4px}
 </style>
 </head>
 <body data-game="who-is-it">
