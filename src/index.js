@@ -249,12 +249,12 @@ export class GameRoom {
         view.currentWord = null; delete view.words;
       } else if (this.gameId === "codenames") {
         const captain = s.captains?.[s.teams?.[id]];
-        view.grid = s.grid.map(cell => ({...cell, color: (captain === id || cell.revealed) ? cell.color : null}));
+        view.grid = s.grid.map(cell => ({...cell, color: (captain === id || cell.revealed || s.phase === "finished") ? cell.color : null}));
         view.myRole = captain === id ? "captain" : "operative";
         view.myTeam = s.teams[id];
       } else if (this.gameId === "spy") {
         delete view.spyId;
-        view.location = s.spyId === id ? null : s.location;
+        view.location = s.spyId === id && s.phase !== "finished" ? null : s.location;
         view.isSpy = s.spyId === id;
         view.myVote = s.votes?.[id] || null;
       } else if (this.gameId === "imaginarium") {
