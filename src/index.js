@@ -294,7 +294,7 @@ export class GameRoom {
     const profiles = Object.fromEntries(ids.map(id => [id, this.playerProfiles.get(id) || {nickname:"Игрок",avatar:"🙂"}]));
     if (this.gameId === "alias") {
       if (ids.length < 2) return {ok:false,message:"Для Alias нужно минимум 2 игрока."};
-      const words = ["Астроном","Велосипед","Крокодил","Библиотека","Парашют","Мороженое","Телескоп","Самолёт","Подводная лодка","Фонарик","Муравей","Чемодан","Клавиатура","Вулкан","Скейтборд","Пингвин","Аквариум","Робот","Космонавт","Пианино","Маяк","Черепаха","Компас","Карусель","Снеговик","Микроскоп","Гитара","Попкорн","Пылесос","Динозавр"];
+      const words = this.aliasWords?.length ? [...this.aliasWords] : ["Астроном","Велосипед","Крокодил","Библиотека","Парашют","Мороженое","Телескоп","Самолёт","Подводная лодка","Фонарик","Муравей","Чемодан","Клавиатура","Вулкан","Скейтборд","Пингвин","Аквариум","Робот","Космонавт","Пианино","Маяк","Черепаха","Компас","Карусель","Снеговик","Микроскоп","Гитара","Попкорн","Пылесос","Динозавр"];
       const teams = Object.fromEntries(ids.map((id,i)=>[id,this.aliasTeams?.[id] || (i%2===0?"A":"B")]));
       if (!ids.some(id=>teams[id]==="A") || !ids.some(id=>teams[id]==="B")) return {ok:false,message:"В каждой команде должен быть хотя бы один игрок."};
       this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,correct:0,skipped:0,seconds:60};
@@ -382,7 +382,7 @@ export class GameRoom {
       this.updateDirectory();
       return {ok:true,added:amount};
     }
-    if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
+    if(this.gameId==="alias" && action==="alias-pack-select" && !s){const words=Array.isArray(payload.words)?payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2).slice(0,200):[];if(words.length<30)return {ok:false,message:"В паке должно быть не меньше 30 слов."};this.aliasPackName=String(payload.name||"Свой пак").slice(0,50);this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}\n    if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
