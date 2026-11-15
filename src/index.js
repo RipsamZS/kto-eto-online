@@ -396,16 +396,16 @@ export class GameRoom {
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
-      if(action==="alias-skip"){
+      if(action==="alias-correct"||action==="alias-skip"){
         if(s.phase!=="playing")return {ok:false,message:"Раунд уже завершён."};
         const current=s.turnWords[s.turnWords.length-1];
-        if(current)current.status="skipped";
+        if(current)current.status=action==="alias-correct"?"guessed":"skipped";
         this.partyAliasNextWord();
       } else if(action==="alias-review"){
         if(s.phase!=="review")return {ok:false,message:"Сначала дождись окончания таймера."};
         if(!Array.isArray(payload.guessed))return {ok:false,message:"Отметь отгаданные слова."};
         const guessed=new Set(payload.guessed.map(Number));
-        s.turnWords.forEach((item,index)=>{item.status=item.status==="skipped"?"skipped":guessed.has(index)?"guessed":"missed";});
+        s.turnWords.forEach((item,index)=>{item.status=guessed.has(index)?"guessed":item.status==="skipped"?"skipped":"missed";});
         const points=s.turnWords.filter(item=>item.status==="guessed").length;
         s.scores[s.teams[playerId]]=(s.scores[s.teams[playerId]]||0)+points;
         s.lastTurn={playerId,team:s.teams[playerId],words:s.turnWords.map(item=>({...item})),points};
