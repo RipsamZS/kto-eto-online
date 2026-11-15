@@ -539,7 +539,9 @@
         maxPlayers: 2,
         cardCount: Number(settings.cardCount || characters.length),
         timerSeconds: Number(settings.timerSeconds ?? 0),
-        access: settings.access === "public" ? "public" : "private"
+        access: settings.access === "public" ? "public" : "private",
+        nickname: String(settings.nickname || "").slice(0,20),
+        avatar: settings.avatar || ""
       }
     });
 
