@@ -260,10 +260,17 @@ export class GameRoom {
       } else if (this.gameId === "imaginarium") {
         delete view.hands;
         view.submissionCount = Object.keys(s.submissions || {}).length;
-        if (s.phase !== "vote" && s.phase !== "result") view.submissions = {};
+        const publicCards = {};
+        for (const [owner, card] of Object.entries(s.submissions || {})) {
+          const cardId = s.submissionIds?.[owner];
+          if (cardId) publicCards[cardId] = card;
+        }
+        view.submissions = (s.phase === "vote" || s.phase === "result") ? publicCards : {};
+        if (s.phase === "result") view.cardOwners = Object.fromEntries(Object.entries(s.submissionIds || {}).map(([owner, cardId]) => [cardId, owner]));
         if (s.phase !== "result") view.storyCard = null;
         view.myHand = s.hands?.[id] || [];
         view.mySubmission = s.submissions?.[id] || null;
+        view.mySubmissionId = s.submissionIds?.[id] || null;
         view.myVote = s.votes?.[id] || null;
       }
       this.send(socket, "party-state", view);
@@ -386,15 +393,17 @@ export class GameRoom {
         if(s.phase!=="story"||playerId!==s.storyteller)return {ok:false,message:"Сейчас не твоя очередь быть рассказчиком."};
         const card=String(payload.card||"");if(!s.hands[playerId].includes(card))return {ok:false,message:"Выбери карту из своей руки."};
         const clue=String(payload.clue||"").trim().slice(0,120);if(!clue)return {ok:false,message:"Добавь ассоциацию."};
-        s.storyCard=card;s.clue=clue;s.submissions[playerId]=card;s.phase="submit";
+        s.storyCard=card;s.clue=clue;s.submissions[playerId]=card;s.submissionIds[playerId]="card_"+crypto.randomUUID();s.phase="submit";
       } else if(action==="imaginarium-submit"){
         if(s.phase!=="submit"||playerId===s.storyteller||s.submissions[playerId])return {ok:false,message:"Сейчас нельзя положить карту."};
         const card=String(payload.card||"");if(!s.hands[playerId].includes(card))return {ok:false,message:"Такой карты нет в руке."};
-        s.submissions[playerId]=card;
+        s.submissions[playerId]=card;s.submissionIds[playerId]="card_"+crypto.randomUUID();
         if(Object.keys(s.submissions).length===ids.length)s.phase="vote";
       } else if(action==="imaginarium-vote"){
         if(s.phase!=="vote"||playerId===s.storyteller||s.votes[playerId])return {ok:false,message:"Сейчас нельзя голосовать."};
-        const target=String(payload.target||"");if(!Object.keys(s.submissions).includes(target)||target===playerId)return {ok:false,message:"Нельзя голосовать за свою карту."};
+        const targetCardId=String(payload.target||"");
+        const target=Object.keys(s.submissionIds).find(owner=>s.submissionIds[owner]===targetCardId);
+        if(!target||target===playerId)return {ok:false,message:"Нельзя голосовать за свою карту."};
         s.votes[playerId]=target;
         if(Object.keys(s.votes).length===ids.length-1){
           const votes={};Object.values(s.votes).forEach(id=>votes[id]=(votes[id]||0)+1);
