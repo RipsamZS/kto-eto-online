@@ -97,3 +97,18 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
 .alias-review-word.is-guessed small{color:var(--success);font-weight:800}
 #submitAliasReview{width:min(100%,360px);margin:8px auto 0}
 @media(max-width:480px){.alias-scoreboard{gap:5px;padding:10px 8px}.alias-scoreboard strong{font-size:24px}.alias-timer{padding:8px 7px;font-size:17px}.alias-review-word{align-items:flex-start;flex-direction:column}.alias-review-word small{text-align:left}}
+
+/* Kazo game-specific atmosphere */
+body{position:relative;isolation:isolate}body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.8;background:radial-gradient(ellipse at 12% 8%,var(--glow-a),transparent 36%),radial-gradient(ellipse at 88% 82%,var(--glow-b),transparent 40%),radial-gradient(rgba(255,255,255,.62) .7px,transparent .7px);background-size:auto,auto,22px 22px}
+body[data-game="alias"]{--glow-a:#f4d5a9;--glow-b:#d9c9f3;--accent:#b66c39;--accent2:#92502b;--panel:#fffaf2;--panel2:#f4eadb}
+body[data-game="codenames"]{--glow-a:#c5d6ee;--glow-b:#ead8c4;--accent:#41658f;--accent2:#2f4b70;--panel:#f8fbff;--panel2:#e9f0f8}
+body[data-game="spy"]{--glow-a:#d6d0c4;--glow-b:#c9d4d0;--accent:#536b65;--accent2:#3c514b;--panel:#fbfcf8;--panel2:#edf1eb}
+body[data-game="imaginarium"]{--glow-a:#e9c8e5;--glow-b:#c9d9f2;--accent:#98649b;--accent2:#754879;--panel:#fff9ff;--panel2:#f3e8f4}
+#setup{position:relative;overflow:hidden;padding:clamp(20px,4vw,34px);border:1px solid color-mix(in srgb,var(--accent) 18%,var(--line));background:linear-gradient(145deg,var(--panel),var(--panel2))}
+#setup:before{content:"";position:absolute;right:-58px;top:-88px;width:220px;height:220px;border-radius:50%;background:var(--accent);opacity:.055;pointer-events:none}
+#setup>.grid{position:relative;grid-template-columns:1.12fr .88fr;gap:clamp(18px,3vw,30px)}
+#setup>.grid>div{min-width:0;padding:clamp(15px,2.5vw,24px);border:1px solid var(--line);border-radius:19px;background:var(--panel);box-shadow:0 8px 24px rgba(40,30,50,.045)}
+#setup h2{margin:0 0 7px;font-size:clamp(20px,3vw,26px)}#setup .field{margin-top:15px}#setup .grid .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#setup button{min-height:46px}#setup .primary{background:var(--accent)}#setup .secondary{background:var(--panel2);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 20%,var(--line))}
+#setup .setup-kicker{font-size:10px;font-weight:900;letter-spacing:.16em;color:var(--accent);margin-bottom:9px}
+@media(max-width:700px){#setup>.grid{grid-template-columns:1fr}#setup>.grid>div{padding:17px}}
