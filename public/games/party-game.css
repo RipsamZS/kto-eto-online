@@ -14,3 +14,20 @@ input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);
 .hand{display:flex;flex-wrap:wrap;gap:9px}.hand button{font-size:30px;min-width:58px;min-height:58px;background:#eee8f6;color:var(--accent);border:1px solid #ded3ef;border-radius:14px}.hand button.selected{border:2px solid var(--accent);background:#e3d9f1}.chatline{padding:9px 0;border-bottom:1px solid var(--line)}.score{font-size:28px;font-weight:900}.hidden{display:none!important}
 .player-avatar-img{width:38px;height:38px;flex:0 0 38px;display:inline-block;vertical-align:middle;object-fit:cover;border-radius:50%;border:2px solid #d8cdec;background:#eee8f6}.player{display:flex;align-items:center;gap:9px}
 @media(max-width:560px){body{padding:14px 10px 35px}.panel{padding:15px}.board{gap:5px}.word-card{min-height:58px;font-size:12px}.hero{padding-top:24px}}
+
+/* Alias: две выбираемые команды */
+.alias-room-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 4px 22px}
+.alias-room-code{font-family:"Space Grotesk",sans-serif;font-size:30px;font-weight:800;letter-spacing:5px;color:var(--accent);margin:3px 0 9px}
+.alias-leave{align-self:flex-start}
+.alias-team-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+.alias-team{min-height:330px;padding:22px;border:2px solid var(--line);border-radius:22px;background:var(--panel);display:flex;flex-direction:column;gap:14px}
+.alias-team.team-a{border-top:6px solid #8b6ac4}
+.alias-team.team-b{border-top:6px solid #a9bd50}
+.alias-team-heading{display:flex;align-items:center;justify-content:space-between;font-family:"Space Grotesk",sans-serif;font-weight:800;font-size:20px}
+.alias-team-heading strong{font-size:30px}
+.alias-team-hint,.alias-empty{color:var(--muted);font-size:14px}
+.alias-team-members{display:flex;flex-direction:column;gap:8px;flex:1}
+.alias-join{width:100%;margin-top:auto}
+.alias-join.selected{background:var(--accent);color:white}
+.alias-room-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 4px}
+@media(max-width:620px){.alias-team-layout{grid-template-columns:1fr}.alias-team{min-height:220px}.alias-room-top{align-items:flex-start}.alias-room-footer{align-items:stretch;flex-direction:column}}
