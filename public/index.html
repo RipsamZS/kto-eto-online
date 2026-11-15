@@ -6,40 +6,54 @@
 <meta name="theme-color" content="#100d20">
 <meta name="description" content="Игровая площадка: Кто это?, Alias, Code Names, Шпион, Имаджинариум и Кто я?">
 <title>Игровая комната — выбирай игру</title>
-<style>
-:root{color-scheme:dark;--bg:#100d20;--panel:#1c1732;--panel2:#282044;--accent:#a78bfa;--accent2:#7c3aed;--text:#f6f2ff;--muted:#b8accf;--border:rgba(255,255,255,.12)}
+<style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{color-scheme:light;--bg:#f3f0e9;--panel:#fffdf8;--panel2:#ebe5f6;--accent:#6546a5;--accent2:#4d328a;--text:#252231;--muted:#777282;--border:#e5dfd5;--lime:#d7f36a;--coral:#ff795e}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 15% 10%,rgba(124,58,237,.25),transparent 35%),radial-gradient(circle at 90% 85%,rgba(99,102,241,.18),transparent 35%),var(--bg)}
-.wrap{width:min(1120px,calc(100% - 32px));margin:auto;padding:30px 0 56px}
-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.logo{font-size:21px;font-weight:900;letter-spacing:-.6px}.logo span{color:var(--accent)}
-.hero{text-align:center;padding:64px 12px 38px}
-.hero h1{margin:0;font-size:clamp(38px,8vw,68px);line-height:1.04;letter-spacing:-2.4px}
-.hero h1 span{color:var(--accent)}
-.hero p{max-width:620px;margin:17px auto 0;color:var(--muted);font-size:17px;line-height:1.6}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;max-width:960px;margin:0 auto}
-.game{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:205px;padding:25px 20px;text-align:center;text-decoration:none;color:var(--text);border:1px solid var(--border);border-radius:23px;background:linear-gradient(145deg,rgba(42,32,69,.96),rgba(25,20,44,.98));transition:transform .18s,border-color .18s,filter .18s}
-.game[href]:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.7);filter:brightness(1.1)}
-.game .emoji{font-size:43px;margin-bottom:14px}
-.game strong{font-size:21px}
-.game small{max-width:230px;margin-top:9px;color:var(--muted);font-size:13px;line-height:1.45}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;color:var(--text);font-family:'DM Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:radial-gradient(ellipse at 8% 8%,rgba(215,243,106,.22),transparent 30%),radial-gradient(ellipse at 94% 34%,rgba(101,70,165,.10),transparent 34%),var(--bg)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#8e867b .65px,transparent .65px);background-size:7px 7px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
+.wrap{position:relative;width:min(1120px,calc(100% - 40px));margin:auto;padding:30px 0 56px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 12px}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;letter-spacing:-.7px}
+.logo:before{content:"?";display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--lime);color:#282332;font-size:22px;font-weight:700;transform:rotate(-7deg)}
+.logo span{color:var(--accent)}
+.hero{text-align:left;max-width:790px;margin:0 auto;padding:78px 10px 42px}
+.hero:before{content:"ИГРЫ ДЛЯ КОМПАНИИ";display:inline-flex;align-items:center;margin-bottom:18px;padding:7px 11px;border:1px solid #d9d2c6;border-radius:6px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.6px}
+.hero h1{margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(46px,8vw,78px);line-height:.98;letter-spacing:-4px;font-weight:700}
+.hero h1 span{position:relative;display:inline-block;color:var(--accent)}
+.hero h1 span:after{content:"";position:absolute;left:2px;right:0;bottom:-5px;height:8px;border-radius:100%;background:var(--lime);z-index:-1;transform:rotate(-1.5deg)}
+.hero p{max-width:530px;margin:24px 0 0;color:var(--muted);font-size:16px;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:960px;margin:0 auto}
+.game{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;min-height:218px;padding:23px 22px 21px;text-align:left;text-decoration:none;color:var(--text);border:1px solid var(--border);border-radius:17px;background:var(--panel);box-shadow:0 4px 0 rgba(37,34,49,.035);overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.game:before{content:"";position:absolute;top:-31px;right:-22px;width:132px;height:132px;border-radius:42% 58% 56% 44%;background:var(--tile,#eee8f7);transform:rotate(18deg);transition:transform .25s ease}
+.game:after{content:attr(data-number);position:absolute;top:15px;left:17px;color:#a7a1ae;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px}
+.game:nth-child(1){--tile:#e9e1f6}.game:nth-child(2){--tile:#fce6d9}.game:nth-child(3){--tile:#e6edcf}.game:nth-child(4){--tile:#e2eaf3}.game:nth-child(5){--tile:#f8e6e9}.game:nth-child(6){--tile:#e8e4dc}
+.game[href]:hover{transform:translateY(-5px);border-color:#c9bddf;box-shadow:0 12px 26px rgba(45,35,66,.09)}
+.game[href]:hover:before{transform:rotate(30deg) scale(1.12)}
+.game .emoji{position:relative;z-index:1;display:grid;place-items:center;width:57px;height:57px;margin:0 0 22px;border:1px solid rgba(37,34,49,.07);border-radius:16px;background:rgba(255,255,255,.78);font-size:29px;box-shadow:0 5px 12px rgba(37,34,49,.06)}
+.game strong{position:relative;z-index:1;font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:-.6px}
+.game small{position:relative;z-index:1;max-width:245px;margin-top:7px;color:var(--muted);font-size:13px;line-height:1.5}
 .game.disabled{opacity:.68;cursor:default}
-.tag{position:absolute;top:13px;right:13px;padding:5px 9px;border-radius:30px;background:rgba(167,139,250,.15);color:#d9ccff;font-size:11px}
-footer{margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
-@media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:46px}}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.game{min-height:150px}.hero{padding:38px 5px 28px}}
-
+.tag{position:absolute;top:13px;right:13px;padding:5px 9px;border-radius:6px;background:var(--lime);color:#343044;font-size:10px;font-weight:800}
+footer{margin-top:32px;text-align:center;color:#96909d;font-size:12px;letter-spacing:.1px}
 body.needs-profile main,body.needs-profile footer{display:none}
-.profile-gate{display:none;max-width:480px;margin:54px auto 30px;padding:26px;border:1px solid var(--border);border-radius:22px;background:linear-gradient(145deg,rgba(42,32,69,.98),rgba(25,20,44,.99));box-shadow:0 18px 60px #0004}
+.profile-gate{display:none;position:relative;max-width:470px;margin:54px auto 30px;padding:34px;border:1px solid #e1dacf;border-radius:20px;background:var(--panel);box-shadow:0 22px 70px rgba(45,35,66,.12)}
+.profile-gate:before{content:"ПЕРЕД СТАРТОМ";display:block;margin-bottom:14px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.7px;text-align:center}
 body.needs-profile .profile-gate{display:block}
-.profile-gate h1{margin:0;text-align:center;font-size:30px}.profile-gate p{color:var(--muted);text-align:center;line-height:1.5}
-.profile-gate label{display:block;margin:17px 0 7px;color:var(--muted);font-size:14px}
-.profile-gate input,.profile-gate select{width:100%;padding:13px;border-radius:11px;border:1px solid var(--border);background:#100d20;color:var(--text);font:inherit}
-.profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--accent2);color:white;font:inherit;font-weight:800;cursor:pointer}
+.profile-gate h1{margin:0;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:32px;letter-spacing:-1.2px}
+.profile-gate p{color:var(--muted);text-align:center;line-height:1.55;font-size:14px}
+.profile-gate label{display:block;margin:17px 0 7px;color:#5e5969;font-size:13px;font-weight:700}
+.profile-gate input,.profile-gate select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #ddd6cb;background:#faf8f3;color:var(--text);font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.profile-gate input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(101,70,165,.12)}
+.profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:var(--accent);color:white;font:inherit;font-weight:800;cursor:pointer;transition:background .15s,transform .15s}
+.profile-gate button:hover{background:var(--accent2);transform:translateY(-1px)}
 .profile-avatar{display:flex;align-items:center;gap:14px;margin-top:8px}
-.profile-avatar-preview{width:76px;height:76px;flex:0 0 76px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)}
-.profile-avatar input[type=file]{padding:9px;font-size:13px}
-.profile-error{min-height:18px;color:#fca5a5;font-size:13px;text-align:left!important;margin:8px 0 0!important}
+.profile-avatar-preview{width:76px;height:76px;flex:0 0 76px;border-radius:18px;object-fit:cover;border:2px solid var(--lime);background:#eee8f7}
+.profile-avatar input[type=file]{padding:9px;font-size:12px}
+.profile-error{min-height:18px;color:#c64d45;font-size:13px;text-align:left!important;margin:8px 0 0!important}
+@media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:58px}.hero h1{letter-spacing:-2.8px}}
+@media(max-width:480px){.wrap{width:min(100% - 28px,1120px);padding-top:20px}.grid{grid-template-columns:1fr;gap:11px}.game{min-height:160px;padding:19px}.game .emoji{width:48px;height:48px;margin-bottom:14px}.hero{padding:42px 2px 28px}.hero h1{font-size:48px;letter-spacing:-2.5px}.hero p{font-size:14px;margin-top:18px}.profile-gate{margin:30px auto;padding:25px 21px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body class="needs-profile">
