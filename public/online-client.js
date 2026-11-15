@@ -25,6 +25,7 @@
 
   function dispatch(name, detail = {}) {
     document.dispatchEvent(new CustomEvent(name, { detail }));
+    window.dispatchEvent(new CustomEvent(name, { detail }));
   }
 
   function getSocketUrl(code, gameId = "who-is-it") {
