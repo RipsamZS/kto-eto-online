@@ -1037,7 +1037,10 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
   document.getElementById('turnStatus').textContent=mode==='online'?'Ожидание подключения...':'Локальная тренировка';
   document.getElementById('questionInput').value='';
   document.getElementById('questionFeedback').textContent='';
-  document.getElementById('onlineGamePanel').classList.toggle('hidden',mode!=='online');
+  const onlinePanel=document.getElementById('onlineGamePanel');
+  onlinePanel.classList.toggle('hidden',mode!=='online');
+  onlinePanel.innerHTML=mode==='online'&&window.onlineGame?.isRoomHost?.()?'<div class="panel row" style="justify-content:space-between;gap:12px"><span class="muted small">Тестовый режим</span><button class="secondary fit" id="addWhoIsItBot">🤖 Добавить тестового соперника</button></div>':'';
+  document.getElementById('addWhoIsItBot')?.addEventListener('click',async()=>{const result=await window.onlineGame.sendGameAction('test-bots-add',{count:1});if(!result.ok)toast(result.message||'Не удалось добавить бота.');else toast('Тестовый соперник добавлен.');});
   updateCharacterButton();renderGame();showScreen('gameScreen');
   if(mode==='online'){
     if(window.onlineGame?.canChooseCharacter?.())openPicker();
