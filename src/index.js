@@ -833,7 +833,7 @@ export class GameRoom {
         // Private rooms are joinable only when the player supplies the exact code.
       }
 
-      if (this.players.size >= this.maxPlayers) {
+      if (this.gameId === "alias" && this.partyState) {\n        reply({ ok:false, message:"Партия Alias уже началась. Создай новую комнату для следующей игры." });\n        return;\n      }\n\n      if (this.players.size >= this.maxPlayers) {
         reply({
           ok: false,
           message: "В комнате уже достигнут лимит игроков."
@@ -875,6 +875,10 @@ export class GameRoom {
         hostPlayerId: this.hostPlayerId
       }, socket);
       this.broadcastRoster();
+      if (this.gameId === "alias" && this.players.size >= 2 && !this.partyState) {
+        const started = this.partyStart();
+        if (!started.ok) this.broadcast("party-message", {message:started.message || "Не удалось начать Alias."});
+      }
       if (this.gameId === "who-am-i") this.send(socket, "who-am-i-chat-history", {messages:this.chatMessages.slice(-100)});
 
       await this.updateDirectory();
