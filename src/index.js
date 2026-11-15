@@ -833,7 +833,12 @@ export class GameRoom {
         // Private rooms are joinable only when the player supplies the exact code.
       }
 
-      if (this.gameId === "alias" && this.partyState) {\n        reply({ ok:false, message:"Партия Alias уже началась. Создай новую комнату для следующей игры." });\n        return;\n      }\n\n      if (this.players.size >= this.maxPlayers) {
+      if (this.gameId === "alias" && this.partyState) {
+        reply({ ok:false, message:"Партия Alias уже началась. Создай новую комнату для следующей игры." });
+        return;
+      }
+
+      if (this.players.size >= this.maxPlayers) {
         reply({
           ok: false,
           message: "В комнате уже достигнут лимит игроков."
