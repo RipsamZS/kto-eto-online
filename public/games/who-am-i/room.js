@@ -412,8 +412,7 @@
     const result = await window.onlineGame.createLobby(settings, gameId);
     $("srsCreate").disabled = false;
     if (!result.ok) return status(result.message || "Не удалось создать комнату.");
-    status("Комната создана! Код: " + result.code + "
-Игроков: 1/" + (result.settings.maxPlayers || settings.maxPlayers));
+    status("Комната создана! Код: " + result.code + "\nИгроков: 1/" + (result.settings.maxPlayers || settings.maxPlayers));
     syncEdit();
   };
   $("srsJoin").onclick = async () => {
@@ -421,8 +420,7 @@
     const result = await window.onlineGame.joinRoom(code, gameId);
     if (!result.ok) return status(result.message || "Не удалось подключиться.");
     const settings = result.settings || {};
-    status("Ты подключился к комнате «" + (settings.roomName || "Комната") + "». Код: " + code + "
-Игроков: " + (settings.maxPlayers || 2));
+    status("Ты подключился к комнате «" + (settings.roomName || "Комната") + "». Код: " + code + "\nИгроков: " + (settings.maxPlayers || 2));
     syncEdit();
   };
   $("srsRefresh").onclick = async () => {
