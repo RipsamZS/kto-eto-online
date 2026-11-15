@@ -426,6 +426,7 @@ export class GameRoom {
     this.wordWriterOrder = [];
     this.wordRecipients.clear();
     this.gamePhase = "lobby";
+    this.partyState = null;
 
     this.currentTurn = null;
     this.pending = null;
