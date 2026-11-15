@@ -154,6 +154,19 @@ export class GameRoom {
   }
 
   async alarm() {
+    if (this.gameId === "alias" && this.partyState?.phase === "playing" && this.partyState.deadline) {
+      if (Date.now() < this.partyState.deadline) {
+        await this.ctx.storage.setAlarm(this.partyState.deadline);
+        return;
+      }
+      this.partyState.turnIndex++;
+      this.partyState.deadline = null;
+      this.partyState.correct = 0;
+      this.partyState.skipped = 0;
+      this.partyAliasNextWord();
+      return;
+    }
+
     if (
       !this.currentTurn ||
       this.ended ||
@@ -278,7 +291,7 @@ export class GameRoom {
       this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,correct:0,skipped:0,seconds:60};
       this.partyAliasNextWord();
     } else if (this.gameId === "codenames") {
-      if (ids.length < 2) return {ok:false,message:"Для Code Names нужно минимум 2 игрока; интереснее играть вчетвером."};
+      if (ids.length < 4) return {ok:false,message:"Для Code Names нужно минимум 4 игрока — по капитану и оперативнику в каждой команде."};
       const shuffledIds = this.partyShuffle(ids);
       const teams = Object.fromEntries(shuffledIds.map((id,i)=>[id,i%2===0?"red":"blue"]));
       const redCaptain=ids.find(id=>teams[id]==="red"), blueCaptain=ids.find(id=>teams[id]==="blue");
@@ -309,6 +322,11 @@ export class GameRoom {
     if(s.wordIndex>=s.words.length){s.words=this.partyShuffle(s.words);s.wordIndex=0;}
     s.currentWord=s.words[s.wordIndex++];
     s.activePlayerId=s.order[s.turnIndex%s.order.length];
+    if (!s.deadline && this.timerSeconds > 0) {
+      s.deadline = Date.now() + this.timerSeconds * 1000;
+      this.turnDeadline = s.deadline;
+      this.ctx.storage.setAlarm(s.deadline).catch(()=>{});
+    }
     this.partySendState();
   }
 
@@ -327,7 +345,7 @@ export class GameRoom {
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
       if(action==="alias-correct"){s.scores[s.teams[playerId]]++;s.correct++;this.partyAliasNextWord();}
       else if(action==="alias-skip"){s.skipped++;this.partyAliasNextWord();}
-      else if(action==="alias-end"){s.turnIndex++;s.activePlayerId=s.order[s.turnIndex%s.order.length];s.correct=0;s.skipped=0;this.partyAliasNextWord();}
+      else if(action==="alias-end"){s.turnIndex++;s.deadline=null;this.turnDeadline=null;this.ctx.storage.deleteAlarm().catch(()=>{});s.correct=0;s.skipped=0;this.partyAliasNextWord();}
       else return {ok:false,message:"Неизвестное действие."};
     } else if(this.gameId==="codenames"){
       const team=s.teams[playerId], captain=s.captains[team];
