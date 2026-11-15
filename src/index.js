@@ -384,7 +384,7 @@ export class GameRoom {
       this.updateDirectory();
       return {ok:true,added:amount};
     }
-    if(this.gameId==="alias" && action==="alias-pack-select" && !s){const words=Array.isArray(payload.words)?payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2).slice(0,200):[];if(words.length<30)return {ok:false,message:"В паке должно быть не меньше 30 слов."};this.aliasPackName=String(payload.name||"Свой пак").slice(0,50);this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}\n    if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
+    if(this.gameId==="alias" && action==="alias-pack-select" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};const words=Array.isArray(payload.words)?payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2).slice(0,200):[];if(words.length<30)return {ok:false,message:"В паке должно быть не меньше 30 слов."};this.aliasPackName=String(payload.name||"Свой пак").slice(0,50);this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}\n    if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
@@ -464,6 +464,9 @@ export class GameRoom {
 
     this.players.delete(playerId);
     this.playerProfiles.delete(playerId);
+    for (const [id, profile] of [...this.playerProfiles.entries()]) {
+      if (profile.testBot) { this.players.delete(id); this.playerProfiles.delete(id); this.secretCharacters.delete(id); this.ready.delete(id); }
+    }
 
     const wordRoundWasActive = this.gameId === "who-am-i" && this.gamePhase !== "lobby";
     this.ready.clear();
@@ -500,7 +503,7 @@ export class GameRoom {
       this.hostPlayerId = null;
     } else {
       if (this.hostPlayerId && !this.players.has(this.hostPlayerId)) {
-        this.hostPlayerId = this.players.keys().next().value;
+        this.hostPlayerId = [...this.players.keys()].find(id => !this.playerProfiles.get(id)?.testBot) || null;
         for (const [id, socket] of this.players) {
           this.send(socket, "room-host-changed", {
             hostPlayerId: this.hostPlayerId,
