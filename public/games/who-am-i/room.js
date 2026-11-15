@@ -115,11 +115,11 @@
           <label for="srsName">Название комнаты</label>
           <input id="srsName" maxlength="50" placeholder="Например, Вечерняя игра">
           <div class="srs-form-grid">
-            <div class="srs-field"><label for="srsPlayers">Количество игроков</label><select id="srsPlayers"><option value="2">2 игрока</option><option value="3">3 игрока</option><option value="4">4 игрока</option><option value="5">5 игроков</option><option value="6">6 игроков</select></div>
+            <div class="srs-field"><label for="srsPlayers">Количество игроков</label><select id="srsPlayers"><option value="2">2 игрока</option><option value="3">3 игрока</option><option value="4">4 игрока</option><option value="5">5 игроков</option><option value="6">6 игроков</option></select></div>
             <div class="srs-field"><label for="srsAccess">Тип комнаты</label><select id="srsAccess"><option value="public">Открытая</option><option value="private">Закрытая</option></select></div>
             <div class="srs-field"><label for="srsTimer">Время раунда</label><select id="srsTimer"><option value="0">Без ограничения</option><option value="30">30 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="120">120 секунд</option></select></div>
           </div>
-          <div id="srsCodeField" class="srs-code-box"><label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код"><div class="srs-hint">3–16 символов: латинские буквы, цифры, дефис или подчёркивание. Для открытой комнаты код не нужен.</div></div>
+          <div id="srsCodeField" class="srs-code-box hidden"><label for="srsCode">Код комнаты</label><input id="srsCode" maxlength="16" placeholder="Придумай свой код"><div class="srs-hint">3–16 символов: латинские буквы, цифры, дефис или подчёркивание. Для открытой комнаты код не нужен.</div></div>
           <button id="srsCreate">Создать комнату</button>
         </section>
         <section class="srs-setup-card">
