@@ -1,25 +1,2 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#100d20">
-<title>Имаджинариум — игровые комнаты</title>
-<style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:28px 16px;background:radial-gradient(circle at 20% 15%,#38235f,transparent 42%),#100d20;color:#f6f2ff;font-family:Arial,sans-serif}
-.page{width:min(900px,100%);margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.top a{color:#d8c7ff;text-decoration:none}.hero{text-align:center;padding:30px 10px 8px}.emoji{font-size:48px}.hero h1{margin:10px 0;font-size:36px}.hero p{color:#c0b5d2;line-height:1.6}
-.notice{max-width:760px;margin:16px auto;padding:14px 17px;border:1px solid #a78bfa55;border-radius:14px;background:#7c3aed18;color:#e4d8ff;line-height:1.5}
-</style>
-</head>
-<body>
-<main class="page">
-  <div class="top"><a href="/">← На главную</a><span>КТО ЭТО?</span></div>
-  <header class="hero"><div class="emoji">🎨</div><h1>Имаджинариум</h1><p>Придумывай ассоциации и угадывай карты.</p></header>
-  <div class="notice">Общая система комнат уже подключается. Здесь можно создать комнату, выбрать её доступ, задать код, число игроков и таймер. Сама игровая механика этой игры будет добавлена отдельно.</div>
-  <div id="sharedRoomSystem"></div>
-</main>
-<script src="/online-client.js"></script>
-<script>window.ROOM_GAME_ID="imaginarium";</script>
-<script src="/room-system.js"></script>
-</body>
-</html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#100d20"><title>Имаджинариум — игровая комната</title><link rel="stylesheet" href="/games/party-game.css"></head><body><main class="page"><div class="top"><a href="/">← На главную</a><span class="brand">ИГРОВАЯ КОМНАТА</span></div><header class="hero"><div class="emoji">🎨</div><h1>Имаджинариум</h1><p>Придумывай ассоциации, подбирай карты и угадывай рассказчика.</p></header><div id="partyApp"></div></main><script src="/online-client.js"></script><script>window.ROOM_GAME_ID="imaginarium";</script><script src="/games/party-game.js"></script></body></html>
