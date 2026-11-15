@@ -234,7 +234,8 @@ export class GameRoom {
   async advanceWhoAmITurn() {
     const ids = [...this.players.keys()];
     if (!ids.length) return;
-    this.currentTurn = ids[(ids.indexOf(this.currentTurn)+1)%ids.length];
+    let nextIndex=ids.indexOf(this.currentTurn);
+    for(let step=0;step<ids.length;step++){nextIndex=(nextIndex+1)%ids.length;if(!this.playerProfiles.get(ids[nextIndex])?.testBot){this.currentTurn=ids[nextIndex];break;}}
     this.pending = null;
     await this.broadcastWhoAmITurn();
   }
@@ -352,18 +353,29 @@ export class GameRoom {
       if (playerId !== this.hostPlayerId || this.partyState || this.gamePhase !== "lobby") return {ok:false,message:"Добавлять тестовых ботов может только создатель до начала игры."};
       const required = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
       const requested = Math.max(1, Math.min(5, Number(payload.count) || required - this.players.size));
-      const amount = Math.min(requested, this.maxPlayers - this.players.size, 6 - this.players.size);
+      const limit = this.gameId === "who-am-i" ? Math.min(6,this.maxPlayers) : this.maxPlayers;
+      const amount = Math.min(requested, limit - this.players.size, 6 - this.players.size);
       if (amount <= 0) return {ok:false,message:"В комнате больше нет свободных мест."};
       for (let i=0;i<amount;i++) {
         const id = "test-bot-" + crypto.randomUUID();
         this.players.set(id, null);
-        this.playerProfiles.set(id, {nickname:"Бот "+(i+1),avatar:"🤖",seatIndex:null,testBot:true});
+        const profile = {nickname:"Бот "+([...this.playerProfiles.values()].filter(p=>p.testBot).length+1),avatar:"🤖",seatIndex:null,testBot:true};
+        if (this.gameId === "who-am-i") {
+          const occupied = new Set([...this.playerProfiles.values()].map(p=>p.seatIndex).filter(Number.isInteger));
+          profile.seatIndex = Array.from({length:limit},(_,n)=>n).find(n=>!occupied.has(n));
+        }
+        this.playerProfiles.set(id, profile);
         if (this.gameId === "alias") {
           this.aliasTeams = this.aliasTeams || {};
           const currentIds=[...this.players.keys()].filter(x=>x!==id);
           const countA=currentIds.filter((x,index)=>(this.aliasTeams[x] || (index%2===0?"A":"B"))==="A").length;
           const countB=currentIds.filter((x,index)=>(this.aliasTeams[x] || (index%2===0?"A":"B"))==="B").length;
           this.aliasTeams[id]=countA<=countB?"A":"B";
+        }
+        if (this.gameId === "who-is-it" && this.pack?.characters?.length) {
+          const choices=this.pack.characters;
+          this.secretCharacters.set(id,String(choices[Math.floor(Math.random()*choices.length)].id));
+          this.ready.add(id);
         }
       }
       this.broadcastRoster();
@@ -1020,7 +1032,12 @@ export class GameRoom {
       for (let i = 0; i < ids.length; i++) {
         this.wordRecipients.set(ids[i], shuffledRecipients[i]);
       }
-      const firstWriter = this.wordWriterOrder[0];
+      for (const botId of ids.filter(id=>this.playerProfiles.get(id)?.testBot)) {
+        const targetId=this.wordRecipients.get(botId);
+        this.wordAssignments.set(targetId,["Космонавт","Пингвин","Телескоп","Вулкан","Библиотека","Пианино"][Math.floor(Math.random()*6)]);
+        this.wordSubmitted.add(botId);
+      }
+      const firstWriter = this.wordWriterOrder.find(id=>!this.wordSubmitted.has(id));
       const firstRecipient = this.wordRecipients.get(firstWriter);
       this.send(this.players.get(firstWriter), "word-entry-turn", {
         playerNumber:ids.indexOf(firstWriter)+1,
@@ -1085,8 +1102,7 @@ export class GameRoom {
         await this.broadcastWhoAmITurn();
       } else {
         this.broadcast("word-submission-progress", {submitted:this.wordSubmitted.size,total:ids.length});
-        const nextWriterIndex = this.wordSubmitted.size;
-        const nextWriterId = this.wordWriterOrder[nextWriterIndex];
+        const nextWriterId = this.wordWriterOrder.find(id=>!this.wordSubmitted.has(id));
         const nextRecipientId = this.wordRecipients.get(nextWriterId);
         this.send(this.players.get(nextWriterId), "word-entry-turn", {
           playerNumber:ids.indexOf(nextWriterId)+1,
@@ -1103,10 +1119,18 @@ export class GameRoom {
       if (this.gamePhase !== "playing" || this.currentTurn !== playerId || this.pending || !question) { reply({ok:false,message:"Сейчас нельзя задать вопрос."}); return; }
       this.pending = {type:"who-am-i-question",from:playerId};
       const askerNumber=[...this.players.keys()].indexOf(playerId)+1;
-      for (const [id,socket] of this.players) this.send(socket,"who-am-i-question",{question,askerNumber,isYourQuestion:id===playerId});
+      const opponents=[...this.players.keys()].filter(id=>id!==playerId);
+      if(opponents.every(id=>this.playerProfiles.get(id)?.testBot)){
+        this.broadcast("who-am-i-question",{question,askerNumber,isYourQuestion:true});
+        this.broadcast("who-am-i-answer",{answer:"unknown",responderNumber:2});
+        this.pending=null;
+      }else{
+        for (const [id,socket] of this.players) this.send(socket,"who-am-i-question",{question,askerNumber,isYourQuestion:id===playerId});
+      }
       reply({ok:true}); return;
     }
     if (this.gameId === "who-am-i" && event === "who-am-i-answer") {
+      if (this.playerProfiles.get(playerId)?.testBot) { reply({ok:false,message:"Тестовые боты не принимают действия."}); return; }
       if (this.gamePhase !== "playing" || !this.pending || this.pending.type !== "who-am-i-question" || this.pending.from === playerId) { reply({ok:false,message:"Сейчас нельзя ответить."}); return; }
       const answer = ["yes","no","unknown"].includes(data.answer) ? data.answer : null;
       if (!answer) { reply({ok:false,message:"Выбери ответ."}); return; }
@@ -1188,9 +1212,7 @@ export class GameRoom {
       if (this.players.size === 2 && this.ready.size === 2) {
         const ids = [...this.players.keys()];
 
-        this.currentTurn = ids[
-          Math.floor(Math.random() * ids.length)
-        ];
+        this.currentTurn = ids.find(id => !this.playerProfiles.get(id)?.testBot) || ids[0];
 
         this.pending = null;
         this.ended = false;
@@ -1235,9 +1257,15 @@ export class GameRoom {
         from: playerId
       };
 
-      this.broadcast("online-question", {
-        question
-      }, socket);
+      const opponentId = [...this.players.keys()].find(id => id !== playerId);
+      if (opponentId && this.playerProfiles.get(opponentId)?.testBot) {
+        this.send(socket, "online-answer", {answer:false});
+        this.pending = null;
+        this.currentTurn = playerId;
+        await this.sendTurn();
+      } else {
+        this.broadcast("online-question", {question}, socket);
+      }
 
       reply({ ok: true });
       return;
@@ -1331,7 +1359,7 @@ export class GameRoom {
 
         await this.updateDirectory();
       } else {
-        this.currentTurn = opponentId;
+        this.currentTurn = this.playerProfiles.get(opponentId)?.testBot ? playerId : opponentId;
         this.pending = null;
         await this.sendTurn();
       }
