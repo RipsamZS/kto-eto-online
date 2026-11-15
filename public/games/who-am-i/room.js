@@ -79,6 +79,29 @@
   .srs button{border-radius:999px!important;background:#7656a8!important;box-shadow:0 5px 14px #7656a822}.srs button.alt{background:#f0ebf7!important;color:#6546a5!important;border:1px solid #ded3ef!important;box-shadow:none}
   .srs .status{background:#f0ebf7!important;color:#513b78!important;border:1px solid #ded3ef!important}
   body[data-game="who-am-i"]{background-color:#f3f0e9!important;background-image:radial-gradient(rgba(118,86,168,.12) .7px,transparent .7px),radial-gradient(ellipse at 15% 10%,#ded2f0,transparent 42%),radial-gradient(ellipse at 90% 80%,#f1dfd0,transparent 38%)!important;background-size:20px 20px,auto,auto!important;color:#292536!important}
+
+  /* Dedicated, fully redesigned room-creation panel for Who Am I */
+  #srsCreateView{position:relative;isolation:isolate;max-width:570px;margin:28px auto 8px;padding:clamp(22px,4vw,34px);overflow:hidden;border:1px solid #e1d8ec;border-radius:26px;background:linear-gradient(145deg,#fffefa 0%,#f8f4fc 58%,#f0eaf8 100%);box-shadow:0 22px 60px rgba(56,39,82,.13)}
+  #srsCreateView:before{content:"";position:absolute;z-index:-1;right:-72px;top:-100px;width:245px;height:245px;border-radius:50%;background:radial-gradient(circle,#c7b3e5 0%,rgba(199,179,229,0) 70%)}
+  #srsCreateView:after{content:"";position:absolute;z-index:-1;left:-75px;bottom:-125px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,#f1d7c3 0%,rgba(241,215,195,0) 70%)}
+  #srsCreateView #srsBackCreate{display:inline-flex;align-items:center;gap:7px;margin:0 0 18px;padding:9px 15px;background:#eee8f6;color:#62458f;border:1px solid #e0d6ee;box-shadow:none;font-size:13px}
+  #srsCreateView h2{margin:0 0 22px;color:#292438;font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(26px,5vw,34px);letter-spacing:-.8px}
+  #srsCreateView h2:before{content:"🎭";display:inline-grid;place-items:center;width:43px;height:43px;margin-right:12px;border-radius:14px;background:#eee7f7;font-size:23px;vertical-align:middle}
+  #srsCreateView label{margin:17px 0 7px;color:#655b72;font-size:12px;font-weight:800;letter-spacing:.035em}
+  #srsCreateView input,#srsCreateView select{min-height:48px;padding:12px 14px;border:1px solid #e0d9e8;border-radius:13px;background:rgba(255,255,255,.88);color:#292438;font-size:15px;box-shadow:0 2px 7px rgba(42,31,57,.025);transition:border-color .15s,box-shadow .15s}
+  #srsCreateView input:focus,#srsCreateView select:focus{outline:none;border-color:#9c82c4;box-shadow:0 0 0 4px rgba(118,86,168,.12)}
+  #srsCreateView .muted{display:block;margin-top:7px;color:#8b8296;font-size:12px;line-height:1.5}
+  #srsCreateView #srsCodeField{margin-top:3px;padding:14px 15px 15px;border:1px dashed #d7c9e8;border-radius:16px;background:rgba(239,232,248,.58)}
+  #srsCreateView #srsCodeField label{margin-top:0}
+  #srsCreateView #srsCreate{min-height:51px;margin-top:25px;border-radius:15px;background:linear-gradient(105deg,#7656a8,#6546a5);box-shadow:0 9px 22px rgba(101,70,165,.23);font-size:15px;letter-spacing:.01em}
+  #srsCreateView #srsCreate:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  #srsHome{max-width:570px;margin:28px auto;padding:clamp(22px,4vw,34px);border:1px solid #e1d8ec;border-radius:26px;background:linear-gradient(145deg,#fffefa,#f1ebf8);box-shadow:0 22px 60px rgba(56,39,82,.1);text-align:center}
+  #srsHome>p{margin:0 0 22px;color:#777181;font-size:15px}
+  #srsHome .srs-grid{grid-template-columns:1fr 1fr;gap:12px}
+  #srsHome button{min-height:50px;border-radius:15px}
+  #srsHome #srsShowCreate{background:#7656a8;box-shadow:0 8px 18px rgba(101,70,165,.2)}
+  #srsHome #srsShowJoin{background:#eee8f6;color:#6546a5;border:1px solid #ded3ef;box-shadow:none}
+  @media(max-width:520px){#srsCreateView{margin:16px auto;padding:20px 17px;border-radius:21px}#srsCreateView h2{font-size:25px}#srsHome .srs-grid{grid-template-columns:1fr}#srsHome{margin:16px auto;padding:20px 17px}}
 </style>
   <section class="srs">
     <div id="srsHome">
