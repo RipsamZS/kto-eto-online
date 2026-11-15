@@ -72,7 +72,14 @@
   @media(max-width:600px){.srs-side-toggle{top:auto;bottom:84px;transform:none;padding:11px 9px;font-size:12px}#srsNotebookToggle{left:8px}#srsChatToggle{right:8px}.srs-side-panel{top:auto;bottom:132px;transform:none;max-height:55vh;width:min(310px,calc(100vw - 54px))}#srsNotebookPanel{left:8px}#srsChatPanel{right:8px}#srsNotebookPanel textarea{min-height:140px}}
   .srs-seat-0{left:50%;top:14%}.srs-seat-1{left:81%;top:32%}.srs-seat-2{left:81%;top:68%}.srs-seat-3{left:50%;top:86%}.srs-seat-4{left:19%;top:68%}.srs-seat-5{left:19%;top:32%}
   @media(max-width:480px){#srsPassTurn{bottom:14px;width:calc(100vw - 36px)}.srs-table-wrap{min-height:320px}.srs-seat{width:29%;min-height:78px}.srs.lobby-active .srs-seat{width:clamp(94px,29vw,124px);min-height:78px}#srsMenuToggle{width:72px;height:72px;font-size:13px}#srsHostMenu{left:13%}.srs-turn-ring{left:60%}.srs-code-field{margin-top:8px}}
-  </style>
+  
+  .srs{font-family:"DM Sans",Inter,system-ui,sans-serif!important;color:#292536!important;background:linear-gradient(145deg,#fffdf9,#f2edf8)!important;border:1px solid #dcd3e8!important;box-shadow:0 18px 48px rgba(48,35,62,.09)!important;border-radius:24px!important}
+  .srs p{color:#777181!important}.srs-card{background:#fff!important;border:1px solid #ded8e7!important;box-shadow:0 8px 24px #30251a0a}
+  .srs label{color:#777181!important;font-weight:650}.srs input,.srs select{background:#fffefa!important;color:#292536!important;border:1px solid #ded8e7!important;border-radius:12px!important}
+  .srs button{border-radius:999px!important;background:#7656a8!important;box-shadow:0 5px 14px #7656a822}.srs button.alt{background:#f0ebf7!important;color:#6546a5!important;border:1px solid #ded3ef!important;box-shadow:none}
+  .srs .status{background:#f0ebf7!important;color:#513b78!important;border:1px solid #ded3ef!important}
+  body[data-game="who-am-i"]{background-color:#f3f0e9!important;background-image:radial-gradient(rgba(118,86,168,.12) .7px,transparent .7px),radial-gradient(ellipse at 15% 10%,#ded2f0,transparent 42%),radial-gradient(ellipse at 90% 80%,#f1dfd0,transparent 38%)!important;background-size:20px 20px,auto,auto!important;color:#292536!important}
+</style>
   <section class="srs">
     <div id="srsHome">
       <p>Создай свою комнату или подключись к друзьям по коду.</p>

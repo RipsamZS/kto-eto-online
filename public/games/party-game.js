@@ -1,6 +1,6 @@
 (()=>{
 "use strict";
-const gameId=window.ROOM_GAME_ID,meta={alias:"Alias",codenames:"Code Names",spy:"Шпион",imaginarium:"Имаджинариум"}[gameId],root=document.getElementById("partyApp");
+const gameId=window.ROOM_GAME_ID;document.body.dataset.game=gameId;const meta={alias:"Alias",codenames:"Code Names",spy:"Шпион",imaginarium:"Имаджинариум"}[gameId],root=document.getElementById("partyApp");
 let profile={};try{profile=JSON.parse(localStorage.getItem("kto-eto-profile-v1")||"{}")}catch(e){}
 const nickname=String(profile.nickname||"Игрок").slice(0,20),avatar=profile.avatar||"🙂";
 let roster=[],settings={},state=null,selectedCard=null,clockTimer=null;
