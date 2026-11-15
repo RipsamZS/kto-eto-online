@@ -100,8 +100,10 @@ body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(101,70,165,.
   const KEY="kto-eto-profile-v1",form=document.getElementById("profileForm"),nick=document.getElementById("profileNickname"),age=document.getElementById("profileAge"),fileInput=document.getElementById("profileAvatarFile"),preview=document.getElementById("profileAvatarPreview"),error=document.getElementById("profileError");
   let avatarData="",saved=null;
   try{saved=JSON.parse(localStorage.getItem(KEY)||"null")}catch{}
-  if(saved&&typeof saved.nickname==="string"&&saved.nickname.trim()&&Number.isInteger(saved.age)&&saved.age>=13&&saved.avatar){document.body.classList.remove("needs-profile");}
-  else{document.body.classList.add("needs-profile");if(saved){nick.value=saved.nickname||"";age.value=saved.age||"";if(saved.avatar){avatarData=saved.avatar;preview.src=avatarData;}}}
+  // TEMP: регистрационная панель показывается при каждом новом открытии сайта для тестирования.
+  // Сохранённые данные подставляются в форму, но не пропускают пользователя сразу в меню.
+  document.body.classList.add("needs-profile");
+  if(saved){nick.value=saved.nickname||"";age.value=saved.age||"";if(saved.avatar){avatarData=saved.avatar;preview.src=avatarData;}}
   fileInput.addEventListener("change",()=>{
     error.textContent="";const file=fileInput.files&&fileInput.files[0];if(!file)return;
     if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){error.textContent="Выбери изображение PNG, JPG, WEBP или GIF.";fileInput.value="";return;}
