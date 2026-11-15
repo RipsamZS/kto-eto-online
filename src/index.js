@@ -159,11 +159,7 @@ export class GameRoom {
         await this.ctx.storage.setAlarm(this.partyState.deadline);
         return;
       }
-      this.partyState.turnIndex++;
-      this.partyState.deadline = null;
-      this.partyState.correct = 0;
-      this.partyState.skipped = 0;
-      this.partyAliasNextWord();
+      this.partyAliasFinishTurn();
       return;
     }
 
@@ -297,7 +293,7 @@ export class GameRoom {
       const words = this.aliasWords?.length ? [...this.aliasWords] : ["Астроном","Велосипед","Крокодил","Библиотека","Парашют","Мороженое","Телескоп","Самолёт","Подводная лодка","Фонарик","Муравей","Чемодан","Клавиатура","Вулкан","Скейтборд","Пингвин","Аквариум","Робот","Космонавт","Пианино","Маяк","Черепаха","Компас","Карусель","Снеговик","Микроскоп","Гитара","Попкорн","Пылесос","Динозавр"];
       const teams = Object.fromEntries(ids.map((id,i)=>[id,this.aliasTeams?.[id] || (i%2===0?"A":"B")]));
       if (!ids.some(id=>teams[id]==="A") || !ids.some(id=>teams[id]==="B")) return {ok:false,message:"В каждой команде должен быть хотя бы один игрок."};
-      this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,correct:0,skipped:0,seconds:60};
+      this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,turnWords:[],seconds:Math.max(15,Math.min(180,this.timerSeconds||60)),deadline:null};
       this.partyAliasNextWord();
     } else if (this.gameId === "codenames") {
       if (ids.length < 4) return {ok:false,message:"Для Code Names нужно минимум 4 игрока — по капитану и оперативнику в каждой команде."};
@@ -327,15 +323,25 @@ export class GameRoom {
 
   partyAliasNextWord() {
     const s=this.partyState;
-    if(!s || this.gameId!=="alias")return;
+    if(!s || this.gameId!=="alias" || s.phase!=="playing")return;
     if(s.wordIndex>=s.words.length){s.words=this.partyShuffle(s.words);s.wordIndex=0;}
     s.currentWord=s.words[s.wordIndex++];
+    s.turnWords.push({word:s.currentWord,status:"pending"});
     s.activePlayerId=s.order[s.turnIndex%s.order.length];
-    if (!s.deadline && this.timerSeconds > 0) {
-      s.deadline = Date.now() + this.timerSeconds * 1000;
-      this.turnDeadline = s.deadline;
+    if (!s.deadline) {
+      s.deadline = Date.now() + s.seconds * 1000;
       this.ctx.storage.setAlarm(s.deadline).catch(()=>{});
     }
+    this.partySendState();
+  }
+
+  partyAliasFinishTurn() {
+    const s=this.partyState;
+    if(!s || this.gameId!=="alias" || s.phase!=="playing")return;
+    s.phase="review";
+    s.currentWord=null;
+    s.deadline=null;
+    this.ctx.storage.deleteAlarm().catch(()=>{});
     this.partySendState();
   }
 
@@ -390,10 +396,25 @@ export class GameRoom {
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
-      if(action==="alias-correct"){s.scores[s.teams[playerId]]++;s.correct++;this.partyAliasNextWord();}
-      else if(action==="alias-skip"){s.skipped++;this.partyAliasNextWord();}
-      else if(action==="alias-end"){s.turnIndex++;s.deadline=null;this.turnDeadline=null;this.ctx.storage.deleteAlarm().catch(()=>{});s.correct=0;s.skipped=0;this.partyAliasNextWord();}
-      else return {ok:false,message:"Неизвестное действие."};
+      if(action==="alias-skip"){
+        if(s.phase!=="playing")return {ok:false,message:"Раунд уже завершён."};
+        const current=s.turnWords[s.turnWords.length-1];
+        if(current)current.status="skipped";
+        this.partyAliasNextWord();
+      } else if(action==="alias-review"){
+        if(s.phase!=="review")return {ok:false,message:"Сначала дождись окончания таймера."};
+        if(!Array.isArray(payload.guessed))return {ok:false,message:"Отметь отгаданные слова."};
+        const guessed=new Set(payload.guessed.map(Number));
+        s.turnWords.forEach((item,index)=>{item.status=guessed.has(index)?"guessed":item.status==="skipped"?"skipped":"missed";});
+        const points=s.turnWords.filter(item=>item.status==="guessed").length;
+        s.scores[s.teams[playerId]]=(s.scores[s.teams[playerId]]||0)+points;
+        s.lastTurn={playerId,team:s.teams[playerId],words:s.turnWords.map(item=>({...item})),points};
+        s.turnIndex++;
+        s.turnWords=[];
+        s.deadline=null;
+        s.phase="playing";
+        this.partyAliasNextWord();
+      } else return {ok:false,message:"Неизвестное действие."};
     } else if(this.gameId==="codenames"){
       const team=s.teams[playerId], captain=s.captains[team];
       if(action==="codenames-clue"){
