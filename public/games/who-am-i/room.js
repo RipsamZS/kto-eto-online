@@ -104,6 +104,25 @@
   #srsHome .room-row{padding:12px;border:1px solid #ded8ce;border-radius:12px;margin-top:9px;background:#fffefa}
   @media(max-width:700px){.srs-setup-grid{grid-template-columns:1fr}.srs-setup-card{padding:17px}}
   @media(max-width:520px){#srsHome{padding:16px 12px;border-radius:18px}.srs-setup-grid{gap:14px}#srsHome .srs-form-grid{grid-template-columns:1fr 1fr}}
+
+/* Who Am I? — theatrical masquerade / party stage */
+body[data-game="who-am-i"]{--mask-bg:#241b31;--mask-paper:#fff8e9;--mask-gold:#d7ad67;--mask-plum:#684c7d;--mask-ink:#30243a;background:radial-gradient(ellipse at 16% 8%,#563b68 0,transparent 36%),radial-gradient(ellipse at 88% 86%,#4b3a50 0,transparent 38%),#241b31!important;color:#fff8e9!important}
+body[data-game="who-am-i"]::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.42;background:repeating-linear-gradient(90deg,transparent 0 58px,rgba(215,173,103,.09) 59px 60px),radial-gradient(ellipse at 50% 0,rgba(215,173,103,.22),transparent 54%)}
+body[data-game="who-am-i"] .corner-title{color:#fff1d2;text-shadow:0 3px 22px #d7ad6740}
+body[data-game="who-am-i"] .corner-title .emoji{filter:drop-shadow(0 5px 8px #0005)}
+body[data-game="who-am-i"] .top a{background:#342640!important;color:#f5d99f!important;border:1px solid #8b704e!important;border-radius:12px!important;box-shadow:0 4px 0 #17111e!important}
+body[data-game="who-am-i"] .hero p{color:#e8d8eb!important}
+body[data-game="who-am-i"] #srsHome{max-width:1080px;border:1px solid #8b704e;background:linear-gradient(145deg,#fff9eb,#f2e5d1);box-shadow:0 24px 70px #09060d70}
+body[data-game="who-am-i"] .srs-setup-card{border:1px solid #e4d0ae;background:rgba(255,252,242,.94);box-shadow:0 9px 24px #59422a16}
+body[data-game="who-am-i"] #srsHome h2{color:#30243a}
+body[data-game="who-am-i"] #srsHome .srs-setup-kicker{color:#95672f}
+body[data-game="who-am-i"] #srsHome label{color:#77634d}
+body[data-game="who-am-i"] #srsHome input,body[data-game="who-am-i"] #srsHome select{border-color:#dfc9a5;background:#fffdf7;color:#30243a}
+body[data-game="who-am-i"] #srsHome button{border-radius:12px!important;background:linear-gradient(180deg,#84608f,#593e6d);border:1px solid #4a315a;box-shadow:0 4px 0 #382647,0 9px 17px #39264722;color:#fff9ed}
+body[data-game="who-am-i"] #srsHome button.alt{background:#f7ecd9;color:#765333;border:1px solid #dfc9a5;box-shadow:0 4px 0 #e4d2b6}
+body[data-game="who-am-i"] #srsHome .srs-code-box{background:#f8efdf;border-color:#d6b982}
+body[data-game="who-am-i"] #srsHome .srs-hint{color:#88745e}
+body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
 </style>
   <section class="srs">
     <div id="srsHome">
