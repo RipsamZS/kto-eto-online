@@ -106,7 +106,7 @@ export class GameRoom {
   rosterData() {
     const players = [...this.players.keys()].map((id, index) => {
       const profile = this.playerProfiles.get(id) || {};
-      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, isHost: id === this.hostPlayerId };
+      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, team: this.aliasTeams?.[id] || null, isHost: id === this.hostPlayerId };
     });
     return { players, playersCount: players.length, maxPlayers: this.maxPlayers, hostPlayerId: this.hostPlayerId };
   }
@@ -294,7 +294,8 @@ export class GameRoom {
     if (this.gameId === "alias") {
       if (ids.length < 2) return {ok:false,message:"Для Alias нужно минимум 2 игрока."};
       const words = ["Астроном","Велосипед","Крокодил","Библиотека","Парашют","Мороженое","Телескоп","Самолёт","Подводная лодка","Фонарик","Муравей","Чемодан","Клавиатура","Вулкан","Скейтборд","Пингвин","Аквариум","Робот","Космонавт","Пианино","Маяк","Черепаха","Компас","Карусель","Снеговик","Микроскоп","Гитара","Попкорн","Пылесос","Динозавр"];
-      const teams = Object.fromEntries(ids.map((id,i)=>[id,i%2===0?"A":"B"]));
+      const teams = Object.fromEntries(ids.map((id,i)=>[id,this.aliasTeams?.[id] || (i%2===0?"A":"B")]));
+      if (!ids.some(id=>teams[id]==="A") || !ids.some(id=>teams[id]==="B")) return {ok:false,message:"В каждой команде должен быть хотя бы один игрок."};
       this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,correct:0,skipped:0,seconds:60};
       this.partyAliasNextWord();
     } else if (this.gameId === "codenames") {
@@ -347,6 +348,7 @@ export class GameRoom {
 
   partyHandleAction(playerId, action, payload) {
     const s=this.partyState, ids=[...this.players.keys()];
+    if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
@@ -880,10 +882,7 @@ export class GameRoom {
         hostPlayerId: this.hostPlayerId
       }, socket);
       this.broadcastRoster();
-      if (this.gameId === "alias" && this.players.size >= 2 && !this.partyState) {
-        const started = this.partyStart();
-        if (!started.ok) this.broadcast("party-message", {message:started.message || "Не удалось начать Alias."});
-      }
+      if (this.gameId === "alias" && !this.aliasTeams) this.aliasTeams = {};
       if (this.gameId === "who-am-i") this.send(socket, "who-am-i-chat-history", {messages:this.chatMessages.slice(-100)});
 
       await this.updateDirectory();
@@ -1114,8 +1113,8 @@ export class GameRoom {
     }
 
     if (event === "party-start") {
-      if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size !== this.maxPlayers) {
-        reply({ok:false,message:"Начать игру может создатель, когда все места заняты."}); return;
+      if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || (this.gameId === "alias" ? this.players.size < 2 : this.players.size !== this.maxPlayers)) {
+        reply({ok:false,message:this.gameId === "alias" ? "Начать Alias может только создатель, когда подключились хотя бы два игрока." : "Начать игру может создатель, когда все места заняты."}); return;
       }
       const result=this.partyStart(); reply(result); return;
     }
