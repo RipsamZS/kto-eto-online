@@ -1113,8 +1113,9 @@ export class GameRoom {
     }
 
     if (event === "party-start") {
-      if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || (this.gameId === "alias" ? this.players.size < 2 : this.players.size !== this.maxPlayers)) {
-        reply({ok:false,message:this.gameId === "alias" ? "Начать Alias может только создатель, когда подключились хотя бы два игрока." : "Начать игру может создатель, когда все места заняты."}); return;
+      const minimum = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
+      if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size < minimum) {
+        reply({ok:false,message:"Для запуска нужно минимум " + minimum + " игрока(ов)."}); return;
       }
       const result=this.partyStart(); reply(result); return;
     }
