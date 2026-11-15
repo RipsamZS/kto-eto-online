@@ -106,7 +106,7 @@ export class GameRoom {
   rosterData() {
     const players = [...this.players.keys()].map((id, index) => {
       const profile = this.playerProfiles.get(id) || {};
-      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "🙂", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, team: this.aliasTeams?.[id] || null, isHost: id === this.hostPlayerId, testBot: profile.testBot === true };
+      return { id, number: index + 1, nickname: profile.nickname || "Игрок " + (index + 1), avatar: profile.avatar || "", seatIndex: Number.isInteger(profile.seatIndex) ? profile.seatIndex : null, team: this.aliasTeams?.[id] || null, isHost: id === this.hostPlayerId, testBot: profile.testBot === true };
     });
     return { players, playersCount: players.length, maxPlayers: this.maxPlayers, hostPlayerId: this.hostPlayerId };
   }
@@ -391,7 +391,7 @@ export class GameRoom {
       return {ok:true,added:amount};
     }
     if(this.gameId==="alias" && action==="alias-pack-default" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};this.aliasWords=null;this.aliasPackName="Стандартный набор";return {ok:true};}
-    if(this.gameId==="alias" && action==="alias-pack-select" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};const words=Array.isArray(payload.words)?payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2).slice(0,200):[];if(words.length<30)return {ok:false,message:"В паке должно быть не меньше 30 слов."};this.aliasPackName=String(payload.name||"Свой пак").slice(0,50);this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}
+    if(this.gameId==="alias" && action==="alias-pack-select" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};const words=Array.isArray(payload.words)?[...new Set(payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2))].slice(0,1500):[];if(words.length<1000)return {ok:false,message:"Общий словарь загружен не полностью."};this.aliasPackName="Общий словарь";this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}
     if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){

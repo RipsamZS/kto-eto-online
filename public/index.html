@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f3f0e9">
 <meta name="description" content="Игровая площадка: Кто это?, Alias, Code Names, Шпион, Имаджинариум и Кто я?">
-<title>KAZO — игры для компании</title>
+<title>Kazo — казуальные игры</title>
 <style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 :root{color-scheme:light;--bg:#f3f0e9;--panel:#fffdf8;--panel2:#ebe5f6;--accent:#6546a5;--accent2:#4d328a;--text:#252231;--muted:#777282;--border:#e5dfd5;--lime:#d7f36a;--coral:#ff795e}
 *{box-sizing:border-box}
@@ -16,7 +16,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;ba
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 12px}
 .logo{display:inline-flex;align-items:center;line-height:0;text-decoration:none}
 .logo-image{display:block;width:120px;height:auto;max-height:68px;object-fit:contain;object-position:left center;transition:transform .18s ease}
-.logo:hover .logo-image{transform:translateY(-1px)}.brand{display:inline-flex;align-items:center;gap:0;text-decoration:none;color:#29243a;font-family:'Bricolage Grotesque','Space Grotesk',sans-serif;font-size:38px;font-weight:800;letter-spacing:-2.8px;line-height:1;transform:rotate(-2deg)}.brand-person{position:relative;display:inline-grid;place-items:center;width:29px;height:29px;margin:0 1px 0 2px;border:3px solid #6546a5;border-radius:50%;color:#6546a5;font-size:24px;line-height:1;letter-spacing:-2px}.brand-person:before{content:"";position:absolute;width:7px;height:7px;top:-8px;left:9px;border-radius:50%;background:#d7f36a;border:2px solid #29243a}.account-edit{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #d8d0e4;border-radius:11px;background:#fffdf8;color:#40345a;font:700 12px 'DM Sans',sans-serif;cursor:pointer;box-shadow:0 3px 0 rgba(37,34,49,.04);transition:transform .18s,border-color .18s,background .18s}.account-edit:hover{transform:translateY(-2px);border-color:#a995ca;background:#f4effb}.account-edit[hidden]{display:none}body.needs-profile .account-edit{display:none}body.editing-profile:after{content:"";position:fixed;inset:0;z-index:4;background:rgba(12,9,23,.68);backdrop-filter:blur(5px)}body.editing-profile .profile-gate{display:block;position:fixed;z-index:5;top:50%;left:50%;transform:translate(-50%,-50%);width:min(470px,calc(100% - 28px));max-height:calc(100vh - 36px);overflow:auto;margin:0}body.editing-profile .profile-gate:before{content:"НАСТРОЙКИ ПРОФИЛЯ"}body.editing-profile .profile-gate .profile-cancel{display:block}.profile-cancel{display:none;width:100%;margin-top:9px!important;padding:11px!important;border:1px solid #655a7d!important;background:transparent!important;color:#e8e0f5!important}
+.logo:hover .logo-image{transform:translateY(-1px)}.brand{display:inline-flex;align-items:center;gap:0;text-decoration:none;color:#29243a;font-family:'Bricolage Grotesque','Space Grotesk',sans-serif;font-size:38px;font-weight:800;letter-spacing:-2.8px;line-height:1;transform:rotate(-2deg)}.brand-person{position:relative;display:inline-grid;place-items:center;width:29px;height:29px;margin:0 1px 0 2px;border:3px solid #6546a5;border-radius:50%;color:#6546a5;font-size:24px;line-height:1;letter-spacing:-2px}.brand-person:before{content:"";position:absolute;width:7px;height:7px;top:-8px;left:9px;border-radius:50%;background:#d7f36a;border:2px solid #29243a}.account-edit{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #d8d0e4;border-radius:11px;background:#fffdf8;color:#40345a;font:700 12px 'DM Sans',sans-serif;cursor:pointer;box-shadow:0 3px 0 rgba(37,34,49,.04);transition:transform .18s,border-color .18s,background .18s}.account-edit:hover{transform:translateY(-2px);border-color:#a995ca;background:#f4effb}.account-edit[hidden]{display:none}body.needs-profile .account-edit{display:none}body.editing-profile:after{content:"";position:fixed;inset:0;z-index:4;background:rgba(48,40,62,.34);backdrop-filter:blur(5px)}body.editing-profile .profile-gate{display:block;position:fixed;z-index:5;top:50%;left:50%;transform:translate(-50%,-50%);width:min(470px,calc(100% - 28px));max-height:calc(100vh - 36px);overflow:auto;margin:0}body.editing-profile .profile-gate:before{content:"НАСТРОЙКИ ПРОФИЛЯ"}body.editing-profile .profile-gate .profile-cancel{display:block}.optional-note{color:#948ba1;font-size:11px;font-weight:500}.profile-cancel{display:none;width:100%;margin-top:9px!important;padding:11px!important;border:1px solid #655a7d!important;background:transparent!important;color:#e8e0f5!important}
 .hero{text-align:left;max-width:790px;margin:0 auto;padding:78px 10px 42px}
 .hero:before{content:"ИГРЫ ДЛЯ КОМПАНИИ";display:inline-flex;align-items:center;margin-bottom:18px;padding:7px 11px;border:1px solid #d9d2c6;border-radius:6px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.6px}
 .hero h1{margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(46px,8vw,78px);line-height:.98;letter-spacing:-4px;font-weight:700}
@@ -37,14 +37,14 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 .tag{position:absolute;top:13px;right:13px;padding:5px 9px;border-radius:6px;background:var(--lime);color:#343044;font-size:10px;font-weight:800}
 footer{margin-top:32px;text-align:center;color:#96909d;font-size:12px;letter-spacing:.1px}
 body.needs-profile main,body.needs-profile footer{display:none}
-.profile-gate{display:none;position:relative;max-width:470px;margin:54px auto 30px;padding:34px;border:1px solid #51466c;border-radius:20px;background:#211b35;color:#f6f2ff;box-shadow:0 24px 80px rgba(10,7,20,.42)}
-.profile-gate:before{content:"ПЕРЕД СТАРТОМ";display:block;margin-bottom:14px;color:#c4b5fd;font-size:10px;font-weight:800;letter-spacing:1.7px;text-align:center}
-body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(101,70,165,.18),transparent 30%),#100d20;color:#f6f2ff}body.needs-profile:before{opacity:.08}body.needs-profile .wrap>header{opacity:.72}body.needs-profile .profile-gate{display:block}
+.profile-gate{display:none;position:relative;max-width:470px;margin:54px auto 30px;padding:34px;border:1px solid #e3dced;border-radius:20px;background:#fff;color:#302a3d;box-shadow:0 24px 70px rgba(53,40,76,.13)}
+.profile-gate:before{content:"ПЕРЕД СТАРТОМ";display:block;margin-bottom:14px;color:#8067a8;font-size:10px;font-weight:800;letter-spacing:1.7px;text-align:center}
+body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(173,150,213,.22),transparent 34%),#f5f2fa;color:#302a3d}body.needs-profile:before{opacity:.025}body.needs-profile .wrap>header{opacity:1}body.needs-profile .profile-gate{display:block}
 .profile-gate h1{margin:0;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:32px;letter-spacing:-1.2px}
-.profile-gate p{color:#b9b0ca;text-align:center;line-height:1.55;font-size:14px}
-.profile-gate label{display:block;margin:17px 0 7px;color:#e0d9ee;font-size:13px;font-weight:700}
-.profile-gate input,.profile-gate select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #51466c;background:#171326;color:#f6f2ff;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
-.profile-gate input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.18)}
+.profile-gate p{color:#746c80;text-align:center;line-height:1.55;font-size:14px}
+.profile-gate label{display:block;margin:17px 0 7px;color:#51485f;font-size:13px;font-weight:700}
+.profile-gate input,.profile-gate select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #ddd5e8;background:#faf9fc;color:#302a3d;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.profile-gate input:focus{border-color:#9a7bc6;box-shadow:0 0 0 3px rgba(167,139,250,.18)}
 .profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:var(--accent);color:white;font:inherit;font-weight:800;cursor:pointer;transition:background .15s,transform .15s}
 .profile-gate button:hover{background:var(--accent2);transform:translateY(-1px)}
 .profile-avatar{display:flex;align-items:center;gap:14px;margin-top:8px}
@@ -61,10 +61,10 @@ body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(101,70,165,.
 <div class="wrap">
 <header><a class="brand" href="/" aria-label="Kazo — главная"><span>K</span><span class="brand-person">o</span><span>zo</span></a><button class="account-edit" id="accountEdit" type="button"><span aria-hidden="true">✳</span> Редактировать аккаунт</button></header>
 <section id="profileGate" class="profile-gate" aria-labelledby="profileTitle">
-<h1 id="profileTitle">Добро пожаловать!</h1><p>Перед выбором игры придумай ник и выбери аватар. Они будут отображаться в игровых комнатах.</p>
+<h1 id="profileTitle">Добро пожаловать!</h1><p>Перед выбором игры придумай ник. Аватар можно загрузить по желанию — если пропустить этот шаг, будет стандартная иконка игрока.</p>
 <form id="profileForm"><label for="profileNickname">Твой никнейм</label><input id="profileNickname" maxlength="20" autocomplete="nickname" placeholder="Например, Игрок" required>
 <label for="profileAge">Возраст</label><input id="profileAge" type="number" min="13" max="99" inputmode="numeric" placeholder="Сколько тебе лет?" required>
-<label for="profileAvatarFile">Аватарка</label><div class="profile-avatar"><img id="profileAvatarPreview" class="profile-avatar-preview" alt="Предпросмотр аватарки" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='48' fill='%23282044'/%3E%3Ctext x='48' y='62' text-anchor='middle' font-size='48'%3E🙂%3C/text%3E%3C/svg%3E"><input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+<label for="profileAvatarFile">Аватарка <span class="optional-note">(необязательно)</span></label><div class="profile-avatar"><img id="profileAvatarPreview" class="profile-avatar-preview" alt="Предпросмотр аватарки" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2248%22%20fill%3D%22%23e8e1f3%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2235%22%20r%3D%2215%22%20fill%3D%22%238879a6%22%2F%3E%3Cpath%20d%3D%22M18%2086c3-18%2015-28%2030-28s27%2010%2030%2028%22%20fill%3D%22%238879a6%22%2F%3E%3C%2Fsvg%3E"><input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
 <p id="profileError" class="profile-error" role="alert"></p>
 <button type="submit" id="profileSubmit">Продолжить к играм</button><button type="button" class="profile-cancel" id="profileCancel">Отмена</button></form></section>
 <main>
@@ -98,12 +98,12 @@ body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(101,70,165,.
 <script>
 (()=>{
   const KEY="kto-eto-profile-v1",form=document.getElementById("profileForm"),nick=document.getElementById("profileNickname"),age=document.getElementById("profileAge"),fileInput=document.getElementById("profileAvatarFile"),preview=document.getElementById("profileAvatarPreview"),error=document.getElementById("profileError");
-  let avatarData="",saved=null;
+  let avatarData="",saved=null;const defaultAvatar="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2248%22%20fill%3D%22%23e8e1f3%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2235%22%20r%3D%2215%22%20fill%3D%22%238879a6%22%2F%3E%3Cpath%20d%3D%22M18%2086c3-18%2015-28%2030-28s27%2010%2030%2028%22%20fill%3D%22%238879a6%22%2F%3E%3C%2Fsvg%3E";
   try{saved=JSON.parse(localStorage.getItem(KEY)||"null")}catch{}
   // TEMP: регистрационная панель показывается при каждом новом открытии сайта для тестирования.
   // Сохранённые данные подставляются в форму, но не пропускают пользователя сразу в меню.
   document.body.classList.add("needs-profile");
-  if(saved){nick.value=saved.nickname||"";age.value=saved.age||"";if(saved.avatar){avatarData=saved.avatar;preview.src=avatarData;}}
+  if(saved){nick.value=saved.nickname||"";age.value=saved.age||"";if(saved.avatar){avatarData=saved.avatar;preview.src=avatarData;}else{preview.src=defaultAvatar;}}
   fileInput.addEventListener("change",()=>{
     error.textContent="";const file=fileInput.files&&fileInput.files[0];if(!file)return;
     if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){error.textContent="Выбери изображение PNG, JPG, WEBP или GIF.";fileInput.value="";return;}
@@ -112,9 +112,9 @@ body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(101,70,165,.
   });
   const accountEdit=document.getElementById("accountEdit"),cancelEdit=document.getElementById("profileCancel"),profileTitle=document.getElementById("profileTitle"),profileIntro=document.querySelector("#profileGate>p"),profileSubmit=document.getElementById("profileSubmit");
   const originalIntro=profileIntro.textContent;
-  accountEdit.addEventListener("click",()=>{if(!saved)return;nick.value=saved.nickname||"";age.value=saved.age||"";avatarData=saved.avatar||"";preview.src=avatarData;error.textContent="";profileTitle.textContent="Твой аккаунт";profileIntro.textContent="Измени никнейм, возраст или аватар. Изменения сохранятся в профиле.";profileSubmit.textContent="Сохранить изменения";document.body.classList.add("editing-profile");});
+  accountEdit.addEventListener("click",()=>{if(!saved)return;nick.value=saved.nickname||"";age.value=saved.age||"";avatarData=saved.avatar||"";preview.src=avatarData||defaultAvatar;error.textContent="";profileTitle.textContent="Твой аккаунт";profileIntro.textContent="Измени никнейм, возраст или аватар. Изменения сохранятся в профиле.";profileSubmit.textContent="Сохранить изменения";document.body.classList.add("editing-profile");});
   cancelEdit.addEventListener("click",()=>{document.body.classList.remove("editing-profile");profileTitle.textContent="Добро пожаловать!";profileIntro.textContent=originalIntro;profileSubmit.textContent="Продолжить к играм";error.textContent="";});
-  form.addEventListener("submit",event=>{event.preventDefault();error.textContent="";const nickname=nick.value.trim().replace(/\s+/g," ").slice(0,20),playerAge=Number(age.value);if(!nickname){nick.focus();return;}if(!Number.isInteger(playerAge)||playerAge<13||playerAge>99){error.textContent="Укажи возраст от 13 до 99 лет.";age.focus();return;}if(!avatarData){error.textContent="Пожалуйста, выбери изображение для аватарки.";fileInput.focus();return;}try{saved={nickname,age:playerAge,avatar:avatarData};localStorage.setItem(KEY,JSON.stringify(saved));}catch{error.textContent="Не удалось сохранить профиль. Попробуй выбрать изображение поменьше.";return;}document.body.classList.remove("needs-profile","editing-profile");profileTitle.textContent="Добро пожаловать!";profileIntro.textContent=originalIntro;profileSubmit.textContent="Продолжить к играм";});
+  form.addEventListener("submit",event=>{event.preventDefault();error.textContent="";const nickname=nick.value.trim().replace(/\s+/g," ").slice(0,20),playerAge=Number(age.value);if(!nickname){nick.focus();return;}if(!Number.isInteger(playerAge)||playerAge<13||playerAge>99){error.textContent="Укажи возраст от 13 до 99 лет.";age.focus();return;}try{saved={nickname,age:playerAge,avatar:avatarData||""};localStorage.setItem(KEY,JSON.stringify(saved));}catch{error.textContent="Не удалось сохранить профиль. Попробуй выбрать изображение поменьше.";return;}document.body.classList.remove("needs-profile","editing-profile");profileTitle.textContent="Добро пожаловать!";profileIntro.textContent=originalIntro;profileSubmit.textContent="Продолжить к играм";});
 })();
 </script>
 </body>
