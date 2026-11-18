@@ -955,9 +955,10 @@ function openCharacterImage(src,name){
   const viewer=document.createElement('div');viewer.className='character-image-viewer';viewer.setAttribute('role','dialog');viewer.setAttribute('aria-modal','true');viewer.setAttribute('aria-label',name||'Просмотр изображения');
   const image=document.createElement('img');image.src=src;image.alt=name||'';
   const caption=document.createElement('div');caption.className='viewer-caption';caption.textContent=name||'';
-  viewer.append(image,caption);viewer.addEventListener('click',event=>{if(event.target===viewer)viewer.remove()});
-  const onKey=event=>{if(event.key==='Escape'){viewer.remove();document.removeEventListener('keydown',onKey)}};
-  document.addEventListener('keydown',onKey);viewer.addEventListener('click',()=>document.removeEventListener('keydown',onKey));
+  const closeViewer=()=>{viewer.remove();document.removeEventListener('keydown',onKey)};
+  const onKey=event=>{if(event.key==='Escape')closeViewer()};
+  viewer.append(image,caption);viewer.addEventListener('click',event=>{if(event.target===viewer)closeViewer()});
+  document.addEventListener('keydown',onKey);
   document.body.appendChild(viewer);
 }
 function renderGame(){
