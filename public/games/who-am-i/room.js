@@ -25,7 +25,7 @@
   .srs-menu-panel button{width:100%;margin:0;text-align:left;background:#35294f}.srs-word{font-size:clamp(28px,7vw,48px);font-weight:800;letter-spacing:1px;text-align:center;padding:24px 8px}
   .srs-code-field{margin-top:8px}.srs-code-field.hidden{display:none!important}
   #srsLobby{position:relative;padding-top:48px}
-  #srsHostMenu{position:absolute;top:50%;left:50%;right:auto;z-index:60;transform:translate(-50%,-50%)}
+  #srsHostMenu{position:absolute;top:16px;left:auto;right:18px;z-index:60;transform:none}
   .srs.lobby-active #srsHostMenu{display:block!important}
   .srs.lobby-active.writing-active #srsWordStage{display:block!important;position:fixed;left:50%!important;top:50%!important;z-index:75;width:min(360px,calc(100vw - 36px));max-height:75vh;overflow:auto;margin:0;padding:18px;transform:translate(-50%,-50%);box-shadow:0 8px 28px #000b}
   .srs.lobby-active.writing-active #srsWordStage h3,.srs.lobby-active.writing-active #srsWordStage>p{display:none}
@@ -269,7 +269,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
       $("srsEditTimer").value=String(settings.timerSeconds??60);
     }
   }
-  async function tryAutoStart(){if(autoStartPending||started||!window.onlineGame.isRoomHost()||playersCount<2||roster.length!==playersCount||!roster.every(player=>Number.isInteger(player.seatIndex)))return;autoStartPending=true;const result=await window.onlineGame.startWordRound();if(!result.ok){autoStartPending=false;status(result.message||"Не удалось начать игру.");}}
+  async function tryAutoStart(){/* Автозапуск отключён: запуск только по кнопке «Начать игру» у хоста. */}
   function renderSeats(){
     const table=$("srsTable");if(!table)return;
     table.querySelectorAll(".srs-seat").forEach(node=>node.remove());
@@ -343,7 +343,7 @@ body[data-game="who-am-i"] .srs.lobby-active{color:#fff8e9}
   $("srsSave").onclick=async()=>{const result=await window.onlineGame.updateRoomSettings(settingsFrom("srsEdit"));if(!result.ok)return status(result.message||"Не удалось сохранить настройки.");$("srsEdit").classList.add("hidden");syncRoom(result.settings);status("Настройки комнаты сохранены.");};
   $("srsLeave").onclick=()=>window.onlineGame.leaveRoom();
   $("srsStart").onclick=async()=>{const result=await window.onlineGame.startWordRound();if(!result.ok)status(result.message||"Не удалось начать игру.");};
-  $("srsAddBots").onclick=async()=>{const result=await window.onlineGame.sendGameAction("test-bots-add",{count:Math.max(1,maxPlayers-playersCount)});if(!result.ok)status(result.message||"Не удалось добавить бота.");else status("Тестовые боты добавлены. Раздача начнётся автоматически.");};
+  $("srsAddBots").onclick=async()=>{const result=await window.onlineGame.sendGameAction("test-bots-add",{count:Math.max(1,maxPlayers-playersCount)});if(!result.ok)status(result.message||"Не удалось добавить бота.");else status("Тестовые боты добавлены. Хост может начать игру вручную.");};
   $("srsSubmitWord").onclick=async()=>{const word=$("srsWordInput").value.trim();const result=await window.onlineGame.submitPlayerWord(word);if(!result.ok)return status(result.message||"Не удалось отправить слово.");$("srsWordEntry").classList.add("hidden");$("srsWordWaiting").classList.remove("hidden");$("srsWordInput").value="";};
   $("srsAskQuestion").onclick=async()=>{const field=$("srsQuestionInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.askWhoAmIQuestion(field.value.trim());if(!result.ok)return status(result.message||"Не удалось задать вопрос.");field.value="";field.classList.add("hidden");$("srsActionButtons").classList.add("hidden");$("srsQuestionWaiting").classList.remove("hidden");$("srsPassTurn").classList.remove("hidden");status("Вопрос отправлен. Ответы будут в общем чате.");};
   $("srsGuessButton").onclick=async()=>{const field=$("srsGuessInput");if(field.classList.contains("hidden")){field.classList.remove("hidden");field.focus();return;}const result=await window.onlineGame.guessWhoAmI(field.value.trim());if(!result.ok)return status(result.message||"Не удалось отправить догадку.");field.value="";field.classList.add("hidden");if(!result.correct)status("Пока не угадал. Ход переходит дальше.");};
