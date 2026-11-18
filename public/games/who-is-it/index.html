@@ -6,196 +6,112 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Кто это?</title>
 <style>
-:root {
-  --bg:#100d20;--panel:#1c1732;--panel2:#282044;
-  --accent:#a78bfa;--accent2:#7c3aed;--text:#f6f2ff;
-  --muted:#b8accf;--danger:#fb7185;--success:#4ade80;
-  --border:rgba(255,255,255,.12);
-}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{color-scheme:dark;--bg:#111713;--surface:#1a241e;--surface2:#202d25;--paper:#f3f0e5;--ink:#202b24;--muted:#aab8aa;--line:#344438;--green:#a9d68b;--green2:#6f9b68;--red:#d58c7d;--gold:#e7c98c;--shadow:0 24px 70px #0005}
 *{box-sizing:border-box}
-body{
-  margin:0;min-height:100vh;color:var(--text);
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:radial-gradient(circle at 15% 10%,rgba(124,58,237,.25),transparent 35%),radial-gradient(circle at 90% 85%,rgba(99,102,241,.18),transparent 35%),var(--bg)
-}
+html{min-height:100%;background:var(--bg)}
+body{margin:0;min-height:100vh;color:#edf2e9;font-family:'DM Sans',system-ui,sans-serif;background:radial-gradient(ellipse at 8% 0%,#344b3a 0,transparent 32%),radial-gradient(ellipse at 94% 90%,#26382e 0,transparent 34%),#111713}
 button,input,textarea,select{font:inherit}
-button{border:0;cursor:pointer;color:var(--text);transition:.18s ease}
+button{cursor:pointer;transition:transform .18s,filter .18s,background .18s}
 button:disabled{opacity:.45;cursor:not-allowed}
-button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1)}
-input,textarea,select{
-  width:100%;padding:13px 14px;border:1px solid var(--border);
-  border-radius:12px;color:var(--text);background:#151128;outline:none
-}
-input:focus,textarea:focus,select:focus{border-color:var(--accent)}
-textarea{min-height:90px;resize:vertical}
-select option{background:#211a38}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.app{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:26px 0 50px}
-.topbar{display:flex;align-items:center;gap:12px;margin-bottom:30px}
-.brand{font-size:22px;font-weight:900;letter-spacing:-.7px}
-.brand span{color:var(--accent)}
-.screen{display:none}
+button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.app{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:22px 0 64px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding:4px 0 18px;border-bottom:1px solid #ffffff18}
+.brand{display:inline-flex;align-items:center;gap:9px;color:#f2f2e7!important;font:800 14px 'Space Grotesk',sans-serif;letter-spacing:.18em;text-decoration:none}
+.brand:before{content:'◈';display:grid;place-items:center;width:34px;height:34px;border:1px solid #8cae7b66;border-radius:11px;color:var(--green);font-size:19px}
+.brand span{color:var(--green)}
+.screen{display:none;animation:screenIn .28s ease both}
 .screen.active{display:block}
-.hero{text-align:center;padding:45px 15px 35px}
-.hero h1{margin:0 0 12px;font-size:clamp(38px,8vw,66px);line-height:1;letter-spacing:-2px}
-.hero h1 span{color:var(--accent)}
-.hero p{color:var(--muted);font-size:17px}
-.menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:850px;margin:25px auto}
-.menu-card{
-  min-height:165px;padding:25px 18px;border:1px solid var(--border);
-  border-radius:22px;background:linear-gradient(145deg,rgba(42,32,69,.95),rgba(25,20,44,.96));text-align:center
-}
-.menu-card .emoji{font-size:38px;display:block;margin-bottom:14px}
-.menu-card strong{display:block;font-size:19px}
-.menu-card small{display:block;margin-top:8px;color:var(--muted)}
-.primary{padding:13px 19px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);font-weight:750}
-.secondary{padding:12px 17px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);font-weight:650}
-.danger{background:#7f1d35}
-.success{background:#166534}
-.ghost{background:transparent;border:1px solid var(--border)}
-.full{width:100%}
-.page-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
-.page-head h2{margin:0;font-size:29px}
-.panel{padding:22px;border-radius:20px;border:1px solid var(--border);background:rgba(28,23,50,.9);margin-bottom:18px}
-.panel h3{margin-top:0}
-.stack{display:grid;gap:13px}
+@keyframes screenIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.hero{position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;padding:55px clamp(22px,6vw,76px);margin:20px 0 24px;border:1px solid #c2d5b333;border-radius:28px;background:linear-gradient(105deg,#1d3025f5 0%,#263d2df0 54%,#314936dd 100%);box-shadow:var(--shadow)}
+.hero:before{content:'?';position:absolute;right:8%;top:50%;transform:translateY(-55%) rotate(9deg);font:700 clamp(180px,32vw,360px)/.8 'Space Grotesk',sans-serif;color:#d7e9c70b;text-shadow:0 0 70px #d7e9c710;pointer-events:none}
+.hero:after{content:'DETECTIVE CLUB  /  SOCIAL DEDUCTION';position:absolute;right:28px;bottom:22px;color:#d4e2cb66;font:700 9px 'Space Grotesk',sans-serif;letter-spacing:.2em}
+.hero h1{position:relative;z-index:1;margin:0 0 15px;font:700 clamp(42px,7vw,76px)/.98 'Space Grotesk',sans-serif;letter-spacing:-.065em;color:#f5f4e9}
+.hero h1 span{color:var(--green)}
+.hero p{position:relative;z-index:1;max-width:510px;margin:0;color:#c1d0bf;font-size:16px;line-height:1.7}
+.menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:900px;margin:24px auto}
+.menu-card{position:relative;overflow:hidden;min-height:148px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:23px 25px;border:1px solid #a7c39b35;border-radius:18px;background:linear-gradient(145deg,#202d24,#19231d);color:#f0f3e9;text-align:left;box-shadow:0 12px 30px #0002}
+.menu-card:after{content:'↗';position:absolute;right:22px;top:18px;color:#a9d68b88;font-size:20px}
+.menu-card .emoji{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#a9d68b18;border:1px solid #a9d68b33;font-size:22px}
+.menu-card strong{font:700 19px 'Space Grotesk',sans-serif}
+.menu-card small{max-width:320px;color:#aab8aa;font-size:13px;line-height:1.5}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:28px 0 18px;padding-bottom:15px;border-bottom:1px solid #ffffff18}
+.page-head h2{margin:0;color:#f0f3e9;font:700 clamp(24px,4vw,34px) 'Space Grotesk',sans-serif;letter-spacing:-.04em}
+.panel,.modal{padding:23px;border:1px solid #b2c9a62b;border-radius:19px;background:linear-gradient(145deg,#202b23,#19231d);color:#edf2e9;box-shadow:0 15px 38px #0002}
+.stack{display:grid;gap:15px}
 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.row>*{flex:1}
+.row>*{flex:1;min-width:0}
 .row .fit{flex:0 0 auto}
+.field{display:grid;gap:8px}
+.field label{color:#c6d3c2;font-size:13px;font-weight:700;letter-spacing:.02em}
+.field .muted{line-height:1.5}
+input,textarea,select{width:100%;padding:13px 15px;border:1px solid #9bb39138;border-radius:11px;background:#111a14;color:#f2f3e9;outline:none}
+input::placeholder,textarea::placeholder{color:#758477}
+input:focus,textarea:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px #a9d68b18}
+textarea{min-height:100px;resize:vertical}
+select option{background:#19231d}
+.primary,.secondary,.danger,.success,.ghost{padding:12px 17px;border-radius:11px;font-weight:750}
+.primary{border:1px solid #c1e0a077;background:linear-gradient(145deg,#b5d994,#83ad70);color:#182319;box-shadow:0 5px 0 #56784d}
+.secondary{border:1px solid #a7c39b42;background:#29382d;color:#e1ebda}
+.danger{border:1px solid #d58c7d55;background:#482b29;color:#f0c4b9}
+.success{background:#355b3e;color:#e5f3dc}
+.ghost{border:1px solid #ffffff22;background:transparent;color:#e7eee3}
+.full{width:100%}
 .muted{color:var(--muted)}
-.small{font-size:13px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.tab{padding:10px 15px;border:1px solid var(--border);border-radius:11px;background:#201a35}
-.tab.active{background:var(--accent2);border-color:transparent}
+.small{font-size:12px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.tab{padding:10px 15px;border:1px solid #a7c39b35;border-radius:9px;background:#1b271f;color:#b8c7b5}
+.tab.active{border-color:#a9d68b;background:#314b35;color:#e7f2dc}
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
-.pack-card{padding:17px;border:1px solid var(--border);border-radius:16px;background:#211a38;min-width:0}
-.pack-card h3{margin:0 0 8px}
-.pack-card .preview{font-size:25px;line-height:1.7;min-height:48px}
+.pack-card{min-width:0;padding:17px;border:1px solid #a7c39b30;border-radius:14px;background:#202c23;color:#eaf0e5}
+.pack-card h3{margin:0 0 8px;color:#f1f2e8;font:700 17px 'Space Grotesk',sans-serif}
+.pack-card .preview{min-height:48px;font-size:25px;line-height:1.7}
 .pack-card .actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
 .pack-card .actions button{flex:1;min-width:75px}
-.badge{display:inline-block;padding:4px 8px;border-radius:99px;color:#ddd6fe;background:rgba(139,92,246,.2);font-size:11px}
-.field{display:grid;gap:7px}
-.field label{color:var(--muted);font-size:14px}
-.character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px}
-.character-card{min-height:120px;padding:12px;border:2px solid var(--border);border-radius:15px;background:#211a38;text-align:center}
-.character-card .face{font-size:42px;display:block;margin-bottom:8px}
-.character-card.selected{border-color:var(--accent);background:#30234e}
-.character-card.crossed{opacity:.35;filter:grayscale(1)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1px solid #a9d68b38;border-radius:99px;background:#a9d68b12;color:#cde4bc;font-size:11px;font-weight:750;letter-spacing:.03em}
+.character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:12px}
+.character-card{position:relative;min-height:145px;padding:14px 10px;border:1px solid #a8b99c44;border-radius:13px;background:linear-gradient(145deg,#f6f2e5,#e5e4d4);color:#27362b;text-align:center;font-weight:700;box-shadow:0 4px 0 #b6b9a7,0 9px 18px #0002}
+.character-card .face{display:block;margin:0 auto 9px;font-size:42px;line-height:1.2}
+.character-card img{width:70px;height:70px;object-fit:cover;border-radius:11px;display:block;margin:0 auto 8px}
+.character-card.selected{border:3px solid #80a76a;background:#e7f1df;box-shadow:0 0 0 4px #a9d68b35,0 4px 0 #7e9d70}
+.character-card.crossed{opacity:.3;filter:grayscale(1);transform:scale(.96);box-shadow:none}
+.notice{padding:13px 15px;border:1px solid #a9d68b38;border-left:4px solid var(--green);border-radius:10px;background:#a9d68b12;color:#dcebd3;line-height:1.5}
+.empty{padding:28px 16px;border:1px dashed #a7c39b50;border-radius:14px;color:#aab8aa;text-align:center}
+.upload-banner{padding:23px;border:1px solid #a9d68b45;border-radius:17px;background:linear-gradient(120deg,#2b4430,#202d24);margin-bottom:22px}
+.upload-banner h3{margin:0 0 8px;font:700 20px 'Space Grotesk',sans-serif}
+.upload-banner p{color:#b8c7b5;line-height:1.6}
 .game-layout{display:grid;grid-template-columns:1fr;gap:16px}
-.game-info{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:15px;border:1px solid var(--border);border-radius:15px;background:var(--panel)}
-.game-actions{display:flex;flex-wrap:wrap;gap:8px}
-.modal-backdrop{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:16px;background:rgba(5,3,12,.78)}
-.modal-backdrop.open{display:flex}
-.modal{width:min(520px,100%);max-height:90vh;overflow:auto;padding:24px;border:1px solid var(--border);border-radius:20px;background:#1c1732;box-shadow:0 20px 70px rgba(0,0,0,.45)}
-.modal h2{margin-top:0}
-.modal-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.game-layout>.panel:first-of-type{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:17px 20px;border-radius:15px;background:#1b2920}
+.game-layout>.panel:first-of-type .row{display:contents!important}
+.game-layout>.panel:first-of-type>div:last-child{color:#b8c7b5}
+.game-info{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:17px 20px;border:1px solid #a9d68b35;border-radius:15px;background:linear-gradient(100deg,#273a2c,#1b2920)}
+.game-info strong{color:#eaf2e4;font:700 17px 'Space Grotesk',sans-serif}
+.game-actions{display:flex;gap:8px;flex-wrap:wrap}
+#onlineGamePanel{margin-top:0}
+#onlineGamePanel .panel{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.game-table{position:relative;overflow:hidden;padding:clamp(14px,3vw,28px);border:12px solid #533d2d;border-radius:32px;background:radial-gradient(ellipse at center,#326343 0%,#244c34 55%,#183a29 100%);box-shadow:inset 0 0 0 2px #b88c5c66,inset 0 0 70px #071d12aa,0 20px 55px #0006}
+.game-table:before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.18;background:repeating-linear-gradient(32deg,transparent 0 12px,#d2e4c4 13px,transparent 14px 28px)}
+.table-heading{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:17px;color:#dce9d5}
+.table-heading strong{font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.table-heading span{font-size:11px;color:#b7cfb4}
+#characterBoard{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:11px;padding:16px;border:1px solid #d6e7cc36;border-radius:18px;background:#0c20164a;backdrop-filter:blur(3px)}
+.table-footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:15px;color:#c3d7be;font-size:11px}
+.question-console{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
+.question-console .field{min-width:0}
+.question-console button{min-width:190px}
+.modal-backdrop{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:18px;background:#080e0ad9;backdrop-filter:blur(8px)}
+.modal-backdrop.open{display:flex;animation:screenIn .18s ease both}
+.modal{width:min(760px,100%);max-height:90vh;overflow:auto;border-color:#a9d68b55;background:linear-gradient(145deg,#26372b,#17231b);box-shadow:0 30px 90px #000a}
+.modal h2{margin:0 0 9px;color:#f0f3e9;font:700 26px 'Space Grotesk',sans-serif}
+.modal-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
 .modal-actions button{flex:1}
-.empty{padding:30px 15px;text-align:center;border:1px dashed var(--border);border-radius:15px;color:var(--muted)}
-.notice{padding:13px 15px;border-radius:12px;background:rgba(139,92,246,.12);border:1px solid rgba(167,139,250,.22);color:#e9ddff}
 .hidden{display:none!important}
-#toast{position:fixed;z-index:200;bottom:20px;left:50%;transform:translateX(-50%);max-width:calc(100% - 30px);padding:12px 18px;border-radius:12px;background:#30234e;border:1px solid var(--border);box-shadow:0 8px 30px #0008;display:none;text-align:center}
+#toast{position:fixed;z-index:200;bottom:22px;left:50%;transform:translateX(-50%);display:none;max-width:calc(100% - 30px);padding:13px 19px;border:1px solid #a9d68b55;border-radius:12px;background:#26372b;color:#f0f3e9;box-shadow:0 12px 40px #0008;text-align:center}
 #toast.show{display:block}
-#onlineGamePanel{margin-top:15px}
-.upload-banner{
-  padding:22px;border:1px solid rgba(167,139,250,.35);border-radius:18px;
-  background:linear-gradient(135deg,rgba(124,58,237,.24),rgba(42,32,69,.8));
-  margin-bottom:20px
-}
-.upload-banner h3{margin:0 0 8px;font-size:20px}
-.upload-banner p{color:var(--muted);margin:0 0 15px}
-@media(max-width:700px){
-  .menu-grid{grid-template-columns:1fr;max-width:430px}
-  .menu-card{min-height:125px}
-  .hero{padding-top:30px}
-  .panel{padding:16px}
-  .page-head h2{font-size:24px}
-  .topbar{margin-bottom:18px}
-}
+@media(max-width:720px){.app{width:min(100% - 24px,600px);padding-top:12px}.hero{min-height:250px;padding:34px 24px}.hero:after{right:18px;bottom:15px;font-size:8px}.menu-grid{grid-template-columns:1fr;gap:10px}.menu-card{min-height:120px;padding:18px}.game-table{border-width:7px;border-radius:22px;padding:12px}.game-layout>.panel:first-of-type{grid-template-columns:1fr}.question-console{grid-template-columns:1fr}.question-console button{width:100%;min-width:0}#characterBoard{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:10px}.character-card{min-height:128px}.page-head{margin-top:18px}.panel,.modal{padding:17px}.row>*{flex:1 1 100%}.row .fit{flex:0 0 auto}}
+@media(min-width:900px){#characterBoard{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}.game-layout{gap:18px}}
 
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
-:root{color-scheme:light;--bg:#f3f0e9;--panel:#fffdf8;--panel2:#eee9df;--accent:#6546a5;--accent2:#513487;--text:#252231;--muted:#777181;--line:#ded8ce;--lime:#d7f36a;--border:#ded8ce}
-body{background-color:#f3f0e9!important;background-image:radial-gradient(#d8d0c4 .7px,transparent .7px)!important;background-size:18px 18px!important;color:#252231!important;font-family:"DM Sans",Inter,system-ui,sans-serif!important}
-.panel,.card,.room-card,.game-panel,.modal,.notice{background:#fffdf8!important;color:#252231!important;border:1px solid #ded8ce!important;border-radius:18px!important;box-shadow:0 8px 24px #30251a0a!important}
-h1,h2,h3,.hero h1{font-family:"Space Grotesk","DM Sans",sans-serif!important;color:#252231!important}
-p,.muted,.description{color:#777181}
-button,.btn{border-radius:999px!important}
-button.primary,.primary,.btn-primary{background:#6546a5!important;color:white!important}
-button.secondary,.secondary,.btn-secondary{background:#eee8f6!important;color:#6546a5!important;border:1px solid #ded3ef!important}
-input,textarea,select{background:#fffefa!important;color:#252231!important;border:1px solid #ded8ce!important;border-radius:12px!important}
-a{color:#6546a5}
-.top a{background:#fffdf8!important;color:#6546a5!important;border:1px solid #ded8ce!important;box-shadow:none!important}
-
-body[data-game="who-is-it"]{background-color:#f3f0e9!important;background-image:radial-gradient(rgba(101,70,165,.12) .7px,transparent .7px),radial-gradient(ellipse at 14% 10%,#d9d2ef,transparent 38%),radial-gradient(ellipse at 90% 84%,#e7d9f0,transparent 40%)!important;background-size:20px 20px,auto,auto!important;color:#292536!important}
-#roomSettingsScreen .panel{background:linear-gradient(145deg,#fffdf9,#f0ebf7)!important;border:1px solid #ded5e8!important;border-radius:22px!important;box-shadow:0 18px 48px rgba(48,35,62,.09)!important}
-#roomSettingsScreen .field label{color:#777181!important;font-weight:650}
-#roomSettingsScreen input,#roomSettingsScreen select{background:#fffefa!important;color:#292536!important;border:1px solid #ded8e7!important;border-radius:12px!important}
-#roomSettingsScreen .primary{background:#6546a5!important;box-shadow:0 6px 18px #6546a522}
-#roomSettingsScreen .secondary{background:#f0ebf7!important;color:#6546a5!important;border:1px solid #ded3ef!important}
-
-/* Who Is It? — classic detective bureau / case file */
-body[data-game="who-is-it"]{--case-bg:#e7e5d7;--case-ink:#26342e;--case-muted:#6c776c;--case-line:#cbd0bd;--case-paper:#fbf8ec;--case-green:#416b58;--case-red:#a64f48;background:radial-gradient(ellipse at 12% 8%,#d4ddc8,transparent 36%),radial-gradient(ellipse at 88% 82%,#e7d4c2,transparent 34%),#e7e5d7!important;color:#26342e!important}
-body[data-game="who-is-it"]::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(70,93,71,.045) 32px 33px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(70,93,71,.035) 32px 33px);opacity:.75}
-body[data-game="who-is-it"] .app{width:min(1160px,calc(100% - 28px))}
-body[data-game="who-is-it"] .topbar{padding:12px 0 16px;border-bottom:1px solid #c5cbb8}
-body[data-game="who-is-it"] .brand{color:#294c3c;letter-spacing:-.5px}
-body[data-game="who-is-it"] .brand span{color:#b25a4e}
-body[data-game="who-is-it"] .hero h1{color:#26342e;letter-spacing:-2px}
-body[data-game="who-is-it"] .hero p{color:#687467}
-body[data-game="who-is-it"] .menu-card{border:1px solid #c6cbb9;border-radius:8px 18px 8px 18px;background:linear-gradient(145deg,#fffdf4,#e8ecdf);box-shadow:0 7px 0 #d0d4c5,0 14px 26px #344c3914;color:#26342e;transition:transform .18s,box-shadow .18s}
-body[data-game="who-is-it"] .menu-card:hover{transform:translateY(-4px) rotate(-.5deg);box-shadow:0 11px 0 #d0d4c5,0 20px 30px #344c3920}
-body[data-game="who-is-it"] .menu-card .emoji{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#e4e9d9;border:1px solid #c7d0bc}
-body[data-game="who-is-it"] .menu-card small{color:#6c776c}
-body[data-game="who-is-it"] .panel,body[data-game="who-is-it"] .modal{border:1px solid #c8cdbd;border-radius:12px;background:linear-gradient(145deg,#fffdf5,#f0efdf);box-shadow:0 12px 30px #30433614;color:#26342e}
-body[data-game="who-is-it"] .primary{border:1px solid #294c3c;border-radius:8px;background:linear-gradient(180deg,#527d66,#345a47);box-shadow:0 4px 0 #294c3c;color:#fffdf1}
-body[data-game="who-is-it"] .secondary{border:1px solid #c4cbb9;border-radius:8px;background:#e9eddf;box-shadow:0 3px 0 #d2d8c8;color:#365541}
-body[data-game="who-is-it"] .danger{border-radius:8px;background:#f2e2dc;color:#91443e;border:1px solid #dfbcb2;box-shadow:0 3px 0 #e3c9c0}
-body[data-game="who-is-it"] input,body[data-game="who-is-it"] select,body[data-game="who-is-it"] textarea{border:1px solid #c6cbb9;border-radius:8px;background:#fffdf5;color:#26342e}
-body[data-game="who-is-it"] .tabs .tab{border:1px solid #c6cbb9;border-radius:8px;background:#e8ebdf;color:#45614d}
-body[data-game="who-is-it"] .tabs .tab.active{background:#456b54;color:#fffdf1;border-color:#456b54}
-body[data-game="who-is-it"] .pack-card{border:1px solid #c6cbb9;border-radius:10px;background:#f8f6e9;color:#26342e}
-body[data-game="who-is-it"] .character-card{border:2px solid #c6cbb9;border-radius:10px;background:#f8f6e9;color:#26342e}
-body[data-game="who-is-it"] .character-card.selected{border-color:#416b58;background:#e0e9d9;box-shadow:0 0 0 3px #416b5820}
-body[data-game="who-is-it"] .character-card.crossed{background:#e6e3d9}
-body[data-game="who-is-it"] .game-info{border:1px solid #c6cbb9;border-radius:10px;background:#f8f6e9}
-body[data-game="who-is-it"] .notice{border:1px solid #c6cbb9;border-left:5px solid #a64f48;border-radius:8px;background:#f8f1df;color:#39483c}
-body[data-game="who-is-it"] .badge{background:#e3eadc;color:#42604a}
-body[data-game="who-is-it"] .topbar a{color:#416b58}
-body[data-game="who-is-it"] .muted{color:#6c776c}
-
-/* Режимы игры — вертикальный список, как единое меню Kazo */
-#playScreen .menu-grid{display:flex;flex-direction:column;gap:12px;width:min(560px,100%);margin:0 auto}
-#playScreen .menu-card{display:flex;align-items:center;gap:16px;width:100%;min-height:82px;padding:15px 18px;text-align:left}
-#playScreen .menu-card .emoji{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:14px;font-size:27px}
-#playScreen .menu-card strong,#playScreen .menu-card small{display:block}
-#playScreen .menu-card small{margin-top:4px}
-
-/* Detective dossier edition */
-body[data-game="who-is-it"]{background:radial-gradient(ellipse at 8% 0%,#d9d3f3,transparent 38%),radial-gradient(ellipse at 92% 88%,#d9e5f1,transparent 36%),#e9e6f6!important;color:#302b48!important}
-body[data-game="who-is-it"] .app{width:min(1180px,calc(100% - 36px));padding:25px 0 60px}
-body[data-game="who-is-it"] .topbar{padding:12px 16px;margin-bottom:12px;border:1px solid #d0c9e6;border-radius:16px;background:#fcfbffb8;box-shadow:0 6px 20px #51438b0c}
-body[data-game="who-is-it"] .brand{font:800 13px "Space Grotesk";letter-spacing:.18em;color:#51438b!important}
-body[data-game="who-is-it"] .hero{padding:34px 15px 28px}
-body[data-game="who-is-it"] .hero h1{font:700 clamp(42px,7vw,68px)/.98 "Space Grotesk";letter-spacing:-.055em;color:#302b48}
-body[data-game="who-is-it"] .hero h1 span{color:#7868b6}
-body[data-game="who-is-it"] .hero p{max-width:620px;margin:0 auto;color:#77728e;font-size:15px;line-height:1.65}
-body[data-game="who-is-it"] .panel{border:1px solid #d0c9e6!important;border-radius:21px!important;background:linear-gradient(145deg,#fcfbff,#efedf9)!important;box-shadow:0 16px 40px #51438b12!important}
-body[data-game="who-is-it"] .menu-card{border:1px solid #d0c9e6!important;border-radius:17px!important;background:linear-gradient(145deg,#fcfbff,#efedf9)!important;color:#302b48!important;box-shadow:0 5px 0 #d7d0e9!important;transition:transform .18s,box-shadow .18s}
-body[data-game="who-is-it"] .menu-card:hover{transform:translateY(-4px);box-shadow:0 9px 0 #d7d0e9!important}
-body[data-game="who-is-it"] .menu-card .emoji{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 13px;border-radius:17px;background:#e7e2f5;color:#51438b}
-body[data-game="who-is-it"] .primary{border:0!important;border-radius:12px!important;background:linear-gradient(135deg,#8d7bc9,#5c4a9a)!important;color:#fff!important;box-shadow:0 4px 0 #463777!important}
-body[data-game="who-is-it"] .secondary{border:1px solid #d0c9e6!important;border-radius:12px!important;background:#fcfbff!important;color:#51438b!important}
-body[data-game="who-is-it"] .character-grid{grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:13px}
-body[data-game="who-is-it"] .character-card{position:relative;min-height:150px;padding:15px 12px;border:1px solid #d0c9e6!important;border-radius:17px!important;background:linear-gradient(145deg,#fff,#f0eef9)!important;color:#302b48!important;box-shadow:0 5px 0 #d9d3eb!important;transition:transform .18s,border-color .18s}
-body[data-game="who-is-it"] .character-card:hover{transform:translateY(-3px)}
-body[data-game="who-is-it"] .character-card .face{display:grid;place-items:center;width:66px;height:66px;margin:0 auto 9px;border-radius:20px;background:#e8e4f5;font-size:37px}
-body[data-game="who-is-it"] .character-card.selected{border:2px solid #7868b6!important;background:#f2efff!important;box-shadow:0 0 0 4px #7868b61b,0 5px 0 #d9d3eb!important}
-body[data-game="who-is-it"] .game-info{border-radius:15px!important;background:#f7f5ff!important}
-body[data-game="who-is-it"] .tabs .tab{border-radius:10px!important;background:#e8e4f5!important;color:#62588a}
-body[data-game="who-is-it"] .tabs .tab.active{background:#7868b6!important;color:white!important}
-body[data-game="who-is-it"] .modal{border:1px solid #d0c9e6!important;border-radius:22px!important;background:#fcfbff!important;color:#302b48!important;box-shadow:0 25px 80px #211b3d55!important}
-body[data-game="who-is-it"] .notice{border-left:4px solid #7868b6!important;border-radius:12px!important;background:#f2efff!important;color:#51438b!important}
-body[data-game="who-is-it"] #toast{border:1px solid #b9addf!important;border-radius:12px!important;background:#30264f!important;color:white!important}
-@media(max-width:700px){body[data-game="who-is-it"] .app{width:calc(100% - 24px);padding-top:12px}body[data-game="who-is-it"] .character-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}body[data-game="who-is-it"] .character-card{min-height:130px}}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -416,37 +332,31 @@ body[data-game="who-is-it"] #toast{border:1px solid #b9addf!important;border-rad
 
   <section id="gameScreen" class="screen">
     <div class="page-head">
-      <h2 id="gameTitle">Игра</h2>
-      <button class="secondary" onclick="returnToMenu()">Выйти из игры</button>
+      <div><div class="small muted" style="letter-spacing:.18em;font-weight:800">DETECTIVE TABLE / LIVE MATCH</div><h2 id="gameTitle">Игра</h2></div>
+      <button class="secondary" onclick="returnToMenu()">← Выйти из игры</button>
     </div>
     <div class="game-layout">
       <div class="game-info">
-        <div>
-          <strong id="turnStatus">Подготовка игры</strong>
-          <div id="gameSubtitle" class="muted small"></div>
-        </div>
-        <div class="game-actions">
-          <span id="timerDisplay" class="badge">Время: —</span>
-          <span id="cardCountDisplay" class="badge">Карточек: —</span>
-        </div>
+        <div><strong id="turnStatus">Подготовка игры</strong><div id="gameSubtitle" class="muted small"></div></div>
+        <div class="game-actions"><span id="timerDisplay" class="badge">Время: —</span><span id="cardCountDisplay" class="badge">Карточек: —</span></div>
       </div>
       <div id="onlineGamePanel"></div>
       <div class="panel">
-        <div class="row" style="margin-bottom:14px">
-          <strong>Твой персонаж</strong>
+        <div class="row" style="margin-bottom:12px">
+          <strong>ТВОЯ СЕКРЕТНАЯ ЛИЧНОСТЬ</strong>
           <span id="secretCharacter" class="muted">Ещё не выбран</span>
-          <button id="chooseSecretButton" class="primary fit" onclick="openPicker()">Выбрать</button>
+          <button id="chooseSecretButton" class="primary fit" onclick="openPicker()">Выбрать персонажа</button>
         </div>
-        <div class="muted small">Нажми на карточку, чтобы зачеркнуть её. Нажми ещё раз, чтобы вернуть. На компьютере правый клик или долгое нажатие на телефоне — попытка угадать персонажа.</div>
+        <div class="muted small">Отмечай карточки, которые уже исключены. Нажми правой кнопкой или удерживай карточку, чтобы сделать предположение.</div>
       </div>
-      <div id="characterBoard" class="character-grid"></div>
-      <div class="panel stack">
-        <div class="field">
-          <label for="questionInput">Твой вопрос</label>
-          <input id="questionInput" maxlength="180" placeholder="Например: У моего персонажа есть крылья?">
-        </div>
-        <button class="primary" onclick="sendLocalQuestion()">Отправить вопрос</button>
-        <div id="questionFeedback" class="muted small"></div>
+      <div class="game-table">
+        <div class="table-heading"><strong>Досье подозреваемых</strong><span>ОТМЕТЬ • СРАВНИ • УГАДАЙ</span></div>
+        <div id="characterBoard" class="character-grid"></div>
+        <div class="table-footer"><span>◈ ИГРОВОЙ СТОЛ</span><span>Нажми на карточку, чтобы исключить её</span></div>
+      </div>
+      <div class="panel question-console">
+        <div class="field"><label for="questionInput">ЗАДАЙ ВОПРОС СОПЕРНИКУ</label><input id="questionInput" maxlength="180" placeholder="Например: У персонажа есть крылья?"><div id="questionFeedback" class="muted small"></div></div>
+        <button class="primary" onclick="sendLocalQuestion()">Отправить вопрос ↗</button>
       </div>
     </div>
   </section>
