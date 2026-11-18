@@ -950,8 +950,8 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
   const onlinePanel=document.getElementById('onlineGamePanel');
   onlinePanel.classList.toggle('hidden',mode!=='online');
   onlinePanel.innerHTML='';
-  updateCharacterButton();renderGame();showScreen('gameScreen');
   prewarmMinecraftPackImages(currentCharacters,title);
+  updateCharacterButton();renderGame();showScreen('gameScreen');
   if(mode==='online'){
     if(window.onlineGame?.canChooseCharacter?.())openPicker();
     else document.getElementById('turnStatus').textContent='Ожидаем второго игрока...';
@@ -1053,7 +1053,7 @@ function cacheAndApplyCardImage(img,src,key){
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v7:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v8:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
   const terms=getImageSearchTerms(name,pack);
@@ -1062,8 +1062,6 @@ async function findFileCardImage(img){
     if(minecraft){
       const query=terms.replace(/^Minecraft\s+/i,'');
       const src='/_minecraft-image?q='+encodeURIComponent(query);
-      const response=await fetch(src);
-      if(!response.ok)throw Error('Server image cache unavailable');
       fileImageCache.set(key,src);try{localStorage.setItem(key,src)}catch(e){}
       applyFileCardImage(img,src);return;
     }
