@@ -1,3 +1,5 @@
+const DUEL_GAME_IDS = ["dots-duel","territory","codebreaker","memory-duel","number-duel","word-duel"];
+
 
 export class GameRoom {
   constructor(ctx, env) {
