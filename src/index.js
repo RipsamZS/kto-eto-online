@@ -285,6 +285,7 @@ export class GameRoom {
       } else if (this.gameId === "quiz" || this.gameId === "truth") {
         if(view.question&&s.phase!=="result"&&s.phase!=="finished"){view.question={text:view.question.text,options:view.question.options};}
         view.answerCount=Object.keys(s.answers||{}).length;
+        delete view.questions;
       } else if (this.gameId === "charades") {
         view.mySecretWord=s.drawerId===id?s.word:null;
         delete view.word; delete view.words; delete view.guesses;
@@ -293,7 +294,8 @@ export class GameRoom {
       } else if (DUEL_GAME_IDS.includes(this.gameId)) {
         const opponent=[...this.players.keys()].find(x=>x!==id);
         if(this.gameId==="codebreaker"||this.gameId==="number-duel"){delete view.secrets;view.mySecretSet=!!s.secrets?.[id];view.opponentSecretSet=!!s.secrets?.[opponent];}
-        if(this.gameId==="word-duel"){view.submissionCount=Object.keys(s.submissions||{}).length;view.mySubmission=s.submissions?.[id]||null;view.opponentSubmitted=!!s.submissions?.[opponent];}
+        if(this.gameId==="word-duel"){view.submissionCount=Object.keys(s.submissions||{}).length;view.mySubmission=s.submissions?.[id]||null;view.opponentSubmitted=!!s.submissions?.[opponent];if(s.phase!=="result"&&s.phase!=="finished")delete view.submissions;}
+        if(this.gameId==="memory-duel"&&s.phase!=="finished"&&s.activeId!==id)view.sequence=[];
       }
       this.send(socket, "party-state", view);
     }
