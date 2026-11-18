@@ -241,7 +241,7 @@
       }
 
       case "online-start": {
-        API.currentTurn = null;
+        API.currentTurn = data.currentTurn || API.currentTurn || null;
 
         setStatus("Оба игрока готовы. Игра начинается!");
 
@@ -688,6 +688,9 @@
   }
 
   async function makeGuess(guessId) {
+    if (!isMyTurn()) {
+      return { ok: false, message: "Сейчас не твой ход." };
+    }
     return send("make-guess", {
       guessId: String(guessId)
     });
@@ -836,11 +839,9 @@
   }
 
   function isMyTurn() {
-    return !!(
-      API.roomActive &&
-      API.playerId &&
-      API.currentTurn === API.playerId
-    );
+    // The server's currentTurn is authoritative; roomActive can briefly lag behind
+    // the first online-turn message during the ready/start transition.
+    return !!(API.playerId && API.currentTurn && API.currentTurn === API.playerId);
   }
 
   function canChooseCharacter() {
