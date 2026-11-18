@@ -1078,6 +1078,31 @@ async function findMinecraftWikiImage(img,query,key){
   }
   return false;
 }
+async function findCommonsCardImage(img,terms,key){
+  const queries=[terms,'File '+terms];
+  const tokens=normalizeImageTitle(terms).split(' ').filter(token=>token.length>2);
+  for(const query of queries){
+    try{
+      const url='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(query)+'&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
+      const response=await fetch(url,{mode:'cors'});
+      if(!response.ok)continue;
+      const data=await response.json();
+      const pages=Object.values(data.query?.pages||{}).filter(page=>{
+        const info=page.imageinfo?.[0];
+        return info?.thumburl||info?.url;
+      }).map(page=>{
+        const title=normalizeImageTitle(page.title.replace(/^file\s+/i,''));
+        const matched=tokens.filter(token=>title.includes(token)).length;
+        return {page,score:tokens.length?matched/tokens.length:0};
+      }).filter(item=>item.score>=(tokens.length>1?.5:.25));
+      pages.sort((a,b)=>b.score-a.score);
+      if(!pages.length)continue;
+      const info=pages[0].page.imageinfo[0];
+      return cacheAndApplyCardImage(img,info.thumburl||info.url,key);
+    }catch(error){console.warn('Commons image fallback failed:',terms,error)}
+  }
+  return false;
+}
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
@@ -1100,8 +1125,13 @@ async function findFileCardImage(img){
     if(pages.length){
       pages.sort((a,b)=>Number(normalizeImageTitle(b.title)===normalizeImageTitle(terms))-Number(normalizeImageTitle(a.title)===normalizeImageTitle(terms)));
       cacheAndApplyCardImage(img,pages[0].thumbnail.source,key);
+      return;
     }
-  }catch(error){console.warn('Precise card image lookup failed:',name,error)}
+    await findCommonsCardImage(img,terms,key);
+  }catch(error){
+    console.warn('Precise card image lookup failed:',name,error);
+    await findCommonsCardImage(img,terms,key);
+  }
 }
 function applyFileCardImage(img,src,onError=null){
   if(!img.isConnected)return;
