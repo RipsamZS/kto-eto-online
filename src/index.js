@@ -1611,7 +1611,7 @@ function serveStatic(request, env) {
       return new Response("Not Found", { status: 404 });
     }
 
-    const extension = assetPath.toLowerCase().split(".").pop();
+    const extension = assetPath.endsWith("/") ? "html" : assetPath.toLowerCase().split(".").pop();
     const contentTypes = {
       html: "text/html; charset=utf-8",
       js: "application/javascript; charset=utf-8",
