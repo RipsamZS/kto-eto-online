@@ -508,7 +508,7 @@ export class GameRoom {
     }
     if(this.gameId==="dots-duel"){
       if(action!=="dots-line"||s.activeId!==playerId)return {ok:false,message:"Сейчас не твой ход."};
-      const edge=String(payload.edge||"");if(s.edges.includes(edge)||!((edge[0]==="h"||edge[0]==="v")&&edge.length<=7))return {ok:false,message:"Линия недоступна."};
+      const edge=String(payload.edge||""),parts=edge.split("-"),r=Number(parts[1]),c=Number(parts[2]),valid=parts.length===3&&Number.isInteger(r)&&Number.isInteger(c)&&((parts[0]==="h"&&r>=0&&r<=4&&c>=0&&c<=3)||(parts[0]==="v"&&r>=0&&r<=3&&c>=0&&c<=4));if(!valid||s.edges.includes(edge))return {ok:false,message:"Линия недоступна."};
       s.edges.push(edge);let made=0;
       for(let r=0;r<4;r++)for(let c=0;c<4;c++){const key=r+"-"+c,need=["h-"+r+"-"+c,"h-"+(r+1)+"-"+c,"v-"+r+"-"+c,"v-"+r+"-"+(c+1)];if(!s.boxes[key]&&need.every(x=>s.edges.includes(x))){s.boxes[key]=playerId;s.scores[playerId]++;made++;}}
       if(s.edges.length>=40)finish(s.scores[playerId]===s.scores[other]?"draw":s.scores[playerId]>s.scores[other]?playerId:other);else if(!made)s.activeId=other;return {ok:true};
