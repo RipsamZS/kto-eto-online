@@ -1408,7 +1408,7 @@ export class GameRoom {
         this.pending = null;
         this.ended = false;
 
-        this.broadcast("online-start");
+        this.broadcast("online-start", { currentTurn: this.currentTurn });
         await this.sendTurn();
       } else {
         reply({
@@ -1499,12 +1499,15 @@ export class GameRoom {
       if (
         this.ended ||
         this.ready.size !== 2 ||
+        this.currentTurn !== playerId ||
         this.pending ||
         !guessId
       ) {
         reply({
           ok: false,
-          message: "Сейчас нельзя угадать персонажа. Дождись завершения текущего действия."
+          message: this.currentTurn !== playerId
+            ? "Сейчас не твой ход."
+            : "Сейчас нельзя угадать персонажа. Дождись завершения текущего действия."
         });
         return;
       }
