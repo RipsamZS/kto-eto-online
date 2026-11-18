@@ -6,111 +6,37 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Кто это?</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
-:root{color-scheme:dark;--bg:#111713;--surface:#1a241e;--surface2:#202d25;--paper:#f3f0e5;--ink:#202b24;--muted:#aab8aa;--line:#344438;--green:#a9d68b;--green2:#6f9b68;--red:#d58c7d;--gold:#e7c98c;--shadow:0 24px 70px #0005}
-*{box-sizing:border-box}
-html{min-height:100%;background:var(--bg)}
-body{margin:0;min-height:100vh;color:#edf2e9;font-family:'DM Sans',system-ui,sans-serif;background:radial-gradient(ellipse at 8% 0%,#344b3a 0,transparent 32%),radial-gradient(ellipse at 94% 90%,#26382e 0,transparent 34%),#111713}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer;transition:transform .18s,filter .18s,background .18s}
-button:disabled{opacity:.45;cursor:not-allowed}
-button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.app{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:22px 0 64px}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding:4px 0 18px;border-bottom:1px solid #ffffff18}
-.brand{display:inline-flex;align-items:center;gap:9px;color:#f2f2e7!important;font:800 14px 'Space Grotesk',sans-serif;letter-spacing:.18em;text-decoration:none}
-.brand:before{content:'◈';display:grid;place-items:center;width:34px;height:34px;border:1px solid #8cae7b66;border-radius:11px;color:var(--green);font-size:19px}
-.brand span{color:var(--green)}
-.screen{display:none;animation:screenIn .28s ease both}
-.screen.active{display:block}
-@keyframes screenIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
-.hero{position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;padding:55px clamp(22px,6vw,76px);margin:20px 0 24px;border:1px solid #c2d5b333;border-radius:28px;background:linear-gradient(105deg,#1d3025f5 0%,#263d2df0 54%,#314936dd 100%);box-shadow:var(--shadow)}
-.hero:before{content:'?';position:absolute;right:8%;top:50%;transform:translateY(-55%) rotate(9deg);font:700 clamp(180px,32vw,360px)/.8 'Space Grotesk',sans-serif;color:#d7e9c70b;text-shadow:0 0 70px #d7e9c710;pointer-events:none}
-.hero:after{content:'DETECTIVE CLUB  /  SOCIAL DEDUCTION';position:absolute;right:28px;bottom:22px;color:#d4e2cb66;font:700 9px 'Space Grotesk',sans-serif;letter-spacing:.2em}
-.hero h1{position:relative;z-index:1;margin:0 0 15px;font:700 clamp(42px,7vw,76px)/.98 'Space Grotesk',sans-serif;letter-spacing:-.065em;color:#f5f4e9}
-.hero h1 span{color:var(--green)}
-.hero p{position:relative;z-index:1;max-width:510px;margin:0;color:#c1d0bf;font-size:16px;line-height:1.7}
-.menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:900px;margin:24px auto}
-.menu-card{position:relative;overflow:hidden;min-height:148px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:23px 25px;border:1px solid #a7c39b35;border-radius:18px;background:linear-gradient(145deg,#202d24,#19231d);color:#f0f3e9;text-align:left;box-shadow:0 12px 30px #0002}
-.menu-card:after{content:'↗';position:absolute;right:22px;top:18px;color:#a9d68b88;font-size:20px}
-.menu-card .emoji{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#a9d68b18;border:1px solid #a9d68b33;font-size:22px}
-.menu-card strong{font:700 19px 'Space Grotesk',sans-serif}
-.menu-card small{max-width:320px;color:#aab8aa;font-size:13px;line-height:1.5}
-.page-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:28px 0 18px;padding-bottom:15px;border-bottom:1px solid #ffffff18}
-.page-head h2{margin:0;color:#f0f3e9;font:700 clamp(24px,4vw,34px) 'Space Grotesk',sans-serif;letter-spacing:-.04em}
-.panel,.modal{padding:23px;border:1px solid #b2c9a62b;border-radius:19px;background:linear-gradient(145deg,#202b23,#19231d);color:#edf2e9;box-shadow:0 15px 38px #0002}
-.stack{display:grid;gap:15px}
-.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.row>*{flex:1;min-width:0}
-.row .fit{flex:0 0 auto}
-.field{display:grid;gap:8px}
-.field label{color:#c6d3c2;font-size:13px;font-weight:700;letter-spacing:.02em}
-.field .muted{line-height:1.5}
-input,textarea,select{width:100%;padding:13px 15px;border:1px solid #9bb39138;border-radius:11px;background:#111a14;color:#f2f3e9;outline:none}
-input::placeholder,textarea::placeholder{color:#758477}
-input:focus,textarea:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px #a9d68b18}
-textarea{min-height:100px;resize:vertical}
-select option{background:#19231d}
-.primary,.secondary,.danger,.success,.ghost{padding:12px 17px;border-radius:11px;font-weight:750}
-.primary{border:1px solid #c1e0a077;background:linear-gradient(145deg,#b5d994,#83ad70);color:#182319;box-shadow:0 5px 0 #56784d}
-.secondary{border:1px solid #a7c39b42;background:#29382d;color:#e1ebda}
-.danger{border:1px solid #d58c7d55;background:#482b29;color:#f0c4b9}
-.success{background:#355b3e;color:#e5f3dc}
-.ghost{border:1px solid #ffffff22;background:transparent;color:#e7eee3}
-.full{width:100%}
-.muted{color:var(--muted)}
-.small{font-size:12px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
-.tab{padding:10px 15px;border:1px solid #a7c39b35;border-radius:9px;background:#1b271f;color:#b8c7b5}
-.tab.active{border-color:#a9d68b;background:#314b35;color:#e7f2dc}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
-.pack-card{min-width:0;padding:17px;border:1px solid #a7c39b30;border-radius:14px;background:#202c23;color:#eaf0e5}
-.pack-card h3{margin:0 0 8px;color:#f1f2e8;font:700 17px 'Space Grotesk',sans-serif}
-.pack-card .preview{min-height:48px;font-size:25px;line-height:1.7}
-.pack-card .actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
-.pack-card .actions button{flex:1;min-width:75px}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1px solid #a9d68b38;border-radius:99px;background:#a9d68b12;color:#cde4bc;font-size:11px;font-weight:750;letter-spacing:.03em}
-.character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:12px}
-.character-card{position:relative;min-height:145px;padding:14px 10px;border:1px solid #a8b99c44;border-radius:13px;background:linear-gradient(145deg,#f6f2e5,#e5e4d4);color:#27362b;text-align:center;font-weight:700;box-shadow:0 4px 0 #b6b9a7,0 9px 18px #0002}
-.character-card .face{display:block;margin:0 auto 9px;font-size:42px;line-height:1.2}
-.character-card img{width:70px;height:70px;object-fit:cover;border-radius:11px;display:block;margin:0 auto 8px}
-.character-card.selected{border:3px solid #80a76a;background:#e7f1df;box-shadow:0 0 0 4px #a9d68b35,0 4px 0 #7e9d70}
-.character-card.crossed{opacity:.3;filter:grayscale(1);transform:scale(.96);box-shadow:none}
-.notice{padding:13px 15px;border:1px solid #a9d68b38;border-left:4px solid var(--green);border-radius:10px;background:#a9d68b12;color:#dcebd3;line-height:1.5}
-.empty{padding:28px 16px;border:1px dashed #a7c39b50;border-radius:14px;color:#aab8aa;text-align:center}
-.upload-banner{padding:23px;border:1px solid #a9d68b45;border-radius:17px;background:linear-gradient(120deg,#2b4430,#202d24);margin-bottom:22px}
-.upload-banner h3{margin:0 0 8px;font:700 20px 'Space Grotesk',sans-serif}
-.upload-banner p{color:#b8c7b5;line-height:1.6}
-.game-layout{display:grid;grid-template-columns:1fr;gap:16px}
-.game-layout>.panel:first-of-type{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:17px 20px;border-radius:15px;background:#1b2920}
-.game-layout>.panel:first-of-type .row{display:contents!important}
-.game-layout>.panel:first-of-type>div:last-child{color:#b8c7b5}
-.game-info{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:17px 20px;border:1px solid #a9d68b35;border-radius:15px;background:linear-gradient(100deg,#273a2c,#1b2920)}
-.game-info strong{color:#eaf2e4;font:700 17px 'Space Grotesk',sans-serif}
-.game-actions{display:flex;gap:8px;flex-wrap:wrap}
-#onlineGamePanel{margin-top:0}
-#onlineGamePanel .panel{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.game-table{position:relative;overflow:hidden;padding:clamp(14px,3vw,28px);border:12px solid #533d2d;border-radius:32px;background:radial-gradient(ellipse at center,#326343 0%,#244c34 55%,#183a29 100%);box-shadow:inset 0 0 0 2px #b88c5c66,inset 0 0 70px #071d12aa,0 20px 55px #0006}
-.game-table:before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.18;background:repeating-linear-gradient(32deg,transparent 0 12px,#d2e4c4 13px,transparent 14px 28px)}
-.table-heading{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:17px;color:#dce9d5}
-.table-heading strong{font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.16em;text-transform:uppercase}
-.table-heading span{font-size:11px;color:#b7cfb4}
-#characterBoard{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:11px;padding:16px;border:1px solid #d6e7cc36;border-radius:18px;background:#0c20164a;backdrop-filter:blur(3px)}
-.table-footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:15px;color:#c3d7be;font-size:11px}
-.question-console{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
-.question-console .field{min-width:0}
-.question-console button{min-width:190px}
-.modal-backdrop{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:18px;background:#080e0ad9;backdrop-filter:blur(8px)}
-.modal-backdrop.open{display:flex;animation:screenIn .18s ease both}
-.modal{width:min(760px,100%);max-height:90vh;overflow:auto;border-color:#a9d68b55;background:linear-gradient(145deg,#26372b,#17231b);box-shadow:0 30px 90px #000a}
-.modal h2{margin:0 0 9px;color:#f0f3e9;font:700 26px 'Space Grotesk',sans-serif}
-.modal-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
-.modal-actions button{flex:1}
-.hidden{display:none!important}
-#toast{position:fixed;z-index:200;bottom:22px;left:50%;transform:translateX(-50%);display:none;max-width:calc(100% - 30px);padding:13px 19px;border:1px solid #a9d68b55;border-radius:12px;background:#26372b;color:#f0f3e9;box-shadow:0 12px 40px #0008;text-align:center}
-#toast.show{display:block}
-@media(max-width:720px){.app{width:min(100% - 24px,600px);padding-top:12px}.hero{min-height:250px;padding:34px 24px}.hero:after{right:18px;bottom:15px;font-size:8px}.menu-grid{grid-template-columns:1fr;gap:10px}.menu-card{min-height:120px;padding:18px}.game-table{border-width:7px;border-radius:22px;padding:12px}.game-layout>.panel:first-of-type{grid-template-columns:1fr}.question-console{grid-template-columns:1fr}.question-console button{width:100%;min-width:0}#characterBoard{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:10px}.character-card{min-height:128px}.page-head{margin-top:18px}.panel,.modal{padding:17px}.row>*{flex:1 1 100%}.row .fit{flex:0 0 auto}}
-@media(min-width:900px){#characterBoard{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}.game-layout{gap:18px}}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap');
+:root{color-scheme:dark;--bg:#101512;--panel:#1b241f;--panel2:#222e26;--paper:#e8e2d2;--paper2:#d7d0bd;--ink:#20261f;--green:#c0d29b;--green2:#809a66;--rust:#c47b58;--line:#455448;--muted:#9ca99c}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;color:#e9ebdf;font-family:Manrope,system-ui,sans-serif;background:radial-gradient(ellipse at 50% -20%,#3c4a37 0,transparent 48%),linear-gradient(135deg,#101512,#151d17 55%,#111713)}
+button,input,textarea,select{font:inherit}button{cursor:pointer;transition:transform .16s,filter .16s,background .16s}button:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-2px)}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.app{width:min(1160px,calc(100% - 38px));margin:auto;padding:20px 0 70px}.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 0 17px;border-bottom:1px solid #d4dec51d;margin-bottom:24px}.brand{display:flex;align-items:center;gap:10px;color:#f1eddf!important;text-decoration:none;font:700 14px Oswald,sans-serif;letter-spacing:.18em}.brand:before{content:'◈';display:grid;place-items:center;width:34px;height:34px;border:1px solid #c0d29b88;color:var(--green);font-size:20px;transform:rotate(45deg);border-radius:8px}.brand span{color:var(--green)}
+.screen{display:none;animation:appear .25s ease both}.screen.active{display:block}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.agency-masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:8px 0 13px;color:#9ba996;font:500 10px 'DM Mono',monospace;letter-spacing:.13em}.agency-status{display:flex;align-items:center;gap:8px}.agency-status i{width:7px;height:7px;border-radius:50%;background:#b9d48b;box-shadow:0 0 10px #b9d48b}
+.hero{position:relative;min-height:440px;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;overflow:hidden;border:1px solid #b6c29b44;background:linear-gradient(115deg,#e7e1d1 0%,#d7d0bd 63%,#c5c4ac 100%);color:#22291f;box-shadow:0 22px 65px #0005}
+.hero-copy{position:relative;z-index:2;padding:clamp(28px,6vw,72px)}.eyebrow{color:#82916d;font:500 10px 'DM Mono',monospace;letter-spacing:.16em;margin-bottom:14px}.hero h1{margin:0;font:700 clamp(74px,12vw,145px)/.78 Oswald,sans-serif;letter-spacing:-.04em;color:#20281f}.hero h1 em{font-style:normal;color:#71865b}.hero p{max-width:440px;margin:24px 0 26px;color:#515a4d;font-size:14px;line-height:1.8}
+.primary,.secondary,.danger,.success,.ghost{display:inline-flex;align-items:center;justify-content:center;gap:16px;min-height:45px;padding:12px 17px;border-radius:3px;font:600 11px 'DM Mono',monospace;letter-spacing:.07em}
+.primary{border:1px solid #a6b68a;background:#b8ca91;color:#1d271d;box-shadow:4px 4px 0 #536747}.primary:hover{background:#c8d8a5}.secondary{border:1px solid #75836e;background:#29352b;color:#e2e8d8}.danger{border:1px solid #9c5d4c;background:#482d27;color:#f1d2c5}.success{background:#355b3e;color:#e5f3dc}.ghost{border:1px solid #ffffff22;background:transparent;color:#e7eee3}.full{width:100%}
+.hero-cta{min-width:250px;justify-content:space-between}.hero-cta span{font-size:17px}.hero-art{position:relative;align-self:stretch;min-height:360px;display:grid;place-items:center;background:radial-gradient(circle at center,#899477 0,#69775d 35%,#465644 100%);overflow:hidden}.hero-art:before,.hero-art:after{content:'';position:absolute;width:370px;height:370px;border:1px solid #e3e5d04d;border-radius:50%}.hero-art:after{width:270px;height:270px;border-style:dashed}.orbit{position:absolute;border:1px solid #e2e8d744;border-radius:50%;transform:rotate(-30deg)}.orbit-one{width:440px;height:160px}.orbit-two{width:400px;height:120px;transform:rotate(48deg)}.silhouette{position:relative;z-index:1;width:190px;height:250px;display:grid;place-items:center;border-radius:90px 90px 18px 18px;background:linear-gradient(145deg,#26342b,#111c17);color:#d4dfbd;font:700 150px Oswald,sans-serif;box-shadow:18px 20px 35px #17221980;border:5px solid #b5c29a}.stamp{position:absolute;z-index:2;top:18%;right:12%;padding:10px 13px;border:3px double #a45e48;color:#a45e48;font:700 17px Oswald,sans-serif;text-align:center;transform:rotate(13deg)}.art-caption{position:absolute;bottom:12%;left:12%;color:#e2e8d0;font:500 10px 'DM Mono',monospace;letter-spacing:.2em}.hero-index{position:absolute;left:clamp(28px,6vw,72px);right:clamp(28px,6vw,72px);bottom:17px;display:flex;justify-content:space-between;color:#737b68;font:500 9px 'DM Mono',monospace;letter-spacing:.13em}
+.home-bottom{margin:30px 0}.section-label{display:flex;align-items:center;gap:12px;color:#c5cfb5;font:500 10px 'DM Mono',monospace;letter-spacing:.16em;margin-bottom:13px}.section-label span{color:#8ca272}.home-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.action-tile{min-height:100px;display:grid;grid-template-columns:42px 1fr 18px;align-items:center;gap:14px;padding:16px;border:1px solid #8c9b803d;background:#1b241e;color:#e9ebdf;text-align:left}.action-primary{border-color:#aabd8b;background:#273629}.tile-symbol{width:40px;height:40px;display:grid;place-items:center;border:1px solid #aabd8b66;color:var(--green);font-size:23px}.action-tile b,.action-tile small{display:block}.action-tile b{font:600 15px Oswald,sans-serif;letter-spacing:.04em}.action-tile small{margin-top:5px;color:#9eaa9b;font-size:10px;line-height:1.5}.action-tile>strong{color:var(--green)}
+.page-head{display:flex;align-items:end;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:27px 0 20px;padding-bottom:15px;border-bottom:1px solid #a8b99a36}.page-head h2{margin:0;color:#e9ebdf;font:600 clamp(28px,5vw,42px) Oswald,sans-serif;letter-spacing:.01em}.back-button{min-height:38px}
+.mode-layout{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:28px 0}.mode-card{position:relative;min-height:280px;display:flex;flex-direction:column;align-items:flex-start;padding:23px;border:1px solid #7f907b55;background:linear-gradient(145deg,#263329,#1a241e);color:#e9ebdf;text-align:left}.mode-create{background:linear-gradient(145deg,#d9d3c2,#c4c7ae);color:#242c21;border-color:#d0d3b9}.mode-no{font:500 9px 'DM Mono',monospace;letter-spacing:.14em;color:#9eae92}.mode-create .mode-no{color:#697b5e}.mode-icon{width:58px;height:58px;display:grid;place-items:center;margin:26px 0 18px;border:1px solid #aabd8b77;color:var(--green);font:400 33px Oswald}.mode-create .mode-icon{border-color:#758a62;color:#536b46}.mode-card b{font:600 24px Oswald,sans-serif}.mode-card small{margin-top:10px;color:#aeb8a8;font-size:12px;line-height:1.7}.mode-create small{color:#56604f}.mode-link{margin-top:auto;padding-top:22px;color:#c4d49f;font:500 10px 'DM Mono',monospace;letter-spacing:.12em}.mode-create .mode-link{color:#526b43}
+.panel,.modal{padding:22px;border:1px solid #a8b99a36;background:linear-gradient(145deg,#222e26,#19221d);color:#e9ebdf;box-shadow:0 14px 35px #0003;border-radius:2px}.stack{display:grid;gap:15px}.field{display:grid;gap:8px}.field label{color:#aebb9f;font:500 10px 'DM Mono',monospace;letter-spacing:.12em}
+input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;border-radius:2px;background:#111914;color:#f0eee3;outline:none}input::placeholder,textarea::placeholder{color:#738073}input:focus,textarea:focus,select:focus{border-color:#b8cb94;box-shadow:0 0 0 2px #b8cb941a}textarea{min-height:100px;resize:vertical}.muted{color:var(--muted)}.small{font-size:11px}
+.setup-layout{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:start}.setup-aside{position:sticky;top:18px}.case-file{position:relative;min-height:310px;padding:22px;background:#dcd6c4;color:#222a20;box-shadow:7px 8px 0 #060b08;border:1px solid #b5ad98}.case-file-top{font:500 9px 'DM Mono',monospace;letter-spacing:.16em}.case-file-symbol{width:100px;height:100px;display:grid;place-items:center;margin:25px auto 17px;border:2px solid #66785a;border-radius:50%;color:#607451;font:700 70px Oswald}.case-file>b{display:block;text-align:center;font:700 28px/.95 Oswald;letter-spacing:.08em}.case-file>small{display:block;margin:15px 0 0;color:#59604f;font-size:10px;line-height:1.6}.file-stamp{position:absolute;right:14px;top:68px;padding:5px 8px;border:2px solid #a45e48;color:#a45e48;font:700 10px 'DM Mono',monospace;transform:rotate(12deg)}.setup-steps{display:grid;gap:9px;margin-top:17px}.setup-steps span{display:flex;gap:14px;align-items:center;padding:11px;border-left:2px solid #485a48;color:#788778;font:500 10px 'DM Mono',monospace}.setup-steps span.active{border-color:#c0d29b;color:#d9e5c8}.setup-steps b{font:600 12px Manrope}
+.setup-form{border:1px solid #87977c40;background:#1a241e}.form-section{padding:22px;border-bottom:1px solid #87977c32}.form-heading{display:flex;gap:13px;align-items:center;margin-bottom:20px}.form-heading>span{display:grid;place-items:center;width:33px;height:33px;border:1px solid #91a67a;color:#c0d29b;font:500 11px 'DM Mono',monospace}.form-heading b,.form-heading small{display:block}.form-heading b{font:600 16px Oswald,sans-serif;letter-spacing:.05em}.form-heading small{margin-top:4px;color:#93a08f;font-size:10px}.form-section>.field+.field{margin-top:15px}.form-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}.notice{padding:13px;border-left:3px solid #b8cb94;background:#b8cb9412;color:#dce6cf;font-size:12px}.picker-button{margin-top:8px}.access-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.access-option{position:relative;display:grid;grid-template-columns:35px 1fr;align-items:center;gap:4px 10px;padding:14px;border:1px solid #87977c50;background:#131c16;cursor:pointer}.access-option input{position:absolute;right:10px;top:10px;width:auto;accent-color:#b8cb94}.access-icon{grid-row:span 2;width:34px;height:34px;display:grid;place-items:center;border:1px solid #91a67a;color:#c0d29b;font-size:19px}.access-option b{font:600 13px Oswald}.access-option small{color:#91a08f;font-size:10px}.create-case-button{min-height:58px;margin:0;border:0;border-radius:0;box-shadow:none;justify-content:space-between;padding:0 22px}.create-case-button span{font-size:18px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}.pack-card{min-width:0;padding:17px;border:1px solid #87977c40;background:#202b23;color:#e9ebdf}.pack-card h3{margin:0 0 8px;font:600 18px Oswald}.pack-card .preview{min-height:48px;font-size:25px;line-height:1.7}.pack-card .actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.pack-card .actions button{flex:1;min-width:75px}
+.menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:900px;margin:24px auto}.menu-card{min-height:130px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;padding:20px;border:1px solid #87977c44;background:#202b23;color:#e9ebdf;text-align:left}.menu-card .emoji{font-size:22px}.menu-card strong{font:600 19px Oswald}.menu-card small{color:#9eaa9b;font-size:11px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tab{padding:10px 15px;border:1px solid #87977c44;background:#1b251e;color:#aebb9f;font:500 10px 'DM Mono',monospace}.tab.active{border-color:#b8cb94;background:#334331;color:#e7f0d8}.upload-banner{padding:23px;border:1px solid #9fb38555;background:linear-gradient(120deg,#29382b,#202a22);margin-bottom:22px}.upload-banner h3{margin:0 0 8px;font:600 22px Oswald}.upload-banner p{color:#aebb9f;font-size:12px;line-height:1.6}
+.game-layout{display:grid;gap:15px}.game-info{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:15px 18px;border:1px solid #8b9b7b55;background:#222e26}.game-info strong{font:600 18px Oswald}.game-actions{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-flex;padding:7px 10px;border:1px solid #9fb38566;color:#d2e0bc;font:500 10px 'DM Mono',monospace}
+.detective-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px}.secret-dossier{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #9fb38555;background:#29362a}.dossier-icon{width:43px;height:43px;display:grid;place-items:center;border:1px solid #aabd8b;color:#c0d29b;font-size:23px}.secret-dossier>div{flex:1;min-width:0}.secret-dossier small,.secret-dossier strong{display:block}.secret-dossier small{color:#aebb9f;font:500 9px 'DM Mono',monospace;letter-spacing:.1em}.secret-dossier strong{margin-top:5px;font:600 14px Oswald}.board-instructions{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:15px 18px;border:1px dashed #84947b66;background:#18221b}.board-instructions b{color:#c0d29b;font:500 10px 'DM Mono',monospace;letter-spacing:.12em}.board-instructions span{color:#aebb9f;font-size:11px;line-height:1.5}
+.game-table{position:relative;overflow:hidden;padding:clamp(14px,3vw,25px);border:10px solid #594735;background:radial-gradient(ellipse at center,#426447 0,#2c5036 57%,#1e3828 100%);box-shadow:inset 0 0 0 2px #c2a07877,inset 0 0 65px #07180e99,0 20px 50px #0006}.game-table:before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.15;background:repeating-linear-gradient(35deg,transparent 0 17px,#e3e6cb 18px,transparent 19px 37px)}.table-heading{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;color:#e5ead8}.table-heading strong,.table-heading span{display:block}.table-heading strong{margin-top:4px;font:600 17px Oswald;letter-spacing:.08em}.table-overline,.table-counter{font:500 9px 'DM Mono',monospace;letter-spacing:.14em;color:#b9cbaa}.table-counter{color:#d6d7b8}
+#characterBoard{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:11px;padding:15px;border:1px solid #e2e7cf55;background:#14281c88}.character-card{position:relative;min-height:142px;padding:12px 9px;border:1px solid #a69c80;background:linear-gradient(145deg,#f0ead9,#d9d2bf);color:#283027;text-align:center;box-shadow:3px 4px 0 #766a52,0 7px 13px #0003;font-weight:700}.character-card:before{content:'FILE / 0';position:absolute;left:8px;top:6px;color:#879078;font:500 7px 'DM Mono',monospace;letter-spacing:.08em}.character-card .face{display:block;margin:13px auto 8px;font-size:42px;line-height:1.2}.character-card img{width:72px;height:72px;object-fit:cover;border:2px solid #a9a28e;display:block;margin:12px auto 8px}.character-card>div{font:600 12px Oswald;letter-spacing:.03em}.character-card.selected{border:3px solid #a9c37d;background:#e8efd9;box-shadow:0 0 0 3px #b8cb9466,3px 4px 0 #536747}.character-card.crossed{opacity:.28;filter:grayscale(1);transform:rotate(-2deg) scale(.96);box-shadow:none}.table-footer{position:relative;z-index:1;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;color:#d1dfc6;font:500 8px 'DM Mono',monospace;letter-spacing:.1em}
+.question-console{display:grid;grid-template-columns:240px 1fr;gap:15px;padding:17px;border:1px solid #9fb38555;background:#202c23}.question-label{display:flex;flex-direction:column;gap:5px;justify-content:center}.question-label span{color:#a9c28a;font:500 9px 'DM Mono',monospace;letter-spacing:.13em}.question-label b{font:600 19px Oswald}.question-label small{color:#9eaa9b;font-size:10px;line-height:1.5}.question-input-wrap{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.question-input-wrap input{min-width:0}.question-input-wrap button{height:100%}.question-input-wrap #questionFeedback{grid-column:1/-1}
+.character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px}.empty{padding:28px 16px;border:1px dashed #87977c66;color:#9eaa9b;text-align:center}
+.modal-backdrop{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:18px;background:#070c09df;backdrop-filter:blur(7px)}.modal-backdrop.open{display:flex;animation:appear .18s ease both}.modal{width:min(760px,100%);max-height:90vh;overflow:auto;border-color:#aabd8b88;background:linear-gradient(145deg,#26352a,#17221b);box-shadow:0 30px 90px #000b}.modal h2{margin:0 0 9px;font:600 28px Oswald}.modal-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.modal-actions button{flex:1}
+#toast{position:fixed;z-index:200;bottom:22px;left:50%;transform:translateX(-50%);display:none;max-width:calc(100% - 30px);padding:13px 19px;border:1px solid #aabd8b88;background:#27362a;color:#f0f0e5;box-shadow:0 12px 40px #0008;text-align:center;font-size:12px}#toast.show{display:block}.hidden{display:none!important}
+@media(max-width:800px){.hero{grid-template-columns:1fr;min-height:0}.hero-copy{padding:35px 28px 25px}.hero-art{min-height:280px}.hero-index{bottom:12px}.mode-layout{grid-template-columns:1fr}.mode-card{min-height:215px}.setup-layout{grid-template-columns:1fr}.setup-aside{position:static;display:grid;grid-template-columns:1fr 1fr;gap:12px}.case-file{min-height:230px}.case-file-symbol{width:70px;height:70px;font-size:48px;margin:15px auto 10px}.case-file>b{font-size:21px}.setup-steps{align-content:center;margin:0}.home-actions{grid-template-columns:1fr}.detective-toolbar{grid-template-columns:1fr}}
+@media(max-width:560px){.app{width:calc(100% - 22px);padding-top:12px}.agency-masthead{font-size:8px}.hero h1{font-size:83px}.hero-art{min-height:230px}.silhouette{width:135px;height:175px;font-size:110px}.hero-art:before{width:270px;height:270px}.hero-art:after{width:200px;height:200px}.form-section{padding:16px}.form-pair{grid-template-columns:1fr}.setup-aside{grid-template-columns:1fr}.case-file{min-height:205px}.case-file-symbol{margin:12px auto}.access-options{grid-template-columns:1fr}.secret-dossier{flex-wrap:wrap}.secret-dossier .primary{flex:1}.game-table{border-width:6px;padding:10px}.question-console{grid-template-columns:1fr}.question-input-wrap{grid-template-columns:1fr}.question-input-wrap button{min-height:45px}#characterBoard{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:9px}.character-card{min-height:127px}.page-head{align-items:start}.page-head h2{font-size:31px}.menu-grid{grid-template-columns:1fr}.row>*{flex:1 1 100%}}
 
 </style>
 </head>
@@ -122,50 +48,29 @@ select option{background:#19231d}
 
   <!-- ГЛАВНОЕ МЕНЮ -->
   <section id="homeScreen" class="screen active">
+    <div class="agency-masthead"><span class="agency-kicker">THE UNKNOWN FILES · CASE NO. 001</span><span class="agency-status"><i></i> DETECTIVE NETWORK ONLINE</span></div>
     <div class="hero">
-      <h1>Кто <span>это?</span></h1>
-      <p>Задавай вопросы, исключай персонажей и угадывай первым!</p>
+      <div class="hero-copy"><div class="eyebrow">ДЕЛО № 001 / ЛИЧНОСТЬ НЕ УСТАНОВЛЕНА</div><h1>КТО<br><em>ЭТО?</em></h1><p>Перед тобой десятки подозреваемых. Задавай вопросы, собирай улики и вычисли тайную личность раньше соперника.</p><button class="primary hero-cta" onclick="openPlayMenu()">ОТКРЫТЬ НОВОЕ ДЕЛО <span>↗</span></button></div>
+      <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="silhouette">?</div><div class="stamp">TOP<br>SECRET</div><div class="art-caption">SUBJECT<br>UNKNOWN</div></div>
+      <div class="hero-index">KAZO / DETECTIVE CLUB <span>EST. 2026</span></div>
     </div>
-    <div class="menu-grid">
-      <button class="menu-card" onclick="openPlayMenu()">
-        <span class="emoji">🎮</span>
-        <strong>Играть</strong>
-        <small>Выбери режим игры</small>
-      </button>
-      <button class="menu-card" onclick="openPacksMenu()">
-        <span class="emoji">🗂️</span>
-        <strong>Паки</strong>
-        <small>Скачивай, создавай и выбирай наборы</small>
-      </button>
-    </div>
+    <div class="home-bottom"><div class="section-label"><span>01</span> ДОСТУП К ДЕЛАМ</div><div class="home-actions">
+      <button class="action-tile action-primary" onclick="openPlayMenu()"><span class="tile-symbol">＋</span><span><b>Новая игра</b><small>Создать комнату или подключиться</small></span><strong>↗</strong></button>
+      <button class="action-tile" onclick="openPublicRooms()"><span class="tile-symbol">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><strong>↗</strong></button>
+      <button class="action-tile" onclick="openPacksMenu()"><span class="tile-symbol">▤</span><span><b>Архив персонажей</b><small>Коллекции и редактор паков</small></span><strong>↗</strong></button>
+    </div></div>
   </section>
 
   <section id="playScreen" class="screen">
-    <div class="page-head">
-      <h2>Выбери режим</h2>
-      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
-    </div>
-    <div class="menu-grid">
-      <button class="menu-card" onclick="showBotNotice()">
-        <span class="emoji">🤖</span><strong>Играть с ботом</strong>
-        <small>Создай тренировочную комнату с пассивным соперником</small>
-      </button>
-      <button class="menu-card" onclick="openJoinPicker('private')">
-        <span class="emoji">🔒</span><strong>Закрытая игра</strong>
-        <small>Войти в комнату по коду</small>
-      </button>
-      <button class="menu-card" onclick="openPublicRooms()">
-        <span class="emoji">🌍</span><strong>Публичная игра</strong>
-        <small>Найти открытую комнату</small>
-      </button>
-      <button class="menu-card" onclick="openRoomSettings('public')">
-        <span class="emoji">➕</span><strong>Создать комнату</strong>
-        <small>Настроить собственную игру</small>
-      </button>
+    <div class="page-head"><div><div class="eyebrow">DETECTIVE CLUB / MULTIPLAYER</div><h2>Выбери способ игры</h2></div><button class="secondary back-button" onclick="showScreen('homeScreen')">← В архив</button></div>
+    <div class="mode-layout">
+      <button class="mode-card mode-create" onclick="openRoomSettings('private')"><span class="mode-no">01 / HOST</span><span class="mode-icon">＋</span><b>Создать комнату</b><small>Собери своё дело, выбери набор персонажей и пригласи соперника по коду.</small><span class="mode-link">СОЗДАТЬ ДЕЛО ↗</span></button>
+      <button class="mode-card" onclick="openJoinPicker('private')"><span class="mode-no">02 / JOIN</span><span class="mode-icon">⌁</span><b>Войти по коду</b><small>Уже получил приглашение? Введи код комнаты и присоединяйся к расследованию.</small><span class="mode-link">ВВЕСТИ КОД ↗</span></button>
+      <button class="mode-card" onclick="openPublicRooms()"><span class="mode-no">03 / OPEN FILES</span><span class="mode-icon">◎</span><b>Публичные комнаты</b><small>Найди открытое дело и сыграй с другим детективом.</small><span class="mode-link">НАЙТИ ИГРУ ↗</span></button>
     </div>
   </section>
 
-  <!-- МЕНЮ ПАКОВ -->
+  <!-- МЕНЮ ПАКОВ -->  <!-- МЕНЮ ПАКОВ -->
   <section id="packsScreen" class="screen">
     <div class="page-head">
       <h2>Паки</h2>
@@ -260,48 +165,22 @@ select option{background:#19231d}
   </section>
 
   <section id="roomSettingsScreen" class="screen">
-    <div class="page-head">
-      <h2>Настройки комнаты</h2>
-      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
-    </div>
-    <div class="panel stack">
-      <div class="field">
-        <label for="roomName">Название комнаты</label>
-        <input id="roomName" maxlength="40" placeholder="Например, Наша игра">
+    <div class="page-head"><div><div class="eyebrow">NEW CASE / ROOM CONFIGURATION</div><h2>Оформление дела</h2></div><button class="secondary back-button" onclick="showScreen('playScreen')">← Назад</button></div>
+    <div class="setup-layout">
+      <aside class="setup-aside"><div class="case-file"><span class="case-file-top">KAZO / CASE FILE</span><div class="case-file-symbol">?</div><b>ДЕЛО<br>ОТКРЫТО</b><small>Собери комнату для дуэли детективов. После создания передай сопернику код доступа.</small><div class="file-stamp">CONFIDENTIAL</div></div><div class="setup-steps"><span class="active">01 <b>Параметры</b></span><span>02 <b>Персонажи</b></span><span>03 <b>Приглашение</b></span></div></aside>
+      <div class="setup-form">
+        <div class="form-section"><div class="form-heading"><span>01</span><div><b>Идентификация комнаты</b><small>Как будет выглядеть твоё игровое дело</small></div></div>
+          <div class="field"><label for="roomName">НАЗВАНИЕ ДЕЛА</label><input id="roomName" maxlength="40" placeholder="Например, Тайна старого особняка"></div>
+          <div class="field"><label for="roomCode">КОД ДОСТУПА</label><input id="roomCode" maxlength="16" placeholder="MYSTERY-7" autocomplete="off"><span class="muted small">3–16 символов: латиница, цифры, дефис или подчёркивание.</span></div>
+        </div>
+        <div class="form-section"><div class="form-heading"><span>02</span><div><b>Материалы расследования</b><small>Выбери набор и размер игрового стола</small></div></div>
+          <div class="field"><label>АРХИВ ПЕРСОНАЖЕЙ</label><div id="selectedRoomPack" class="notice">Пак не выбран</div><button class="secondary picker-button" onclick="openRoomPackPicker()">▤ Выбрать коллекцию</button></div>
+          <div class="form-pair"><div class="field"><label for="roomCardCount">КАРТОЧЕК НА СТОЛЕ</label><select id="roomCardCount"><option value="20">20 карточек</option><option value="30">30 карточек</option><option value="40">40 карточек</option><option value="50">50 карточек</option><option value="60">60 карточек</option></select></div>
+          <div class="field"><label for="roomTimer">ВРЕМЯ НА ВОПРОС</label><select id="roomTimer"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="0">Без ограничения</option></select></div></div>
+        </div>
+        <div class="form-section"><div class="form-heading"><span>03</span><div><b>Режим доступа</b><small>Кто сможет найти твою комнату</small></div></div><div class="access-options"><label class="access-option"><input type="radio" name="roomAccessChoice" value="private" checked onchange="document.getElementById('roomAccess').value=this.value"><span class="access-icon">▣</span><b>По приглашению</b><small>Только по коду</small></label><label class="access-option"><input type="radio" name="roomAccessChoice" value="public" onchange="document.getElementById('roomAccess').value=this.value"><span class="access-icon">◎</span><b>Открытая</b><small>В общем списке</small></label></div><select id="roomAccess" class="hidden"><option value="private">Закрытая</option><option value="public">Открытая</option></select></div>
+        <button class="primary full create-case-button" onclick="createConfiguredRoom()">СОЗДАТЬ ИГРОВОЕ ДЕЛО <span>↗</span></button>
       </div>
-      <div class="field">
-        <label for="roomCode">Код комнаты — придумай сам</label>
-        <input id="roomCode" maxlength="16" placeholder="Например, FRIENDS7" autocomplete="off">
-        <span class="muted small">От 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.</span>
-      </div>
-      <div class="field">
-        <label>Пак персонажей</label>
-        <div id="selectedRoomPack" class="notice">Пак не выбран</div>
-        <button class="secondary" onclick="openRoomPackPicker()">Выбрать пак</button>
-      </div>
-      <div class="field">
-        <label for="roomCardCount">Количество карточек</label>
-        <select id="roomCardCount">
-          <option value="20">20 карточек</option><option value="30">30 карточек</option>
-          <option value="40">40 карточек</option><option value="50">50 карточек</option>
-          <option value="60">60 карточек</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="roomTimer">Время на вопрос</label>
-        <select id="roomTimer">
-          <option value="15">15 секунд</option><option value="30">30 секунд</option>
-          <option value="45">45 секунд</option><option value="60" selected>60 секунд</option>
-          <option value="90">90 секунд</option><option value="0">Без ограничения</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="roomAccess">Тип комнаты</label>
-        <select id="roomAccess">
-          <option value="private">Закрытая</option><option value="public">Открытая</option>
-        </select>
-      </div>
-      <button class="primary full" onclick="createConfiguredRoom()">Создать комнату</button>
     </div>
   </section>
 
@@ -331,36 +210,18 @@ select option{background:#19231d}
   </section>
 
   <section id="gameScreen" class="screen">
-    <div class="page-head">
-      <div><div class="small muted" style="letter-spacing:.18em;font-weight:800">DETECTIVE TABLE / LIVE MATCH</div><h2 id="gameTitle">Игра</h2></div>
-      <button class="secondary" onclick="returnToMenu()">← Выйти из игры</button>
-    </div>
+    <div class="page-head"><div><div class="eyebrow">CASE IN PROGRESS / DETECTIVE DUEL</div><h2 id="gameTitle">Дело № 001</h2></div><button class="secondary back-button" onclick="returnToMenu()">Закрыть дело ×</button></div>
     <div class="game-layout">
-      <div class="game-info">
-        <div><strong id="turnStatus">Подготовка игры</strong><div id="gameSubtitle" class="muted small"></div></div>
-        <div class="game-actions"><span id="timerDisplay" class="badge">Время: —</span><span id="cardCountDisplay" class="badge">Карточек: —</span></div>
-      </div>
+      <div class="game-info"><div><strong id="turnStatus">Подготовка расследования</strong><div id="gameSubtitle" class="muted small"></div></div><div class="game-actions"><span id="timerDisplay" class="badge">Время: —</span><span id="cardCountDisplay" class="badge">Карточек: —</span></div></div>
       <div id="onlineGamePanel"></div>
-      <div class="panel">
-        <div class="row" style="margin-bottom:12px">
-          <strong>ТВОЯ СЕКРЕТНАЯ ЛИЧНОСТЬ</strong>
-          <span id="secretCharacter" class="muted">Ещё не выбран</span>
-          <button id="chooseSecretButton" class="primary fit" onclick="openPicker()">Выбрать персонажа</button>
-        </div>
-        <div class="muted small">Отмечай карточки, которые уже исключены. Нажми правой кнопкой или удерживай карточку, чтобы сделать предположение.</div>
-      </div>
-      <div class="game-table">
-        <div class="table-heading"><strong>Досье подозреваемых</strong><span>ОТМЕТЬ • СРАВНИ • УГАДАЙ</span></div>
-        <div id="characterBoard" class="character-grid"></div>
-        <div class="table-footer"><span>◈ ИГРОВОЙ СТОЛ</span><span>Нажми на карточку, чтобы исключить её</span></div>
-      </div>
-      <div class="panel question-console">
-        <div class="field"><label for="questionInput">ЗАДАЙ ВОПРОС СОПЕРНИКУ</label><input id="questionInput" maxlength="180" placeholder="Например: У персонажа есть крылья?"><div id="questionFeedback" class="muted small"></div></div>
-        <button class="primary" onclick="sendLocalQuestion()">Отправить вопрос ↗</button>
-      </div>
+      <div class="detective-toolbar"><div class="secret-dossier"><span class="dossier-icon">◈</span><div><small>ТВОЯ СЕКРЕТНАЯ ЛИЧНОСТЬ</small><strong id="secretCharacter">Ещё не выбрана</strong></div><button id="chooseSecretButton" class="primary fit" onclick="openPicker()">Выбрать</button></div><div class="board-instructions"><b>АРХИВ ПОДОЗРЕВАЕМЫХ</b><span>Отмечай исключённых персонажей. Удерживай карточку, чтобы предположить ответ.</span></div></div>
+      <div class="game-table"><div class="table-heading"><div><span class="table-overline">EVIDENCE BOARD / 01</span><strong>ДОСЬЕ ПОДОЗРЕВАЕМЫХ</strong></div><span class="table-counter">CASE MATERIALS</span></div><div id="characterBoard" class="character-grid"></div><div class="table-footer"><span>◈ KAZO DETECTIVE CLUB</span><span>ЛЕВОЕ НАЖАТИЕ — ИСКЛЮЧИТЬ / ВЕРНУТЬ</span></div></div>
+      <div class="question-console"><div class="question-label"><span>02 / INTERROGATION</span><b>ТВОЙ ВОПРОС</b><small>Сформулируй вопрос, который поможет сузить круг подозреваемых.</small></div><div class="question-input-wrap"><input id="questionInput" maxlength="180" placeholder="Например: У моего персонажа есть крылья?"><button class="primary" onclick="sendLocalQuestion()">ОТПРАВИТЬ ↗</button><div id="questionFeedback" class="muted small"></div></div></div>
     </div>
   </section>
 </div>
+
+<div id="pickerModal"</div>
 
 <div id="pickerModal" class="modal-backdrop">
   <div class="modal">
@@ -471,7 +332,7 @@ function toast(message){
   clearTimeout(window.toastTimer);
   window.toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
-function showBotNotice(){openRoomSettings('private');autoAddTestBot=true;toast('Выбери пак персонажей и создай комнату — тестовый соперник добавится автоматически.')}
+
 
 /* -------------------------------------------------------
    ГЛАВНОЕ МЕНЮ И ПАКИ
@@ -927,11 +788,12 @@ function openPackSelectionModal(onChoose){
 ------------------------------------------------------- */
 
 function openRoomSettings(access='private'){
-  autoAddTestBot=false;roomAccessDefault=access;selectedRoomPack=null;
+  roomAccessDefault=access;selectedRoomPack=null;
   document.getElementById('roomName').value='';
   document.getElementById('roomCode').value='';
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
   document.getElementById('roomAccess').value=access;
+  const accessChoice=document.querySelector('input[name="roomAccessChoice"][value="'+access+'"]');if(accessChoice)accessChoice.checked=true;
   document.getElementById('roomCardCount').value='20';
   document.getElementById('roomTimer').value='60';
   Array.from(document.getElementById('roomCardCount').options).forEach(o=>o.disabled=false);
@@ -959,14 +821,9 @@ async function createConfiguredRoom(){
   activeRoomSettings=settings;
   try{
     await window.onlineGame.createRoom(pack,settings);
-    if(autoAddTestBot){
-      const botResult=await window.onlineGame.sendGameAction('test-bots-add',{count:1});
-      if(!botResult.ok)throw new Error(botResult.message||'Не удалось добавить тестового соперника.');
-      autoAddTestBot=false;
-    }
     currentGameMode='online';toast('Комната создана.');
     startGameFromCharacters(pack.characters,pack.name,'online');
-  }catch(error){autoAddTestBot=false;toast(error.message||'Не удалось создать комнату.')}
+  }catch(error){toast(error.message||'Не удалось создать комнату.')}
 }
 function openJoinPicker(type='private'){
   showScreen('joinScreen');document.getElementById('joinCode').value='';
@@ -1027,8 +884,7 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
   document.getElementById('questionFeedback').textContent='';
   const onlinePanel=document.getElementById('onlineGamePanel');
   onlinePanel.classList.toggle('hidden',mode!=='online');
-  onlinePanel.innerHTML=mode==='online'&&window.onlineGame?.isRoomHost?.()?'<div class="panel row" style="justify-content:space-between;gap:12px"><span class="muted small">Тестовый режим</span><button class="secondary fit" id="addWhoIsItBot">🤖 Добавить тестового соперника</button></div>':'';
-  document.getElementById('addWhoIsItBot')?.addEventListener('click',async()=>{const result=await window.onlineGame.sendGameAction('test-bots-add',{count:1});if(!result.ok)toast(result.message||'Не удалось добавить бота.');else toast('Тестовый соперник добавлен.');});
+  onlinePanel.innerHTML='';
   updateCharacterButton();renderGame();showScreen('gameScreen');
   if(mode==='online'){
     if(window.onlineGame?.canChooseCharacter?.())openPicker();
