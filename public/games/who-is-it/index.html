@@ -936,6 +936,7 @@ async function openPublicRooms(){
 ------------------------------------------------------- */
 
 function startGameFromCharacters(characters,title='Игра',mode='local'){
+  currentImagePackContext=normalizeImageTitle(title||'default');
   if(!Array.isArray(characters)||characters.length<2){toast('Для игры нужно минимум 2 персонажа.');return}
   currentCharacters=JSON.parse(JSON.stringify(characters));
   currentGameMode=mode;secretCharacter=null;pickerSelection=null;pendingGuess=null;gameCrossed=new Set();
@@ -956,57 +957,103 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
   }else openPicker();
 }
 
+let currentImagePackContext='default';
 const fileImageCache=new Map();
 const fileImageObserver=typeof IntersectionObserver!=='undefined'?new IntersectionObserver(entries=>{
   entries.forEach(entry=>{if(entry.isIntersecting){fileImageObserver.unobserve(entry.target);findFileCardImage(entry.target)}});
 },{rootMargin:'240px'}):null;
 function normalizeImageTitle(value){
-  return String(value||'').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/[^a-zа-я0-9]+/gi,' ').trim().replace(/\\s+/g,' ');
+  return String(value||'').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/[^a-zа-я0-9]+/gi,' ').trim().replace(/\s+/g,' ');
 }
 function imageTitleMatch(cardName,pageTitle){
   const a=normalizeImageTitle(cardName),b=normalizeImageTitle(pageTitle);
   if(!a||!b)return false;
-  if(a===b)return true;
-  const aa=new Set(a.split(' ')),bb=new Set(b.split(' '));
-  const overlap=[...aa].filter(token=>bb.has(token)).length;
-  return overlap/Math.max(aa.size,bb.size)>=.7;
+  const aa=a.split(' ').filter(x=>x.length>1),bb=new Set(b.split(' '));
+  return aa.length>0&&aa.every(token=>bb.has(token));
+}
+const imageSearchAliases={
+  'сфинкс':'Большой сфинкс Гизы',
+  'пирамиды гизы':'Пирамиды Гизы',
+  'эйфелева башня':'Эйфелева башня Париж',
+  'статуя свободы':'Статуя Свободы Нью-Йорк',
+  'слизень':'slime',
+  'светящийся слизень':'glow squid slime',
+  'крипер':'creeper',
+  'эндермен':'enderman',
+  'зомби':'zombie',
+  'скелет':'skeleton',
+  'паук':'spider',
+  'железный голем':'iron golem',
+  'снежный голем':'snow golem',
+  'зоглин':'zoglin',
+  'хоглин':'hoglin',
+  'зомбифицированный пиглин':'zombified piglin',
+  'пиглин':'piglin',
+  'гаст':'ghast',
+  'ифрит':'blaze',
+  'шалкер':'shulker',
+  'ведьма':'witch',
+  'древний страж':'elder guardian',
+  'страж':'guardian',
+  'аксолотль':'axolotl',
+  'сельчанин':'villager',
+  'странствующий торговец':'wandering trader',
+  'грибная корова':'mooshroom',
+  'светящийся спрут':'glow squid',
+  'спрут':'squid'
+};
+function getImageSearchTerms(name,pack){
+  const key=normalizeImageTitle(name);
+  const alias=imageSearchAliases[key]||name;
+  if(normalizeImageTitle(pack).includes('minecraft'))return 'Minecraft '+alias;
+  if(key==='сфинкс')return 'Great Sphinx of Giza';
+  return alias;
 }
 function cacheAndApplyCardImage(img,src,key){
   if(!src)return false;
   fileImageCache.set(key,src);try{localStorage.setItem(key,src)}catch(e){}
   applyFileCardImage(img,src);return true;
 }
-function findFileCardImage(img){
-  const name=img.dataset.imageName||'',key='kazo-classified-image-v3:'+normalizeImageTitle(name);
+async function findFileCardImage(img){
+  const name=img.dataset.imageName||'';
+  const pack=currentImagePackContext||'default';
+  const key='kazo-classified-image-v4:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
-  const wiki='https://ru.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent('"'+name.trim()+'"')+'&gsrnamespace=0&gsrlimit=8&prop=pageimages&piprop=thumbnail&pithumbsize=1200&format=json&origin=*';
-  fetch(wiki).then(r=>{if(!r.ok)throw Error('Wikipedia lookup failed');return r.json()}).then(data=>{
-    const pages=Object.values(data.query?.pages||{}).filter(page=>page.thumbnail?.source&&imageTitleMatch(name,page.title));
-    pages.sort((a,b)=>Number(normalizeImageTitle(b.title)===normalizeImageTitle(name))-Number(normalizeImageTitle(a.title)===normalizeImageTitle(name)));
-    if(pages[0]?.thumbnail?.source){cacheAndApplyCardImage(img,pages[0].thumbnail.source,key);return}
-    const commons='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(name.trim())+'&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
-    return fetch(commons).then(r=>{if(!r.ok)throw Error('Commons lookup failed');return r.json()}).then(result=>{
-      const files=Object.values(result.query?.pages||{}).filter(page=>{
-        const title=page.title.replace(/^File:/i,'').split('.').slice(0,-1).join('.');
-        return page.imageinfo?.[0]?.thumburl&&imageTitleMatch(name,title);
-      });
-      if(files.length){
-        files.sort((a,b)=>{
-          const ta=normalizeImageTitle(a.title.replace(/^File:/i,'').split('.').slice(0,-1).join('.'));
-          const tb=normalizeImageTitle(b.title.replace(/^File:/i,'').split('.').slice(0,-1).join('.'));
-          return Number(tb===normalizeImageTitle(name))-Number(ta===normalizeImageTitle(name));
-        });
-        cacheAndApplyCardImage(img,files[0].imageinfo[0].thumburl,key);
-      }
+  const query=getImageSearchTerms(name,pack);
+  const minecraft=pack.includes('minecraft');
+  try{
+    if(!minecraft){
+      const titles=encodeURIComponent(query);
+      const exactUrl='https://ru.wikipedia.org/w/api.php?action=query&titles='+titles+'&prop=pageimages&piprop=thumbnail&pithumbsize=1200&format=json&origin=*';
+      const exact=await fetch(exactUrl).then(r=>{if(!r.ok)throw Error('Wiki lookup failed');return r.json()});
+      const exactPage=Object.values(exact.query?.pages||{}).find(p=>p.thumbnail?.source&&imageTitleMatch(name,p.title));
+      if(exactPage?.thumbnail?.source){cacheAndApplyCardImage(img,exactPage.thumbnail.source,key);return}
+    }
+    const search=query;
+    const commons='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent('"'+search+'"')+'&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
+    const result=await fetch(commons).then(r=>{if(!r.ok)throw Error('Commons lookup failed');return r.json()});
+    const files=Object.values(result.query?.pages||{}).filter(page=>{
+      const title=page.title.replace(/^File:/i,'').replace(/\.[^.]+$/,'');
+      const normalized=normalizeImageTitle(title);
+      if(!page.imageinfo?.[0]?.thumburl)return false;
+      if(minecraft)return normalized.includes('minecraft')&&normalized.includes(normalizeImageTitle(query.replace(/^Minecraft\s+/i,'')));
+      return imageTitleMatch(name,title)||imageTitleMatch(query,title);
     });
-  }).catch(()=>{});
+    files.sort((a,b)=>{
+      const ta=normalizeImageTitle(a.title.replace(/^File:/i,'').replace(/\.[^.]+$/,''));
+      const tb=normalizeImageTitle(b.title.replace(/^File:/i,'').replace(/\.[^.]+$/,''));
+      return Number(tb===normalizeImageTitle(query))-Number(ta===normalizeImageTitle(query));
+    });
+    if(files[0]?.imageinfo?.[0]?.thumburl)cacheAndApplyCardImage(img,files[0].imageinfo[0].thumburl,key);
+  }catch(error){console.warn('Card image lookup failed:',name,error)}
 }
 function applyFileCardImage(img,src){
   if(!img.isConnected)return;
-  img.onload=()=>img.classList.add('loaded');
+  img.onload=()=>{img.classList.add('loaded');const zoom=img.parentElement?.querySelector('.card-zoom');if(zoom)zoom.disabled=false};
   img.onerror=()=>{img.remove();const zoom=img.parentElement?.querySelector('.card-zoom');if(zoom)zoom.disabled=true};
   img.src=src;
+  if(img.complete&&img.naturalWidth>0){img.classList.add('loaded');const zoom=img.parentElement?.querySelector('.card-zoom');if(zoom)zoom.disabled=false}
 }
 function observeFileCardImage(img){if(fileImageObserver)fileImageObserver.observe(img);else findFileCardImage(img)}
 function openCharacterImage(src,name){
@@ -1034,7 +1081,7 @@ function renderGame(){
       photo=document.createElement('img');photo.className='file-card-photo';photo.alt=character.name;photo.dataset.imageName=character.name;photo.loading='lazy';photo.decoding='async';card.appendChild(photo);observeFileCardImage(photo);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
-    const zoom=document.createElement('button');zoom.type='button';zoom.className='card-zoom';zoom.textContent='🔍';zoom.title='Увеличить изображение';zoom.setAttribute('aria-label','Увеличить: '+character.name);zoom.disabled=!character.image;zoom.onclick=event=>{event.stopPropagation();if(photo?.classList.contains('loaded')||character.image)openCharacterImage(photo.currentSrc||photo.src,character.name)};card.appendChild(zoom);
+    const zoom=document.createElement('button');zoom.type='button';zoom.className='card-zoom';zoom.textContent='🔍';zoom.title='Увеличить изображение';zoom.setAttribute('aria-label','Увеличить: '+character.name);zoom.disabled=!character.image;zoom.onclick=event=>{event.stopPropagation();if(photo?.classList.contains('loaded')&&photo.src)openCharacterImage(photo.currentSrc||photo.src,character.name)};card.appendChild(zoom);
     const toggle=()=>toggleCrossed(character.id);
     card.addEventListener('click',toggle);
     card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
