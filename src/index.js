@@ -1499,13 +1499,12 @@ export class GameRoom {
       if (
         this.ended ||
         this.ready.size !== 2 ||
-        this.currentTurn !== playerId ||
         this.pending ||
         !guessId
       ) {
         reply({
           ok: false,
-          message: "Сейчас нельзя угадывать."
+          message: "Сейчас нельзя угадать персонажа. Дождись завершения текущего действия."
         });
         return;
       }
