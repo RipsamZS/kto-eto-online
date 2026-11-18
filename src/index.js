@@ -1675,6 +1675,6 @@ export default {
       return directory.fetch(request);
     }
 
-    return env.ASSETS.fetch(request);
+    return serveStatic(request, env);
   }
 };
