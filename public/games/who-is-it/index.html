@@ -47,7 +47,7 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 .character-card{position:relative;display:block;width:100%;min-height:0;aspect-ratio:4/5;padding:0;overflow:hidden;border:2px solid #a69c80;border-radius:10px;background:#202820;color:#fff;text-align:center;box-shadow:3px 4px 0 #766a52,0 7px 13px #0003;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
 .character-card:hover{transform:translateY(-3px);box-shadow:5px 9px 20px #0005}
 .character-card:before{content:'FILE / 0';position:absolute;z-index:3;left:9px;top:8px;padding:4px 6px;border-radius:4px;background:#17251dcc;color:#e3e8d6;font:500 8px 'DM Mono',monospace;letter-spacing:.08em}
-.character-card .file-card-photo,.character-card>img:not(.file-card-photo){position:absolute;inset:0;width:100%!important;height:100%!important;min-width:100%;min-height:100%;margin:0!important;display:block;object-fit:cover!important;object-position:center!important;border:0!important;border-radius:0!important;background:#202820;opacity:0;transition:opacity .25s ease,filter .28s ease;cursor:default}
+.character-card .file-card-photo,.character-card>img:not(.file-card-photo){position:absolute;inset:0;width:100%!important;height:100%!important;min-width:100%;min-height:100%;margin:0!important;display:block;object-fit:contain!important;object-position:center center!important;padding:10px!important;box-sizing:border-box;background:radial-gradient(ellipse at 50% 42%,#52634a 0%,#29372c 58%,#17231d 100%);border:0!important;border-radius:0!important;opacity:0;transition:opacity .25s ease,filter .28s ease;cursor:default}
 .character-card .file-card-photo.loaded{opacity:1}
 .character-card .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;margin:0;font-size:clamp(56px,8vw,92px);line-height:1}
 .character-card>div:not(.card-zoom){position:absolute;z-index:3;left:0;right:0;bottom:0;min-height:0;margin:0;padding:25px 10px 10px;display:flex;align-items:end;justify-content:center;background:linear-gradient(transparent,#111b15ed);color:#fff;font:700 15px Oswald,sans-serif;letter-spacing:.025em;text-shadow:0 1px 5px #000}
@@ -1017,36 +1017,26 @@ function cacheAndApplyCardImage(img,src,key){
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v4:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v5:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
-  const query=getImageSearchTerms(name,pack);
+  const terms=getImageSearchTerms(name,pack);
   const minecraft=pack.includes('minecraft');
   try{
-    if(!minecraft){
-      const titles=encodeURIComponent(query);
-      const exactUrl='https://ru.wikipedia.org/w/api.php?action=query&titles='+titles+'&prop=pageimages&piprop=thumbnail&pithumbsize=1200&format=json&origin=*';
-      const exact=await fetch(exactUrl).then(r=>{if(!r.ok)throw Error('Wiki lookup failed');return r.json()});
-      const exactPage=Object.values(exact.query?.pages||{}).find(p=>p.thumbnail?.source&&imageTitleMatch(name,p.title));
-      if(exactPage?.thumbnail?.source){cacheAndApplyCardImage(img,exactPage.thumbnail.source,key);return}
-    }
-    const search=query;
-    const commons='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent('"'+search+'"')+'&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
-    const result=await fetch(commons).then(r=>{if(!r.ok)throw Error('Commons lookup failed');return r.json()});
-    const files=Object.values(result.query?.pages||{}).filter(page=>{
-      const title=page.title.replace(/^File:/i,'').replace(/\.[^.]+$/,'');
-      const normalized=normalizeImageTitle(title);
-      if(!page.imageinfo?.[0]?.thumburl)return false;
-      if(minecraft)return normalized.includes('minecraft')&&normalized.includes(normalizeImageTitle(query.replace(/^Minecraft\s+/i,'')));
-      return imageTitleMatch(name,title)||imageTitleMatch(query,title);
+    const api=minecraft?'https://minecraft.wiki/api.php':'https://ru.wikipedia.org/w/api.php';
+    const search=minecraft?terms.replace(/^Minecraft\s+/i,''):terms;
+    const url=api+'?action=query&generator=search&gsrsearch='+encodeURIComponent(search)+'&gsrnamespace=0&gsrlimit=8&prop=pageimages&piprop=thumbnail&pithumbsize=1200&format=json&origin=*';
+    const data=await fetch(url).then(r=>{if(!r.ok)throw Error('Image source unavailable');return r.json()});
+    const pages=Object.values(data.query?.pages||{}).filter(page=>{
+      if(!page.thumbnail?.source)return false;
+      const title=normalizeImageTitle(page.title);
+      const expected=normalizeImageTitle(search);
+      if(minecraft)return title===expected||title===expected+' mob';
+      return imageTitleMatch(name,page.title);
     });
-    files.sort((a,b)=>{
-      const ta=normalizeImageTitle(a.title.replace(/^File:/i,'').replace(/\.[^.]+$/,''));
-      const tb=normalizeImageTitle(b.title.replace(/^File:/i,'').replace(/\.[^.]+$/,''));
-      return Number(tb===normalizeImageTitle(query))-Number(ta===normalizeImageTitle(query));
-    });
-    if(files[0]?.imageinfo?.[0]?.thumburl)cacheAndApplyCardImage(img,files[0].imageinfo[0].thumburl,key);
-  }catch(error){console.warn('Card image lookup failed:',name,error)}
+    pages.sort((a,b)=>Number(normalizeImageTitle(b.title)===normalizeImageTitle(search))-Number(normalizeImageTitle(a.title)===normalizeImageTitle(search)));
+    if(pages[0]?.thumbnail?.source)cacheAndApplyCardImage(img,pages[0].thumbnail.source,key);
+  }catch(error){console.warn('Precise card image lookup failed:',name,error)}
 }
 function applyFileCardImage(img,src){
   if(!img.isConnected)return;
