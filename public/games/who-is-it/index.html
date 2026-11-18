@@ -849,7 +849,7 @@ function generateRoomCode(){
   if(window.crypto?.getRandomValues)window.crypto.getRandomValues(values);else values[0]=Math.floor(Math.random()*0xffffffff);
   return String(100000+(values[0]%900000));
 }
-async function chooseRandomCharacters(characters,count){
+function chooseRandomCharacters(characters,count){
   const pool=JSON.parse(JSON.stringify(characters||[]));
   for(let i=pool.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -857,7 +857,7 @@ async function chooseRandomCharacters(characters,count){
   }
   return pool.slice(0,Math.min(count,pool.length));
 }
-function createConfiguredRoom(){
+async function createConfiguredRoom(){
   if(!selectedRoomPack){toast('Сначала выбери пак.');return}
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
