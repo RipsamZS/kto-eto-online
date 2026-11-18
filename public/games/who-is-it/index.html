@@ -849,13 +849,21 @@ function generateRoomCode(){
   if(window.crypto?.getRandomValues)window.crypto.getRandomValues(values);else values[0]=Math.floor(Math.random()*0xffffffff);
   return String(100000+(values[0]%900000));
 }
-async function createConfiguredRoom(){
+async function chooseRandomCharacters(characters,count){
+  const pool=JSON.parse(JSON.stringify(characters||[]));
+  for(let i=pool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  return pool.slice(0,Math.min(count,pool.length));
+}
+function createConfiguredRoom(){
   if(!selectedRoomPack){toast('Сначала выбери пак.');return}
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
   if(!window.onlineGame?.createRoom){toast('Онлайн-игра пока недоступна.');return}
   const codeField=document.getElementById('roomCode'),nameField=document.getElementById('roomName');
-  const pack={...selectedRoomPack,characters:selectedRoomPack.characters.slice(0,cardCount)};
+  const pack={...selectedRoomPack,characters:chooseRandomCharacters(selectedRoomPack.characters,cardCount)};
   const settings={
     maxPlayers:2,cardCount,
     timerSeconds:Number(document.getElementById('roomTimer').value),
