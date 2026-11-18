@@ -77,8 +77,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .field{display:grid;gap:7px}
 .field label{color:var(--muted);font-size:14px}
 .character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px}
-.character-card{min-height:120px;padding:12px;border:2px solid var(--border);border-radius:15px;background:#211a38;text-align:center}
-.character-card .face{font-size:42px;display:block;margin-bottom:8px}
+.character-card{min-height:150px;padding:12px;border:2px solid var(--border);border-radius:15px;background:#211a38;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;min-width:0;overflow:hidden}
+.character-card .face{font-size:42px;display:block;margin:12px auto}
+.character-card .character-image{display:block;width:100%;max-width:132px;height:132px;aspect-ratio:1/1;object-fit:contain;object-position:center;border-radius:10px;background:#f3f0e9;padding:5px;flex:0 0 auto}
+.character-card>div{width:100%;overflow-wrap:anywhere}
 .character-card.selected{border-color:var(--accent);background:#30234e}
 .character-card.crossed{opacity:.35;filter:grayscale(1)}
 .game-layout{display:grid;grid-template-columns:1fr;gap:16px}
@@ -842,23 +844,33 @@ function addPlaceholder(){
   });
   nameInput.value='';emojiInput.value='';renderEditor();
 }
-function addFiles(event){
+async function addFiles(event){
   const files=Array.from(event.target.files||[]);
-  files.forEach(file=>{
-    if(!file.type.startsWith('image/'))return;
-    if(file.size>450000){toast(`Файл ${file.name} слишком большой. Выбери изображение до 450 КБ.`);return}
-    const reader=new FileReader();
-    reader.onload=()=>{
+  event.target.value='';
+  for(const file of files){
+    if(!file.type.startsWith('image/'))continue;
+    if(file.size>12*1024*1024){toast(`Файл ${file.name} слишком большой. Максимум 12 МБ.`);continue}
+    try{
+      const bitmap=await createImageBitmap(file);
+      const scale=Math.min(1,512/Math.max(bitmap.width,bitmap.height));
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+      canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+      const context=canvas.getContext('2d',{alpha:false});
+      context.fillStyle='#f3f0e9';context.fillRect(0,0,canvas.width,canvas.height);
+      context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+      bitmap.close?.();
+      let compressed=canvas.toDataURL('image/webp',0.78);
+      if(compressed.length>500000)compressed=canvas.toDataURL('image/jpeg',0.66);
+      if(compressed.length>500000){toast(`Не удалось сжать ${file.name} до нужного размера.`);continue}
       editorCharacters.push({
         id:`image-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         name:file.name.replace(/\.[^.]+$/,''),
-        emoji:'🖼️',image:String(reader.result)
+        emoji:'🖼️',image:compressed
       });
       renderEditor();
-    };
-    reader.readAsDataURL(file);
-  });
-  event.target.value='';
+    }catch(error){toast(`Не удалось обработать изображение ${file.name}.`)}
+  }
 }
 function renderEditor(){
   document.getElementById('editorCount').textContent=editorCharacters.length;
@@ -869,8 +881,8 @@ function renderEditor(){
     card.className='character-card';
     if(character.image){
       const img=document.createElement('img');
-      img.src=character.image;img.alt=character.name;
-      img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
+      img.className='character-image';img.src=character.image;img.alt=character.name;
+      img.loading='lazy';img.decoding='async';
       card.appendChild(img);
     }else{
       const face=document.createElement('span');
@@ -1103,8 +1115,8 @@ function renderGame(){
     const card=document.createElement('button');card.className='character-card';
     if(gameCrossed.has(character.id))card.classList.add('crossed');
     if(character.image){
-      const img=document.createElement('img');img.src=character.image;img.alt=character.name;
-      img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
+      const img=document.createElement('img');img.className='character-image';img.src=character.image;img.alt=character.name;
+      img.loading='lazy';img.decoding='async';
       card.appendChild(img);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
@@ -1145,8 +1157,8 @@ function openPicker(){
   currentCharacters.forEach(character=>{
     const card=document.createElement('button');card.className='character-card';
     if(character.image){
-      const img=document.createElement('img');img.src=character.image;
-      img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
+      const img=document.createElement('img');img.className='character-image';img.src=character.image;img.alt=character.name;
+      img.loading='lazy';img.decoding='async';
       card.appendChild(img);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
