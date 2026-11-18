@@ -67,6 +67,7 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 @keyframes photoViewerIn{to{opacity:1}}
 @keyframes photoImageIn{to{transform:scale(1)}}
 @media(max-width:560px){#characterBoard{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:9px}.character-card{aspect-ratio:3/4}.character-card>div:not(.card-zoom){font-size:13px;padding-bottom:8px}.character-card.crossed:after{height:4px}.character-card .card-zoom{width:32px;height:32px}}
+.character-card,.character-card *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.character-card img{pointer-events:none;-webkit-user-drag:none;user-drag:none}.character-card{-webkit-tap-highlight-color:transparent}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -1141,10 +1142,10 @@ function renderGame(){
     if(gameCrossed.has(character.id))card.classList.add('crossed');
     let photo=null;
     if(character.image){
-      photo=document.createElement('img');photo.src=character.image;photo.alt=character.name;photo.className='file-card-photo loaded';photo.decoding='async';card.appendChild(photo);
+      photo=document.createElement('img');photo.src=character.image;photo.alt=character.name;photo.className='file-card-photo loaded';photo.decoding='async';photo.draggable=false;photo.addEventListener('dragstart',event=>event.preventDefault());card.appendChild(photo);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
-      photo=document.createElement('img');photo.className='file-card-photo';photo.alt=character.name;photo.dataset.imageName=character.name;photo.loading='lazy';photo.decoding='async';card.appendChild(photo);
+      photo=document.createElement('img');photo.className='file-card-photo';photo.alt=character.name;photo.dataset.imageName=character.name;photo.loading='lazy';photo.decoding='async';photo.draggable=false;photo.addEventListener('dragstart',event=>event.preventDefault());card.appendChild(photo);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     const zoom=document.createElement('button');zoom.type='button';zoom.className='card-zoom';zoom.textContent='🔍';zoom.title='Увеличить изображение';zoom.setAttribute('aria-label','Увеличить: '+character.name);zoom.disabled=!character.image;zoom.onclick=event=>{event.stopPropagation();if(photo?.classList.contains('loaded')&&photo.src)openCharacterImage(photo.currentSrc||photo.src,character.name)};card.appendChild(zoom);
@@ -1187,13 +1188,21 @@ function openPicker(){
   pickerSelection=null;
   const root=document.getElementById('pickerCharacters');root.innerHTML='';
   currentCharacters.forEach(character=>{
-    const card=document.createElement('button');card.className='character-card';
+    const card=document.createElement('button');card.type='button';card.className='character-card';
+    card.draggable=false;
+    card.addEventListener('dragstart',event=>event.preventDefault());
+    const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
+    const img=document.createElement('img');
+    img.className='file-card-photo';img.alt=character.name;img.draggable=false;img.decoding='async';
+    img.addEventListener('dragstart',event=>event.preventDefault());
+    img.addEventListener('error',()=>img.remove(),{once:true});
+    card.appendChild(img);
     if(character.image){
-      const img=document.createElement('img');img.src=character.image;
-      img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
-      card.appendChild(img);
+      img.onload=()=>img.classList.add('loaded');
+      img.src=character.image;
     }else{
-      const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
+      img.dataset.imageName=character.name;
+      observeFileCardImage(img);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>{
