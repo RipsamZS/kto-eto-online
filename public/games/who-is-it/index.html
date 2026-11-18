@@ -951,6 +951,7 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
   onlinePanel.classList.toggle('hidden',mode!=='online');
   onlinePanel.innerHTML='';
   updateCharacterButton();renderGame();showScreen('gameScreen');
+  prewarmMinecraftPackImages(currentCharacters,title);
   if(mode==='online'){
     if(window.onlineGame?.canChooseCharacter?.())openPicker();
     else document.getElementById('turnStatus').textContent='Ожидаем второго игрока...';
@@ -1052,34 +1053,42 @@ function cacheAndApplyCardImage(img,src,key){
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v6:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v7:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
   const terms=getImageSearchTerms(name,pack);
   const minecraft=pack.includes('minecraft');
   try{
-    const api=minecraft?'https://minecraft.wiki/api.php':'https://ru.wikipedia.org/w/api.php';
-    const search=minecraft?terms.replace(/^Minecraft\s+/i,''):terms;
-    const queries=minecraft?[search,search+' mob',search+' Minecraft']:[search];
-    let chosen=null;
-    for(const query of queries){
-      const url=api+'?action=query&generator=search&gsrsearch='+encodeURIComponent(query)+'&gsrnamespace=0&gsrlimit=10&prop=pageimages&piprop=thumbnail&pithumbsize=1200&format=json&origin=*';
-      const data=await fetch(url).then(r=>{if(!r.ok)throw Error('Image source unavailable');return r.json()});
-      const pages=Object.values(data.query?.pages||{}).filter(page=>{
-        if(!page.thumbnail?.source)return false;
-        if(minecraft){
-          const title=normalizeImageTitle(page.title),expected=normalizeImageTitle(search);
-          return title===expected||title===expected+' mob';
-        }
-        return imageTitleMatch(name,page.title);
-      });
-      if(pages.length){
-        pages.sort((a,b)=>Number(normalizeImageTitle(b.title)===normalizeImageTitle(search))-Number(normalizeImageTitle(a.title)===normalizeImageTitle(search)));
-        chosen=pages[0];break;
-      }
+    if(minecraft){
+      const query=terms.replace(/^Minecraft\s+/i,'');
+      const src='/_minecraft-image?q='+encodeURIComponent(query);
+      const response=await fetch(src);
+      if(!response.ok)throw Error('Server image cache unavailable');
+      fileImageCache.set(key,src);try{localStorage.setItem(key,src)}catch(e){}
+      applyFileCardImage(img,src);return;
     }
-    if(chosen?.thumbnail?.source)cacheAndApplyCardImage(img,chosen.thumbnail.source,key);
+    const api='https://ru.wikipedia.org/w/api.php';
+    const url=api+'?action=query&generator=search&gsrsearch='+encodeURIComponent(terms)+'&gsrnamespace=0&gsrlimit=10&prop=pageimages&piprop=thumbnail&pithumbsize=1200&format=json&origin=*';
+    const data=await fetch(url).then(r=>{if(!r.ok)throw Error('Image source unavailable');return r.json()});
+    const pages=Object.values(data.query?.pages||{}).filter(page=>page.thumbnail?.source&&imageTitleMatch(name,page.title));
+    if(pages.length){
+      pages.sort((a,b)=>Number(normalizeImageTitle(b.title)===normalizeImageTitle(terms))-Number(normalizeImageTitle(a.title)===normalizeImageTitle(terms)));
+      cacheAndApplyCardImage(img,pages[0].thumbnail.source,key);
+    }
   }catch(error){console.warn('Precise card image lookup failed:',name,error)}
+}
+function prewarmMinecraftPackImages(characters,title){
+  if(!normalizeImageTitle(title||'').includes('minecraft')||!Array.isArray(characters))return;
+  const queries=[...new Set(characters.map(character=>getImageSearchTerms(typeof character==='string'?character:(character?.name||character?.title||''),title).replace(/^Minecraft\s+/i,'')).filter(Boolean))];
+  let cursor=0;
+  const worker=async()=>{
+    while(cursor<queries.length){
+      const query=queries[cursor++];
+      try{await fetch('/_minecraft-image?q='+encodeURIComponent(query),{method:'HEAD'})}
+      catch(error){console.warn('Minecraft image prewarm failed:',query,error)}
+    }
+  };
+  for(let i=0;i<Math.min(4,queries.length);i++)worker();
 }
 function applyFileCardImage(img,src){
   if(!img.isConnected)return;
