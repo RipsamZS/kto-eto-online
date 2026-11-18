@@ -688,13 +688,6 @@
   }
 
   async function makeGuess(guessId) {
-    if (!isMyTurn()) {
-      return {
-        ok: false,
-        message: "Сейчас не твой ход."
-      };
-    }
-
     return send("make-guess", {
       guessId: String(guessId)
     });
