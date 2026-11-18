@@ -271,6 +271,25 @@ export class GameRoom {
         view.mySubmission = s.submissions?.[id] || null;
         view.mySubmissionId = s.submissionIds?.[id] || null;
         view.myVote = s.votes?.[id] || null;
+      } else if (this.gameId === "mafia") {
+        view.myRole=s.roles?.[id]||"Житель";
+        delete view.roles; delete view.mafiaId;
+        if(s.phase!=="finished")delete view.mafiaNames;
+      } else if (this.gameId === "battleship") {
+        const opponent=[...this.players.keys()].find(x=>x!==id);
+        view.myShip=s.ships?.[id];
+        view.myShots=s.shots?.[id]||[];
+        view.myHits=s.hits?.[id]||[];
+        view.incoming=s.shots?.[opponent]||[];
+        delete view.ships; delete view.shots; delete view.hits;
+      } else if (this.gameId === "quiz" || this.gameId === "truth") {
+        if(view.question&&s.phase!=="result"&&s.phase!=="finished"){view.question={text:view.question.text,options:view.question.options};}
+        view.answerCount=Object.keys(s.answers||{}).length;
+      } else if (this.gameId === "charades") {
+        view.mySecretWord=s.drawerId===id?s.word:null;
+        delete view.word; delete view.words; delete view.guesses;
+      } else if (this.gameId === "associations") {
+        // Shared prompt and submitted answers are public.
       } else if (DUEL_GAME_IDS.includes(this.gameId)) {
         const opponent=[...this.players.keys()].find(x=>x!==id);
         if(this.gameId==="codebreaker"||this.gameId==="number-duel"){delete view.secrets;view.mySecretSet=!!s.secrets?.[id];view.opponentSecretSet=!!s.secrets?.[opponent];}
@@ -321,6 +340,38 @@ export class GameRoom {
       const hands={}; for(const id of ids)hands[id]=deck.splice(0,6);
       this.partyState={phase:"story",players:profiles,order:this.partyShuffle(ids),turnIndex:0,storyteller:null,hands,submissions:{},submissionIds:{},votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),deck,round:1,clue:"",storyCard:null};
       this.partyImaginariumBegin();
+    } else if (this.gameId === "mafia") {
+      if (ids.length < 4) return {ok:false,message:"Для мафии нужно минимум 4 игрока."};
+      const mafiaId=ids[Math.floor(Math.random()*ids.length)];
+      this.partyState={phase:"discussion",players:profiles,roles:Object.fromEntries(ids.map(id=>[id,id===mafiaId?"Мафия":"Житель"])),mafiaId,votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),round:1,winner:null};
+    } else if (this.gameId === "battleship") {
+      if (ids.length !== 2) return {ok:false,message:"В морской бой играют ровно 2 игрока."};
+      const ships=Object.fromEntries(ids.map(id=>[id,Math.floor(Math.random()*25)]));
+      this.partyState={phase:"playing",players:profiles,ships,shots:Object.fromEntries(ids.map(id=>[id,[]])),hits:Object.fromEntries(ids.map(id=>[id,[]])),activeId:ids[0],scores:Object.fromEntries(ids.map(id=>[id,0]))};
+    } else if (this.gameId === "quiz" || this.gameId === "truth") {
+      const quizQuestions=[
+        {text:"Какая планета самая большая в Солнечной системе?",options:["Земля","Юпитер","Марс","Венера"],answer:1},
+        {text:"Сколько сторон у шестиугольника?",options:["5","6","7","8"],answer:1},
+        {text:"Какой океан самый большой?",options:["Атлантический","Индийский","Тихий","Северный Ледовитый"],answer:2},
+        {text:"Какой газ растения поглощают при фотосинтезе?",options:["Кислород","Углекислый газ","Азот","Водород"],answer:1},
+        {text:"Сколько минут в двух часах?",options:["100","110","120","130"],answer:2}
+      ];
+      const truthQuestions=[
+        {text:"У осьминога три сердца.",answer:true},
+        {text:"Молния никогда не ударяет в одно место дважды.",answer:false},
+        {text:"У взрослого человека обычно 206 костей.",answer:true},
+        {text:"Венера ближе к Солнцу, чем Меркурий.",answer:false},
+        {text:"У акул есть костный скелет.",answer:false}
+      ];
+      const questions=this.gameId==="quiz"?quizQuestions:truthQuestions;
+      this.partyState={phase:"question",players:profiles,questions,question:questions[0],round:1,totalRounds:questions.length,answers:{},scores:Object.fromEntries(ids.map(id=>[id,0]))};
+    } else if (this.gameId === "charades") {
+      const words=["Пингвин","Велосипед","Космонавт","Пылесос","Динозавр","Фотограф","Самолёт","Черепаха","Барабанщик","Снеговик","Робот","Пожарный"];
+      this.partyState={phase:"playing",players:profiles,words:this.partyShuffle(words),wordIndex:0,round:1,totalRounds:5,drawerId:ids[0],word:"Пингвин",guesses:{},guessedCount:0,scores:Object.fromEntries(ids.map(id=>[id,0]))};
+      this.partyState.word=this.partyState.words[0];
+    } else if (this.gameId === "associations") {
+      const prompts=["Море","Космос","Музыка","Лето","Путешествие","Дружба","Лес","Технологии","Сладости","Приключение"];
+      this.partyState={phase:"submit",players:profiles,prompts,round:1,totalRounds:5,prompt:prompts[0],answers:{},scores:Object.fromEntries(ids.map(id=>[id,0]))};
     } else if (DUEL_GAME_IDS.includes(this.gameId)) {
       if(ids.length!==2)return {ok:false,message:"Эта игра рассчитана ровно на двух игроков."};
       const activeId=ids[0];
@@ -464,6 +515,68 @@ export class GameRoom {
         s.winner=guess===s.location.toLocaleLowerCase("ru")?"spy":"players";s.phase="finished";this.ended=true;
       } else return {ok:false,message:"Неизвестное действие."};
       if(s.phase==="finished")this.ended=true;
+    } else if(this.gameId==="mafia"){
+      if(action==="mafia-begin-vote"){
+        if(playerId!==this.hostPlayerId||s.phase!=="discussion")return {ok:false,message:"Голосование запускает создатель комнаты."};
+        s.phase="voting";s.votes={};
+      }else if(action==="mafia-vote"){
+        if(s.phase!=="voting"||playerId===payload.target||!ids.includes(String(payload.target||""))||s.votes[playerId])return {ok:false,message:"Сейчас нельзя отдать этот голос."};
+        s.votes[playerId]=String(payload.target);
+        if(Object.keys(s.votes).length===ids.length){
+          const tally={};Object.values(s.votes).forEach(id=>tally[id]=(tally[id]||0)+1);
+          const accused=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];
+          const caught=accused===s.mafiaId;
+          s.winner=caught?"town":"mafia";s.mafiaNames=ids.filter(id=>s.roles[id]==="Мафия").map(id=>s.players[id].nickname);
+          s.phase="finished";this.ended=true;
+        }
+      }else return {ok:false,message:"Неизвестное действие."};
+    } else if(this.gameId==="battleship"){
+      if(action!=="battleship-shot"||s.phase!=="playing"||s.activeId!==playerId)return {ok:false,message:"Сейчас не твой ход."};
+      const cell=Number(payload.index),opponent=ids.find(id=>id!==playerId);
+      if(!Number.isInteger(cell)||cell<0||cell>24||s.shots[playerId].includes(cell))return {ok:false,message:"Эта клетка уже проверена."};
+      s.shots[playerId].push(cell);
+      if(cell===s.ships[opponent]){s.hits[playerId].push(cell);s.scores[playerId]=1;s.phase="finished";s.winner=playerId;this.ended=true;}
+      else s.activeId=opponent;
+    } else if(this.gameId==="quiz"||this.gameId==="truth"){
+      if(action==="generic-answer"){
+        if(s.phase!=="question"||s.answers[playerId]!==undefined)return {ok:false,message:"Ответ уже принят."};
+        const answer=payload.answer;
+        const correct=this.gameId==="quiz"?Number(answer)===s.question.answer:String(answer)===(s.question.answer?"true":"false");
+        s.answers[playerId]={answer,correct};
+        if(correct)s.scores[playerId]=(s.scores[playerId]||0)+1;
+        if(Object.keys(s.answers).length===ids.length)s.phase="result";
+      }else if(action==="generic-next"){
+        if(playerId!==this.hostPlayerId||s.phase!=="result")return {ok:false,message:"Следующий вопрос запускает хост."};
+        if(s.round>=s.totalRounds){s.phase="finished";s.winner=ids.slice().sort((a,b)=>(s.scores[b]||0)-(s.scores[a]||0))[0];this.ended=true;}
+        else{s.round++;s.question=s.questions[s.round-1];s.answers={};s.phase="question";}
+      }else return {ok:false,message:"Неизвестное действие."};
+    } else if(this.gameId==="charades"){
+      if(action==="charades-guess"){
+        if(s.phase!=="playing"||playerId===s.drawerId)return {ok:false,message:"Ведущий не может угадывать своё слово."};
+        const guess=String(payload.guess||"").trim().toLocaleLowerCase("ru");
+        if(!guess)return {ok:false,message:"Введи догадку."};
+        s.guesses[playerId]=guess;s.guessedCount=Object.keys(s.guesses).length;
+        if(guess===String(s.word).toLocaleLowerCase("ru")){s.phase="result";s.wordReveal=s.word;s.scores[playerId]=(s.scores[playerId]||0)+1;}
+      }else if(action==="charades-finish"){
+        if(playerId!==s.drawerId||s.phase!=="playing")return {ok:false,message:"Только ведущий может завершить раунд."};
+        s.phase="result";s.wordReveal=s.word;
+      }else if(action==="generic-next"){
+        if(playerId!==this.hostPlayerId||s.phase!=="result")return {ok:false,message:"Следующий раунд запускает хост."};
+        if(s.round>=s.totalRounds){s.phase="finished";this.ended=true;}
+        else{s.round++;s.drawerId=ids[(ids.indexOf(s.drawerId)+1)%ids.length];s.word=s.words[s.round-1];s.guesses={};s.guessedCount=0;s.wordReveal=null;s.phase="playing";}
+      }else return {ok:false,message:"Неизвестное действие."};
+    } else if(this.gameId==="associations"){
+      if(action==="association-submit"){
+        if(s.phase!=="submit"||s.answers[playerId])return {ok:false,message:"Ответ уже отправлен."};
+        const answer=String(payload.answer||"").trim().slice(0,50);
+        if(!answer)return {ok:false,message:"Напиши ассоциацию."};
+        s.answers[playerId]=answer;
+        if(Object.keys(s.answers).length===ids.length)s.phase="result";
+      }else if(action==="generic-next"){
+        if(playerId!==this.hostPlayerId||s.phase!=="result")return {ok:false,message:"Следующий раунд запускает хост."};
+        if(s.round>=s.totalRounds){s.phase="finished";this.ended=true;}
+        else{s.round++;s.prompt=s.prompts[(s.round-1)%s.prompts.length];s.answers={};s.phase="submit";}
+      }else return {ok:false,message:"Неизвестное действие."};
     } else if(this.gameId==="imaginarium"){
       if(action==="imaginarium-story"){
         if(s.phase!=="story"||playerId!==s.storyteller)return {ok:false,message:"Сейчас не твоя очередь быть рассказчиком."};
@@ -1235,7 +1348,7 @@ export class GameRoom {
     }
 
     if (event === "party-start") {
-      const minimum = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
+      const minimum = (this.gameId === "codenames" || this.gameId === "mafia") ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
       if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size < minimum) {
         reply({ok:false,message:"Для запуска нужно минимум " + minimum + " игрока(ов)."}); return;
       }
