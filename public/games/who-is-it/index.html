@@ -1225,6 +1225,7 @@ async function confirmCharacter(){
 }
 function requestGuess(character){
   if(!character)return;
+  if(currentGameMode==='online'&&!window.onlineGame?.isMyTurn?.()){toast('Сейчас не твой ход.');return}
   pendingGuess=character;
   document.getElementById('guessPrompt').textContent=`Ты хочешь угадать персонажа «${character.name}»?`;
   document.getElementById('guessModal').classList.add('open');
