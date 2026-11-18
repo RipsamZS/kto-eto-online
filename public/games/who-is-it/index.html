@@ -1118,7 +1118,7 @@ function renderGame(){
       photo=document.createElement('img');photo.src=character.image;photo.alt=character.name;photo.className='file-card-photo loaded';photo.decoding='async';card.appendChild(photo);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
-      photo=document.createElement('img');photo.className='file-card-photo';photo.alt=character.name;photo.dataset.imageName=character.name;photo.loading='lazy';photo.decoding='async';card.appendChild(photo);observeFileCardImage(photo);
+      photo=document.createElement('img');photo.className='file-card-photo';photo.alt=character.name;photo.dataset.imageName=character.name;photo.loading='lazy';photo.decoding='async';card.appendChild(photo);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     const zoom=document.createElement('button');zoom.type='button';zoom.className='card-zoom';zoom.textContent='🔍';zoom.title='Увеличить изображение';zoom.setAttribute('aria-label','Увеличить: '+character.name);zoom.disabled=!character.image;zoom.onclick=event=>{event.stopPropagation();if(photo?.classList.contains('loaded')&&photo.src)openCharacterImage(photo.currentSrc||photo.src,character.name)};card.appendChild(zoom);
@@ -1131,7 +1131,7 @@ function renderGame(){
     card.addEventListener('touchend',()=>clearTimeout(holdTimer));
     card.addEventListener('touchmove',()=>clearTimeout(holdTimer));
     root.appendChild(card);
-    if(!character.image&&photo){
+    if(!character.image&&photo){observeFileCardImage(photo);
       const check=()=>{if(photo.classList.contains('loaded'))zoom.disabled=false};
       photo.addEventListener('load',check,{once:true});
     }
