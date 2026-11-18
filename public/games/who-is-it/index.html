@@ -1059,7 +1059,7 @@ async function findFileCardImage(img){
   const minecraft=pack.includes('minecraft');
   try{
     const api=minecraft?'https://minecraft.wiki/api.php':'https://ru.wikipedia.org/w/api.php';
-    const search=minecraft?terms.replace(/^Minecraft\\s+/i,''):terms;
+    const search=minecraft?terms.replace(/^Minecraft\s+/i,''):terms;
     const queries=minecraft?[search,search+' mob',search+' Minecraft']:[search];
     let chosen=null;
     for(const query of queries){
