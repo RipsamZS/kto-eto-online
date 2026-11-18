@@ -315,6 +315,14 @@ export class GameRoom {
       const hands={}; for(const id of ids)hands[id]=deck.splice(0,6);
       this.partyState={phase:"story",players:profiles,order:this.partyShuffle(ids),turnIndex:0,storyteller:null,hands,submissions:{},submissionIds:{},votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),deck,round:1,clue:"",storyCard:null};
       this.partyImaginariumBegin();
+    } else if (DUEL_GAME_IDS.includes(this.gameId)) {
+      if(ids.length!==2)return {ok:false,message:"Эта игра рассчитана ровно на двух игроков."};
+      const activeId=ids[0];
+      if(this.gameId==="dots-duel")this.partyState={phase:"playing",players:profiles,activeId,edges:[],boxes:{},scores:Object.fromEntries(ids.map(id=>[id,0]))};
+      else if(this.gameId==="territory")this.partyState={phase:"playing",players:profiles,activeId,board:Array(25).fill(null),scores:Object.fromEntries(ids.map(id=>[id,0]))};
+      else if(this.gameId==="codebreaker"||this.gameId==="number-duel")this.partyState={phase:"setup",players:profiles,activeId,secrets:{},guesses:[]};
+      else if(this.gameId==="memory-duel")this.partyState={phase:"playing",players:profiles,activeId,sequence:["1","3","2"],round:1};
+      else if(this.gameId==="word-duel")this.partyState={phase:"submit",players:profiles,activeId,round:1,totalRounds:5,letters:["А","Е","И","О","Н","Т","Р","С","К"],submissions:{},scores:Object.fromEntries(ids.map(id=>[id,0]))};
     } else return {ok:false,message:"Эта игра пока не поддерживает общий запуск."};
     this.gamePhase="playing"; this.ended=false;
     this.partySendState();
