@@ -269,6 +269,10 @@ export class GameRoom {
         view.mySubmission = s.submissions?.[id] || null;
         view.mySubmissionId = s.submissionIds?.[id] || null;
         view.myVote = s.votes?.[id] || null;
+      } else if (DUEL_GAME_IDS.includes(this.gameId)) {
+        const opponent=[...this.players.keys()].find(x=>x!==id);
+        if(this.gameId==="codebreaker"||this.gameId==="number-duel"){delete view.secrets;view.mySecretSet=!!s.secrets?.[id];view.opponentSecretSet=!!s.secrets?.[opponent];}
+        if(this.gameId==="word-duel"){view.submissionCount=Object.keys(s.submissions||{}).length;view.mySubmission=s.submissions?.[id]||null;view.opponentSubmitted=!!s.submissions?.[opponent];}
       }
       this.send(socket, "party-state", view);
     }
