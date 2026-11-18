@@ -47,8 +47,8 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 .character-card .file-card-photo{position:absolute;width:76px;height:76px;left:50%;top:29px;transform:translateX(-50%);object-fit:cover;object-position:center;border:2px solid #a9a28e;border-radius:8px;background:linear-gradient(135deg,#e8e3d5,#c8c4b6);opacity:0;transition:opacity .2s ease;filter:saturate(.82) contrast(.96)}
 .character-card .file-card-photo.loaded{opacity:1}
 .character-card .face.image-replaced{opacity:0}
-.character-card .face{transition:opacity .2s ease}
-.character-card>div{position:relative;z-index:1;margin-top:88px;min-height:28px;display:flex;align-items:center;justify-content:center}
+.character-card .face{position:absolute;top:29px;left:0;right:0;height:76px;margin:0;display:flex;align-items:center;justify-content:center;transition:opacity .2s ease}
+.character-card>div{position:absolute;left:4px;right:4px;bottom:8px;z-index:2;margin:0;min-height:26px;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body data-game="who-is-it">
