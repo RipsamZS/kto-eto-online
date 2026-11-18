@@ -1574,6 +1574,74 @@ export class GameRoom {
   }
 }
 
+function serveStatic(request, env) {
+  // Direct-upload builds prepend STATIC_FILES so the Worker can serve the
+  // complete site without relying on a separately configured ASSETS binding.
+  if (typeof STATIC_FILES !== "undefined" && STATIC_FILES) {
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return new Response("Method Not Allowed", {
+        status: 405,
+        headers: { "Allow": "GET, HEAD" }
+      });
+    }
+
+    const url = new URL(request.url);
+    let pathname;
+    try {
+      pathname = decodeURIComponent(url.pathname);
+    } catch {
+      return new Response("Bad Request", { status: 400 });
+    }
+
+    if (pathname === "/") pathname = "/index.html";
+    let assetPath = pathname;
+
+    if (!Object.prototype.hasOwnProperty.call(STATIC_FILES, assetPath)) {
+      if (assetPath.endsWith("/") &&
+          Object.prototype.hasOwnProperty.call(STATIC_FILES, assetPath + "index.html")) {
+        assetPath += "index.html";
+      } else if (!assetPath.endsWith("/") &&
+          Object.prototype.hasOwnProperty.call(STATIC_FILES, assetPath + "/")) {
+        assetPath += "/";
+      }
+    }
+
+    const body = STATIC_FILES[assetPath];
+    if (typeof body !== "string") {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    const extension = assetPath.toLowerCase().split(".").pop();
+    const contentTypes = {
+      html: "text/html; charset=utf-8",
+      js: "application/javascript; charset=utf-8",
+      css: "text/css; charset=utf-8",
+      json: "application/json; charset=utf-8",
+      svg: "image/svg+xml",
+      webp: "image/webp",
+      png: "image/png",
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      ico: "image/x-icon",
+      txt: "text/plain; charset=utf-8",
+      woff: "font/woff",
+      woff2: "font/woff2"
+    };
+
+    const headers = new Headers({
+      "Content-Type": contentTypes[extension] || "application/octet-stream",
+      "Cache-Control": "no-cache"
+    });
+
+    return new Response(request.method === "HEAD" ? null : body, {
+      status: 200,
+      headers
+    });
+  }
+
+  return serveStatic(request, env);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
