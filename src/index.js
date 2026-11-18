@@ -402,6 +402,7 @@ export class GameRoom {
     if(this.gameId==="alias" && action==="alias-pack-select" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};const words=Array.isArray(payload.words)?[...new Set(payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2))].slice(0,500):[];if(words.length!==500)return {ok:false,message:"Словарь должен содержать ровно 500 уникальных слов."};this.aliasPackName=String(payload.name||"Общий словарь").slice(0,40);this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}
     if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
+    if(DUEL_GAME_IDS.includes(this.gameId)){const result=this.partyDuelAction(playerId,action,payload);if(result.ok)this.partySendState();return result;}
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
       if(action==="alias-correct"||action==="alias-skip"){
@@ -488,6 +489,38 @@ export class GameRoom {
     }
     this.partySendState();
     return {ok:true};
+  }
+
+  partyDuelAction(playerId,action,payload) {
+    const s=this.partyState,ids=[...this.players.keys()],other=ids.find(id=>id!==playerId);
+    if(!s||!other)return {ok:false,message:"Ожидаем второго игрока."};
+    const finish=id=>{s.phase="finished";s.winner=id;this.ended=true;};
+    if(this.gameId==="territory"){
+      if(action!=="territory-claim"||s.activeId!==playerId)return {ok:false,message:"Сейчас не твой ход."};
+      const n=Number(payload.cell);if(!Number.isInteger(n)||n<0||n>24||s.board[n]!==null)return {ok:false,message:"Клетка занята."};
+      s.board[n]=playerId;s.scores[playerId]++;if(s.board.every(Boolean))finish(s.scores[playerId]===s.scores[other]?"draw":s.scores[playerId]>s.scores[other]?playerId:other);else s.activeId=other;return {ok:true};
+    }
+    if(this.gameId==="dots-duel"){
+      if(action!=="dots-line"||s.activeId!==playerId)return {ok:false,message:"Сейчас не твой ход."};
+      const edge=String(payload.edge||"");if(s.edges.includes(edge)||!((edge[0]==="h"||edge[0]==="v")&&edge.length<=7))return {ok:false,message:"Линия недоступна."};
+      s.edges.push(edge);let made=0;
+      for(let r=0;r<4;r++)for(let c=0;c<4;c++){const key=r+"-"+c,need=["h-"+r+"-"+c,"h-"+(r+1)+"-"+c,"v-"+r+"-"+c,"v-"+r+"-"+(c+1)];if(!s.boxes[key]&&need.every(x=>s.edges.includes(x))){s.boxes[key]=playerId;s.scores[playerId]++;made++;}}
+      if(s.edges.length>=40)finish(s.scores[playerId]===s.scores[other]?"draw":s.scores[playerId]>s.scores[other]?playerId:other);else if(!made)s.activeId=other;return {ok:true};
+    }
+    if(this.gameId==="codebreaker"){
+      if(action==="code-set"){if(s.phase!=="setup"||s.secrets[playerId])return {ok:false,message:"Код уже задан."};const code=String(payload.code||"");if(code.length!==4||[...code].some(x=>x<"0"||x>"9")||new Set(code).size!==4)return {ok:false,message:"Нужны четыре разные цифры."};s.secrets[playerId]=code;if(ids.every(id=>s.secrets[id])){s.phase="playing";s.activeId=ids[0];}return {ok:true};}
+      if(action==="code-guess"){if(s.phase!=="playing"||s.activeId!==playerId)return {ok:false,message:"Сейчас не твой ход."};const guess=String(payload.code||""),secret=s.secrets[other];if(guess.length!==4||[...guess].some(x=>x<"0"||x>"9")||new Set(guess).size!==4)return {ok:false,message:"Нужны четыре разные цифры."};const exact=[...guess].filter((x,i)=>x===secret[i]).length,near=[...guess].filter((x,i)=>secret.includes(x)&&x!==secret[i]).length;s.guesses.push({by:playerId,guess,exact,near});if(exact===4)finish(playerId);else s.activeId=other;return {ok:true};}
+    }
+    if(this.gameId==="memory-duel"&&action==="memory-submit"&&s.activeId===playerId){const answer=String(payload.answer||"").replace(/ /g,"");if(answer!==s.sequence.join(""))finish(other);else{s.round++;s.sequence.push(String(Math.floor(Math.random()*4)));s.activeId=other;}return {ok:true};}
+    if(this.gameId==="number-duel"){
+      if(action==="number-set"){if(s.phase!=="setup"||s.secrets[playerId])return {ok:false,message:"Число уже задано."};const n=Number(payload.number);if(!Number.isInteger(n)||n<1||n>100)return {ok:false,message:"Введи число от 1 до 100."};s.secrets[playerId]=n;if(ids.every(id=>Number.isInteger(s.secrets[id]))){s.phase="playing";s.activeId=ids[0];}return {ok:true};}
+      if(action==="number-guess"){if(s.phase!=="playing"||s.activeId!==playerId)return {ok:false,message:"Сейчас не твой ход."};const n=Number(payload.number);if(!Number.isInteger(n)||n<1||n>100)return {ok:false,message:"Введи число от 1 до 100."};const target=s.secrets[other],hint=n===target?"Точно!":n<target?"Загаданное число больше":"Загаданное число меньше";s.guesses.push({by:playerId,number:n,hint});if(n===target)finish(playerId);else s.activeId=other;return {ok:true};}
+    }
+    if(this.gameId==="word-duel"){
+      if(action==="word-submit"){if(s.phase!=="submit"||s.submissions[playerId])return {ok:false,message:"Ответ уже отправлен."};const word=String(payload.word||"").toUpperCase().replace(/[^А-ЯЁ]/g,"");if(word.length<2||word.length>9)return {ok:false,message:"Слово должно быть от 2 до 9 букв."};const available=[...s.letters];for(const ch of word){const i=available.indexOf(ch);if(i<0)return {ok:false,message:"Используй только буквы на поле."};available.splice(i,1);}s.submissions[playerId]=word;if(ids.every(id=>s.submissions[id])){const x=s.submissions[ids[0]],y=s.submissions[ids[1]];if(x.length>y.length)s.scores[ids[0]]+=x.length;else if(y.length>x.length)s.scores[ids[1]]+=y.length;else{s.scores[ids[0]]+=x.length;s.scores[ids[1]]+=y.length;}s.phase="result";}return {ok:true};}
+      if(action==="word-next"&&playerId===this.hostPlayerId&&s.phase==="result"){if(s.round>=s.totalRounds){finish(s.scores[ids[0]]===s.scores[ids[1]]?"draw":s.scores[ids[0]]>s.scores[ids[1]]?ids[0]:ids[1]);return {ok:true};}s.round++;s.letters=this.partyShuffle(["А","Е","И","О","Н","Т","Р","С","К","Л","М","П","В","Д","У","Б","Г","З"]).slice(0,9);s.submissions={};s.phase="submit";return {ok:true};}
+    }
+    return {ok:false,message:"Неизвестное действие."};
   }
 
   async removePlayer(playerId) {
