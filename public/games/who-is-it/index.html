@@ -42,6 +42,13 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 /* Название и справка игры */
 .topbar{gap:14px}.brand{font-size:clamp(10px,1.5vw,14px);letter-spacing:.12em}.help-trigger{margin-left:auto;width:38px;height:38px;flex:0 0 38px;border:1px solid #b8cb9488;border-radius:50%;background:#26352a;color:#dce8c8;font:700 20px Oswald,sans-serif;box-shadow:0 0 0 4px #b8cb9410}.help-trigger:hover{background:#3a4c37}.info-modal{width:min(560px,100%)}.info-kicker{margin-bottom:12px;color:#b8cb94;font:500 10px 'DM Mono',monospace;letter-spacing:.15em}.info-highlight{margin:16px 0;padding:14px;border-left:3px solid #b8cb94;background:#b8cb9412;color:#e2e9d7;font-size:13px;line-height:1.7}.info-modal p{color:#bdc8b7;font-size:13px;line-height:1.8}.info-modal .modal-actions{justify-content:flex-end}.info-modal .modal-actions button{flex:0 1 160px}
 .hero h1{font-size:clamp(48px,8vw,94px);line-height:.9;overflow-wrap:anywhere}
+
+.character-card{overflow:hidden}
+.character-card .file-card-photo{position:absolute;width:76px;height:76px;left:50%;top:29px;transform:translateX(-50%);object-fit:cover;object-position:center;border:2px solid #a9a28e;border-radius:8px;background:linear-gradient(135deg,#e8e3d5,#c8c4b6);opacity:0;transition:opacity .2s ease;filter:saturate(.82) contrast(.96)}
+.character-card .file-card-photo.loaded{opacity:1}
+.character-card .face.image-replaced{opacity:0}
+.character-card .face{transition:opacity .2s ease}
+.character-card>div{position:relative;z-index:1;margin-top:88px;min-height:28px;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -908,6 +915,27 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
     else document.getElementById('turnStatus').textContent='Ожидаем второго игрока...';
   }else openPicker();
 }
+
+const fileImageCache=new Map();
+const fileImageObserver=typeof IntersectionObserver!=='undefined'?new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{if(entry.isIntersecting){fileImageObserver.unobserve(entry.target);findFileCardImage(entry.target)}});
+},{rootMargin:'180px'}):null;
+function findFileCardImage(img){
+  const name=img.dataset.imageName||'',key='kazo-classified-image-v1:'+name.toLowerCase();
+  let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
+  if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
+  const url='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(name.trim()+' filetype:bitmap')+'&gsrnamespace=6&gsrlimit=1&prop=imageinfo&iiprop=url&iiurlwidth=360&format=json&origin=*';
+  fetch(url).then(r=>{if(!r.ok)throw Error('Image search failed');return r.json()}).then(data=>{
+    const pages=Object.values(data.query?.pages||{}),image=pages[0]?.imageinfo?.[0],src=image?.thumburl||image?.url;if(!src)return;
+    fileImageCache.set(key,src);try{localStorage.setItem(key,src)}catch(e){}applyFileCardImage(img,src);
+  }).catch(()=>{});
+}
+function applyFileCardImage(img,src){
+  if(!img.isConnected)return;
+  img.onload=()=>{img.classList.add('loaded');const face=img.parentElement?.querySelector('.face');if(face)face.classList.add('image-replaced')};
+  img.onerror=()=>img.remove();img.src=src;
+}
+function observeFileCardImage(img){if(fileImageObserver)fileImageObserver.observe(img);else findFileCardImage(img)}
 function renderGame(){
   const root=document.getElementById('characterBoard');root.innerHTML='';
   currentCharacters.forEach(character=>{
@@ -919,6 +947,7 @@ function renderGame(){
       card.appendChild(img);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
+      const img=document.createElement('img');img.className='file-card-photo';img.alt=character.name;img.dataset.imageName=character.name;img.loading='lazy';img.decoding='async';card.appendChild(img);observeFileCardImage(img);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>toggleCrossed(character.id);
