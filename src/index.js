@@ -348,7 +348,7 @@ export class GameRoom {
       this.partyState={phase:"discussion",players:profiles,roles:Object.fromEntries(ids.map(id=>[id,id===mafiaId?"Мафия":"Житель"])),mafiaId,votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),round:1,winner:null};
     } else if (this.gameId === "battleship") {
       if (ids.length !== 2) return {ok:false,message:"В морской бой играют ровно 2 игрока."};
-      const ships=Object.fromEntries(ids.map(id=>[id,Math.floor(Math.random()*25)]));
+      const ships=Object.fromEntries(ids.map(id=>{const horizontal=Math.random()<0.5,row=Math.floor(Math.random()*(horizontal?5:3)),col=Math.floor(Math.random()*(horizontal?3:5));return [id,Array.from({length:3},(_,n)=>horizontal?row*5+col+n:(row+n)*5+col)];}));
       this.partyState={phase:"playing",players:profiles,ships,shots:Object.fromEntries(ids.map(id=>[id,[]])),hits:Object.fromEntries(ids.map(id=>[id,[]])),activeId:ids[0],scores:Object.fromEntries(ids.map(id=>[id,0]))};
     } else if (this.gameId === "quiz" || this.gameId === "truth") {
       const quizQuestions=[
@@ -424,7 +424,7 @@ export class GameRoom {
     const s=this.partyState, ids=[...this.players.keys()];
     if (action === "test-bots-add") {
       if (playerId !== this.hostPlayerId || this.partyState || this.gamePhase !== "lobby") return {ok:false,message:"Добавлять тестовых ботов может только создатель до начала игры."};
-      const required = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
+      const required = (this.gameId === "codenames" || this.gameId === "mafia") ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
       const requested = Math.max(1, Math.min(5, Number(payload.count) || required - this.players.size));
       const limit = this.gameId === "who-am-i" ? Math.min(6,this.maxPlayers) : this.maxPlayers;
       const amount = Math.min(requested, limit - this.players.size, 6 - this.players.size);
@@ -537,7 +537,7 @@ export class GameRoom {
       const cell=Number(payload.index),opponent=ids.find(id=>id!==playerId);
       if(!Number.isInteger(cell)||cell<0||cell>24||s.shots[playerId].includes(cell))return {ok:false,message:"Эта клетка уже проверена."};
       s.shots[playerId].push(cell);
-      if(cell===s.ships[opponent]){s.hits[playerId].push(cell);s.scores[playerId]=1;s.phase="finished";s.winner=playerId;this.ended=true;}
+      if(s.ships[opponent].includes(cell)){s.hits[playerId].push(cell);if(s.hits[playerId].length===s.ships[opponent].length){s.scores[playerId]=1;s.phase="finished";s.winner=playerId;this.ended=true;}}
       else s.activeId=opponent;
     } else if(this.gameId==="quiz"||this.gameId==="truth"){
       if(action==="generic-answer"){
