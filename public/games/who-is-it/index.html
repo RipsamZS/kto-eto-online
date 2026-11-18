@@ -961,10 +961,10 @@ function normalizeImageTitle(value){
 function imageTitleMatch(cardName,pageTitle){
   const a=normalizeImageTitle(cardName),b=normalizeImageTitle(pageTitle);
   if(!a||!b)return false;
-  if(a===b||b.includes(a)||a.includes(b))return true;
+  if(a===b)return true;
   const aa=new Set(a.split(' ')),bb=new Set(b.split(' '));
   const overlap=[...aa].filter(token=>bb.has(token)).length;
-  return overlap/Math.max(aa.size,bb.size)>=.72;
+  return overlap/Math.max(aa.size,bb.size)>=.85&&aa.size===bb.size;
 }
 function findFileCardImage(img){
   const name=img.dataset.imageName||'',key='kazo-classified-image-v2:'+normalizeImageTitle(name);
@@ -975,7 +975,7 @@ function findFileCardImage(img){
   fetch(url).then(r=>{if(!r.ok)throw Error('Wikipedia image lookup failed');return r.json()}).then(data=>{
     const pages=Object.values(data.query?.pages||{}).filter(page=>page.thumbnail?.source&&imageTitleMatch(name,page.title));
     if(!pages.length)return;
-    pages.sort((a,b)=>normalizeImageTitle(b.title)===normalizeImageTitle(name)?1:0);
+    pages.sort((a,b)=>Number(normalizeImageTitle(b.title)===normalizeImageTitle(name))-Number(normalizeImageTitle(a.title)===normalizeImageTitle(name)));
     const src=pages[0].thumbnail.source;
     fileImageCache.set(key,src);try{localStorage.setItem(key,src)}catch(e){}applyFileCardImage(img,src);
   }).catch(()=>{});
