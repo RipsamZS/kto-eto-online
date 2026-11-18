@@ -43,12 +43,21 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 .topbar{gap:14px}.brand{font-size:clamp(10px,1.5vw,14px);letter-spacing:.12em}.help-trigger{margin-left:auto;width:38px;height:38px;flex:0 0 38px;border:1px solid #b8cb9488;border-radius:50%;background:#26352a;color:#dce8c8;font:700 20px Oswald,sans-serif;box-shadow:0 0 0 4px #b8cb9410}.help-trigger:hover{background:#3a4c37}.info-modal{width:min(560px,100%)}.info-kicker{margin-bottom:12px;color:#b8cb94;font:500 10px 'DM Mono',monospace;letter-spacing:.15em}.info-highlight{margin:16px 0;padding:14px;border-left:3px solid #b8cb94;background:#b8cb9412;color:#e2e9d7;font-size:13px;line-height:1.7}.info-modal p{color:#bdc8b7;font-size:13px;line-height:1.8}.info-modal .modal-actions{justify-content:flex-end}.info-modal .modal-actions button{flex:0 1 160px}
 .hero h1{font-size:clamp(48px,8vw,94px);line-height:.9;overflow-wrap:anywhere}
 
-.character-card{overflow:hidden}
-.character-card .file-card-photo{position:absolute;width:76px;height:76px;left:50%;top:29px;transform:translateX(-50%);object-fit:cover;object-position:center;border:2px solid #a9a28e;border-radius:8px;background:linear-gradient(135deg,#e8e3d5,#c8c4b6);opacity:0;transition:opacity .2s ease;filter:saturate(.82) contrast(.96)}
+.character-card{overflow:hidden;min-height:174px;padding:10px 8px;cursor:zoom-in;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.character-card:hover{transform:translateY(-4px) scale(1.025);box-shadow:5px 9px 20px #0005}
+.character-card .file-card-photo{position:absolute;width:calc(100% - 18px);height:112px;left:9px;top:28px;transform:none;object-fit:cover;object-position:center;border:2px solid #a9a28e;border-radius:9px;background:linear-gradient(135deg,#e8e3d5,#c8c4b6);opacity:0;transition:opacity .28s ease,transform .35s cubic-bezier(.2,.8,.2,1),filter .25s ease;filter:saturate(.9) contrast(.98);cursor:zoom-in}
+.character-card .file-card-photo:hover{transform:scale(1.035);filter:saturate(1.04) contrast(1.02)}
+.character-card>img:not(.file-card-photo){width:calc(100% - 18px)!important;height:112px!important;object-fit:cover!important;border:2px solid #a9a28e!important;border-radius:9px!important;display:block!important;margin:18px auto 0!important;cursor:zoom-in}
 .character-card .file-card-photo.loaded{opacity:1}
 .character-card .face.image-replaced{opacity:0}
-.character-card .face{position:absolute;top:29px;left:0;right:0;height:76px;margin:0;display:flex;align-items:center;justify-content:center;transition:opacity .2s ease}
-.character-card>div{position:absolute;left:4px;right:4px;bottom:8px;z-index:2;margin:0;min-height:26px;display:flex;align-items:center;justify-content:center}
+.character-card .face{position:absolute;top:34px;left:0;right:0;height:104px;margin:0;display:flex;align-items:center;justify-content:center;font-size:62px;transition:opacity .2s ease}
+.character-card>div{position:absolute;left:4px;right:4px;bottom:7px;z-index:2;margin:0;min-height:28px;display:flex;align-items:center;justify-content:center;padding:3px 5px;background:linear-gradient(transparent,#e8e2d2 22%);font-size:13px}
+.character-image-viewer{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;background:#050906eF;backdrop-filter:blur(12px);opacity:0;animation:photoViewerIn .22s ease forwards;cursor:zoom-out}
+.character-image-viewer img{display:block;max-width:min(900px,92vw);max-height:82vh;width:auto;height:auto;object-fit:contain;border:2px solid #d2d9bd;border-radius:14px;box-shadow:0 28px 100px #000b;transform:scale(.88);animation:photoImageIn .32s cubic-bezier(.2,.85,.25,1) forwards;cursor:default}
+.character-image-viewer .viewer-caption{position:absolute;left:20px;right:20px;bottom:18px;text-align:center;color:#e8eadc;font:600 13px Oswald;letter-spacing:.08em;text-shadow:0 2px 8px #000}
+@keyframes photoViewerIn{to{opacity:1}}
+@keyframes photoImageIn{to{transform:scale(1)}}
+@media(max-width:560px){.character-card{min-height:160px}.character-card .file-card-photo,.character-card>img:not(.file-card-photo){height:100px!important}.character-card .face{height:94px;font-size:55px}}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -182,7 +191,7 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
       <div class="setup-form">
         <div class="form-section"><div class="form-heading"><span>01</span><div><b>Идентификация комнаты</b><small>Как будет выглядеть твоё игровое дело</small></div></div>
           <div class="field"><label for="roomName">НАЗВАНИЕ ДЕЛА</label><input id="roomName" maxlength="40" placeholder="Например, Тайна старого особняка"></div>
-          <div class="field"><label for="roomCode">КОД ДОСТУПА</label><input id="roomCode" maxlength="16" placeholder="MYSTERY-7" autocomplete="off"><span class="muted small">3–16 символов: латиница, цифры, дефис или подчёркивание.</span></div>
+          <div class="field"><label for="roomCode">ШЕСТИЗНАЧНЫЙ КОД КОМНАТЫ</label><input id="roomCode" maxlength="6" inputmode="numeric" placeholder="Создаётся автоматически" autocomplete="off" readonly><span class="muted small">Код генерируется автоматически при открытии формы создания комнаты.</span></div>
         </div>
         <div class="form-section"><div class="form-heading"><span>02</span><div><b>Материалы расследования</b><small>Выбери набор и размер игрового стола</small></div></div>
           <div class="field"><label>АРХИВ ПЕРСОНАЖЕЙ</label><div id="selectedRoomPack" class="notice">Пак не выбран</div><button class="secondary picker-button" onclick="openRoomPackPicker()">▤ Выбрать коллекцию</button></div>
@@ -814,7 +823,7 @@ function openPackSelectionModal(onChoose){
 function openRoomSettings(access='private'){
   roomAccessDefault=access;selectedRoomPack=null;
   document.getElementById('roomName').value='';
-  document.getElementById('roomCode').value='';
+  document.getElementById('roomCode').value=generateRoomCode();
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
   document.getElementById('roomAccess').value=access;
   const accessChoice=document.querySelector('input[name="roomAccessChoice"][value="'+access+'"]');if(accessChoice)accessChoice.checked=true;
@@ -823,15 +832,19 @@ function openRoomSettings(access='private'){
   Array.from(document.getElementById('roomCardCount').options).forEach(o=>o.disabled=false);
   showScreen('roomSettingsScreen');
 }
+function generateRoomCode(){
+  const values=new Uint32Array(1);
+  if(window.crypto?.getRandomValues)window.crypto.getRandomValues(values);else values[0]=Math.floor(Math.random()*0xffffffff);
+  return String(100000+(values[0]%900000));
+}
 async function createConfiguredRoom(){
   if(!selectedRoomPack){toast('Сначала выбери пак.');return}
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
   if(!window.onlineGame?.createRoom){toast('Онлайн-игра пока недоступна.');return}
-  const roomName=document.getElementById('roomName').value.trim();
-  const roomCode=document.getElementById('roomCode').value.trim().toUpperCase();
-  if(!roomName){toast('Введи название комнаты.');return}
-  if(!/^[A-Z0-9_-]{3,16}$/.test(roomCode)){toast('Придумай код длиной от 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.');return}
+  const roomCode=document.getElementById('roomCode').value.trim();
+  const roomName=document.getElementById('roomName').value.trim()||`Засекреченные файлы ${roomCode}`;
+  if(!/^\\d{6}$/.test(roomCode)){toast('Не удалось создать код комнаты. Открой форму ещё раз.');return}
   const settings={
     roomName,
     roomCode,
@@ -936,6 +949,17 @@ function applyFileCardImage(img,src){
   img.onerror=()=>img.remove();img.src=src;
 }
 function observeFileCardImage(img){if(fileImageObserver)fileImageObserver.observe(img);else findFileCardImage(img)}
+function openCharacterImage(src,name){
+  if(!src)return;
+  const old=document.querySelector('.character-image-viewer');if(old)old.remove();
+  const viewer=document.createElement('div');viewer.className='character-image-viewer';viewer.setAttribute('role','dialog');viewer.setAttribute('aria-modal','true');viewer.setAttribute('aria-label',name||'Просмотр изображения');
+  const image=document.createElement('img');image.src=src;image.alt=name||'';
+  const caption=document.createElement('div');caption.className='viewer-caption';caption.textContent=name||'';
+  viewer.append(image,caption);viewer.addEventListener('click',event=>{if(event.target===viewer)viewer.remove()});
+  const onKey=event=>{if(event.key==='Escape'){viewer.remove();document.removeEventListener('keydown',onKey)}};
+  document.addEventListener('keydown',onKey);viewer.addEventListener('click',()=>document.removeEventListener('keydown',onKey));
+  document.body.appendChild(viewer);
+}
 function renderGame(){
   const root=document.getElementById('characterBoard');root.innerHTML='';
   currentCharacters.forEach(character=>{
@@ -944,10 +968,11 @@ function renderGame(){
     if(character.image){
       const img=document.createElement('img');img.src=character.image;img.alt=character.name;
       img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
+      img.addEventListener('click',event=>{event.stopPropagation();openCharacterImage(img.currentSrc||img.src,character.name)});
       card.appendChild(img);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
-      const img=document.createElement('img');img.className='file-card-photo';img.alt=character.name;img.dataset.imageName=character.name;img.loading='lazy';img.decoding='async';card.appendChild(img);observeFileCardImage(img);
+      const img=document.createElement('img');img.className='file-card-photo';img.alt=character.name;img.dataset.imageName=character.name;img.loading='lazy';img.decoding='async';img.addEventListener('click',event=>{event.stopPropagation();if(img.src&&img.classList.contains('loaded'))openCharacterImage(img.currentSrc||img.src,character.name)});card.appendChild(img);observeFileCardImage(img);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>toggleCrossed(character.id);
