@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Кто это?</title>
+<title>Засекреченные файлы — Kazo</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap');
 :root{color-scheme:dark;--bg:#101512;--panel:#1b241f;--panel2:#222e26;--paper:#e8e2d2;--paper2:#d7d0bd;--ink:#20261f;--green:#c0d29b;--green2:#809a66;--rust:#c47b58;--line:#455448;--muted:#9ca99c}
@@ -38,26 +38,30 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 @media(max-width:800px){.hero{grid-template-columns:1fr;min-height:0}.hero-copy{padding:35px 28px 25px}.hero-art{min-height:280px}.hero-index{bottom:12px}.mode-layout{grid-template-columns:1fr}.mode-card{min-height:215px}.setup-layout{grid-template-columns:1fr}.setup-aside{position:static;display:grid;grid-template-columns:1fr 1fr;gap:12px}.case-file{min-height:230px}.case-file-symbol{width:70px;height:70px;font-size:48px;margin:15px auto 10px}.case-file>b{font-size:21px}.setup-steps{align-content:center;margin:0}.home-actions{grid-template-columns:1fr}.detective-toolbar{grid-template-columns:1fr}}
 @media(max-width:560px){.app{width:calc(100% - 22px);padding-top:12px}.agency-masthead{font-size:8px}.hero h1{font-size:83px}.hero-art{min-height:230px}.silhouette{width:135px;height:175px;font-size:110px}.hero-art:before{width:270px;height:270px}.hero-art:after{width:200px;height:200px}.form-section{padding:16px}.form-pair{grid-template-columns:1fr}.setup-aside{grid-template-columns:1fr}.case-file{min-height:205px}.case-file-symbol{margin:12px auto}.access-options{grid-template-columns:1fr}.secret-dossier{flex-wrap:wrap}.secret-dossier .primary{flex:1}.game-table{border-width:6px;padding:10px}.question-console{grid-template-columns:1fr}.question-input-wrap{grid-template-columns:1fr}.question-input-wrap button{min-height:45px}#characterBoard{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:9px}.character-card{min-height:127px}.page-head{align-items:start}.page-head h2{font-size:31px}.menu-grid{grid-template-columns:1fr}.row>*{flex:1 1 100%}}
 
+
+/* Название и справка игры */
+.topbar{gap:14px}.brand{font-size:clamp(10px,1.5vw,14px);letter-spacing:.12em}.help-trigger{margin-left:auto;width:38px;height:38px;flex:0 0 38px;border:1px solid #b8cb9488;border-radius:50%;background:#26352a;color:#dce8c8;font:700 20px Oswald,sans-serif;box-shadow:0 0 0 4px #b8cb9410}.help-trigger:hover{background:#3a4c37}.info-modal{width:min(560px,100%)}.info-kicker{margin-bottom:12px;color:#b8cb94;font:500 10px 'DM Mono',monospace;letter-spacing:.15em}.info-highlight{margin:16px 0;padding:14px;border-left:3px solid #b8cb94;background:#b8cb9412;color:#e2e9d7;font-size:13px;line-height:1.7}.info-modal p{color:#bdc8b7;font-size:13px;line-height:1.8}.info-modal .modal-actions{justify-content:flex-end}.info-modal .modal-actions button{flex:0 1 160px}
+.hero h1{font-size:clamp(48px,8vw,94px);line-height:.9;overflow-wrap:anywhere}
 </style>
 </head>
 <body data-game="who-is-it">
 <div class="app">
   <div class="topbar">
-    <a class="brand" href="/" style="color:inherit;text-decoration:none" aria-label="На главную">КТО <span>ЭТО?</span></a>
+    <a class="brand" href="/" style="color:inherit;text-decoration:none" aria-label="На главную">ЗАСЕКРЕЧЕННЫЕ <span>ФАЙЛЫ</span></a><button class="help-trigger" type="button" onclick="openGameInfo()" aria-label="О чём эта игра?" title="О чём эта игра?">?</button>
   </div>
 
   <!-- ГЛАВНОЕ МЕНЮ -->
   <section id="homeScreen" class="screen active">
     <div class="agency-masthead"><span class="agency-kicker">THE UNKNOWN FILES · CASE NO. 001</span><span class="agency-status"><i></i> DETECTIVE NETWORK ONLINE</span></div>
     <div class="hero">
-      <div class="hero-copy"><div class="eyebrow">ДЕЛО № 001 / ЛИЧНОСТЬ НЕ УСТАНОВЛЕНА</div><h1>КТО<br><em>ЭТО?</em></h1><p>Перед тобой десятки подозреваемых. Задавай вопросы, собирай улики и вычисли тайную личность раньше соперника.</p><button class="primary hero-cta" onclick="openPlayMenu()">ОТКРЫТЬ НОВОЕ ДЕЛО <span>↗</span></button></div>
+      <div class="hero-copy"><div class="eyebrow">ДЕЛО № 001 / ЛИЧНОСТЬ НЕ УСТАНОВЛЕНА</div><h1>ЗАСЕКРЕЧЕННЫЕ<br><em>ФАЙЛЫ</em></h1><p>Перед тобой неизвестные объекты и загадочные досье. Задавай вопросы, собирай улики и выясни, что скрывается в засекреченном файле.</p><button class="primary hero-cta" onclick="openPlayMenu()">ОТКРЫТЬ НОВОЕ ДЕЛО <span>↗</span></button></div>
       <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="silhouette">?</div><div class="stamp">TOP<br>SECRET</div><div class="art-caption">SUBJECT<br>UNKNOWN</div></div>
       <div class="hero-index">KAZO / DETECTIVE CLUB <span>EST. 2026</span></div>
     </div>
     <div class="home-bottom"><div class="section-label"><span>01</span> ДОСТУП К ДЕЛАМ</div><div class="home-actions">
       <button class="action-tile action-primary" onclick="openPlayMenu()"><span class="tile-symbol">＋</span><span><b>Новая игра</b><small>Создать комнату или подключиться</small></span><strong>↗</strong></button>
       <button class="action-tile" onclick="openPublicRooms()"><span class="tile-symbol">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><strong>↗</strong></button>
-      <button class="action-tile" onclick="openPacksMenu()"><span class="tile-symbol">▤</span><span><b>Архив персонажей</b><small>Коллекции и редактор паков</small></span><strong>↗</strong></button>
+      <button class="action-tile" onclick="openPacksMenu()"><span class="tile-symbol">▤</span><span><b>Архив объектов</b><small>Коллекции людей, предметов, мест и многого другого</small></span><strong>↗</strong></button>
     </div></div>
   </section>
 
@@ -214,17 +218,29 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
     <div class="game-layout">
       <div class="game-info"><div><strong id="turnStatus">Подготовка расследования</strong><div id="gameSubtitle" class="muted small"></div></div><div class="game-actions"><span id="timerDisplay" class="badge">Время: —</span><span id="cardCountDisplay" class="badge">Карточек: —</span></div></div>
       <div id="onlineGamePanel"></div>
-      <div class="detective-toolbar"><div class="secret-dossier"><span class="dossier-icon">◈</span><div><small>ТВОЯ СЕКРЕТНАЯ ЛИЧНОСТЬ</small><strong id="secretCharacter">Ещё не выбрана</strong></div><button id="chooseSecretButton" class="primary fit" onclick="openPicker()">Выбрать</button></div><div class="board-instructions"><b>АРХИВ ПОДОЗРЕВАЕМЫХ</b><span>Отмечай исключённых персонажей. Удерживай карточку, чтобы предположить ответ.</span></div></div>
+      <div class="detective-toolbar"><div class="secret-dossier"><span class="dossier-icon">◈</span><div><small>ТВОЙ СЕКРЕТНЫЙ ОБЪЕКТ</small><strong id="secretCharacter">Ещё не выбрана</strong></div><button id="chooseSecretButton" class="primary fit" onclick="openPicker()">Выбрать</button></div><div class="board-instructions"><b>АРХИВ ПОДОЗРЕВАЕМЫХ</b><span>Отмечай исключённых персонажей. Удерживай карточку, чтобы предположить ответ.</span></div></div>
       <div class="game-table"><div class="table-heading"><div><span class="table-overline">EVIDENCE BOARD / 01</span><strong>ДОСЬЕ ПОДОЗРЕВАЕМЫХ</strong></div><span class="table-counter">CASE MATERIALS</span></div><div id="characterBoard" class="character-grid"></div><div class="table-footer"><span>◈ KAZO DETECTIVE CLUB</span><span>ЛЕВОЕ НАЖАТИЕ — ИСКЛЮЧИТЬ / ВЕРНУТЬ</span></div></div>
       <div class="question-console"><div class="question-label"><span>02 / INTERROGATION</span><b>ТВОЙ ВОПРОС</b><small>Сформулируй вопрос, который поможет сузить круг подозреваемых.</small></div><div class="question-input-wrap"><input id="questionInput" maxlength="180" placeholder="Например: У моего персонажа есть крылья?"><button class="primary" onclick="sendLocalQuestion()">ОТПРАВИТЬ ↗</button><div id="questionFeedback" class="muted small"></div></div></div>
     </div>
   </section>
 </div>
 
+
+<div id="gameInfoModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="gameInfoTitle" onclick="if(event.target===this)closeGameInfo()">
+  <div class="modal info-modal">
+    <div class="info-kicker">KAZO / ИСТОРИЯ ПРОЕКТА</div>
+    <h2 id="gameInfoTitle">Засекреченные файлы</h2>
+    <div class="info-highlight">Это обновлённая и расширенная версия игры «Кто это?» — теперь расследовать можно не только личности.</div>
+    <p>Основная идея осталась прежней: задавай вопросы, анализируй подсказки и первым угадай секретный объект. Но теперь в архивах могут быть люди, животные, предметы, места, растения, явления и любые другие категории.</p>
+    <p>Новая детективная тема превращает каждый раунд в отдельное дело, а коллекции — в архив засекреченных материалов.</p>
+    <div class="modal-actions"><button class="primary" type="button" onclick="closeGameInfo()">Понятно</button></div>
+  </div>
+</div>
+
 <div id="pickerModal" class="modal-backdrop">
   <div class="modal">
-    <h2>Выбери своего персонажа</h2>
-    <p class="muted">Выбери одного персонажа, которого соперник должен угадать.</p>
+    <h2>Выбери секретный объект</h2>
+    <p class="muted">Выбери объект, который соперник должен разгадать.</p>
     <div id="pickerCharacters" class="character-grid"></div>
     <div class="modal-actions">
       <button class="secondary" onclick="closePicker()">Отмена</button>
@@ -247,6 +263,10 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 <div id="toast"></div>
 
 <script>
+
+function openGameInfo(){document.getElementById('gameInfoModal').classList.add('open')}
+function closeGameInfo(){document.getElementById('gameInfoModal').classList.remove('open')}
+
 /* -------------------------------------------------------
    ДАННЫЕ ИГРЫ И ПАКОВ
 ------------------------------------------------------- */
@@ -930,7 +950,7 @@ function openPicker(){
   if(currentGameMode==='online'&&!window.onlineGame?.canChooseCharacter?.()){
     toast('Сначала дождись подключения второго игрока.');return;
   }
-  if(secretCharacter){toast('Персонаж уже выбран.');return}
+  if(secretCharacter){toast('Объект уже выбран.');return}
   pickerSelection=null;
   const root=document.getElementById('pickerCharacters');root.innerHTML='';
   currentCharacters.forEach(character=>{
@@ -954,15 +974,15 @@ function openPicker(){
 }
 function closePicker(){document.getElementById('pickerModal').classList.remove('open')}
 async function confirmCharacter(){
-  if(!pickerSelection){toast('Выбери персонажа.');return}
+  if(!pickerSelection){toast('Выбери объект.');return}
   if(currentGameMode==='online'){
-    if(!window.onlineGame?.canChooseCharacter?.()){toast('Нельзя выбрать персонажа до подключения соперника.');return}
+    if(!window.onlineGame?.canChooseCharacter?.()){toast('Нельзя выбрать объект до подключения соперника.');return}
     try{
       const result=await window.onlineGame.playerReady(pickerSelection.id);
       if(result?.ok===false)throw new Error(result.error||'Не удалось выбрать персонажа');
     }catch(error){toast(error.message||'Не удалось подтвердить выбор.');return}
   }
-  secretCharacter=pickerSelection;closePicker();updateCharacterButton();toast('Персонаж выбран!');
+  secretCharacter=pickerSelection;closePicker();updateCharacterButton();toast('Объект выбран!');
 }
 function requestGuess(character){
   if(!character)return;
