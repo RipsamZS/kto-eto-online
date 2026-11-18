@@ -43,21 +43,25 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
 .topbar{gap:14px}.brand{font-size:clamp(10px,1.5vw,14px);letter-spacing:.12em}.help-trigger{margin-left:auto;width:38px;height:38px;flex:0 0 38px;border:1px solid #b8cb9488;border-radius:50%;background:#26352a;color:#dce8c8;font:700 20px Oswald,sans-serif;box-shadow:0 0 0 4px #b8cb9410}.help-trigger:hover{background:#3a4c37}.info-modal{width:min(560px,100%)}.info-kicker{margin-bottom:12px;color:#b8cb94;font:500 10px 'DM Mono',monospace;letter-spacing:.15em}.info-highlight{margin:16px 0;padding:14px;border-left:3px solid #b8cb94;background:#b8cb9412;color:#e2e9d7;font-size:13px;line-height:1.7}.info-modal p{color:#bdc8b7;font-size:13px;line-height:1.8}.info-modal .modal-actions{justify-content:flex-end}.info-modal .modal-actions button{flex:0 1 160px}
 .hero h1{font-size:clamp(48px,8vw,94px);line-height:.9;overflow-wrap:anywhere}
 
-.character-card{overflow:hidden;min-height:174px;padding:10px 8px;cursor:zoom-in;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
-.character-card:hover{transform:translateY(-4px) scale(1.025);box-shadow:5px 9px 20px #0005}
-.character-card .file-card-photo{position:absolute;width:calc(100% - 18px);height:112px;left:9px;top:28px;transform:none;object-fit:cover;object-position:center;border:2px solid #a9a28e;border-radius:9px;background:linear-gradient(135deg,#e8e3d5,#c8c4b6);opacity:0;transition:opacity .28s ease,transform .35s cubic-bezier(.2,.8,.2,1),filter .25s ease;filter:saturate(.9) contrast(.98);cursor:zoom-in}
-.character-card .file-card-photo:hover{transform:scale(1.035);filter:saturate(1.04) contrast(1.02)}
-.character-card>img:not(.file-card-photo){width:calc(100% - 18px)!important;height:112px!important;object-fit:cover!important;border:2px solid #a9a28e!important;border-radius:9px!important;display:block!important;margin:18px auto 0!important;cursor:zoom-in}
+#characterBoard{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;padding:14px}
+.character-card{position:relative;display:block;width:100%;min-height:0;aspect-ratio:4/5;padding:0;overflow:hidden;border:2px solid #a69c80;border-radius:10px;background:linear-gradient(145deg,#e9e3d3,#c9c4b3);color:#283027;text-align:center;box-shadow:3px 4px 0 #766a52,0 7px 13px #0003;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.character-card:hover{transform:translateY(-3px);box-shadow:5px 9px 20px #0005}
+.character-card:before{content:'FILE / 0';position:absolute;z-index:2;left:9px;top:8px;padding:4px 6px;border-radius:4px;background:#17251dcc;color:#e3e8d6;font:500 8px 'DM Mono',monospace;letter-spacing:.08em}
+.character-card .file-card-photo,.character-card>img:not(.file-card-photo){position:absolute;inset:0;width:100%!important;height:100%!important;margin:0!important;display:block;object-fit:cover;object-position:center;border:0!important;border-radius:0!important;background:#d8d3c4;opacity:0;transition:opacity .25s ease,transform .35s ease;cursor:default}
 .character-card .file-card-photo.loaded{opacity:1}
-.character-card .face.image-replaced{opacity:0}
-.character-card .face{position:absolute;top:34px;left:0;right:0;height:104px;margin:0;display:flex;align-items:center;justify-content:center;font-size:62px;transition:opacity .2s ease}
-.character-card>div{position:absolute;left:4px;right:4px;bottom:7px;z-index:2;margin:0;min-height:28px;display:flex;align-items:center;justify-content:center;padding:3px 5px;background:linear-gradient(transparent,#e8e2d2 22%);font-size:13px}
-.character-image-viewer{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;background:#050906eF;backdrop-filter:blur(12px);opacity:0;animation:photoViewerIn .22s ease forwards;cursor:zoom-out}
-.character-image-viewer img{display:block;max-width:min(900px,92vw);max-height:82vh;width:auto;height:auto;object-fit:contain;border:2px solid #d2d9bd;border-radius:14px;box-shadow:0 28px 100px #000b;transform:scale(.88);animation:photoImageIn .32s cubic-bezier(.2,.85,.25,1) forwards;cursor:default}
+.character-card .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;margin:0;font-size:clamp(56px,8vw,92px);line-height:1}
+.character-card>div:not(.card-zoom){position:absolute;z-index:2;left:0;right:0;bottom:0;min-height:0;margin:0;padding:25px 10px 10px;display:flex;align-items:end;justify-content:center;background:linear-gradient(transparent,#111b15eF);color:#fff;font:700 15px Oswald,sans-serif;letter-spacing:.025em;text-shadow:0 1px 5px #000}
+.character-card .card-zoom{position:absolute;z-index:4;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;padding:0;border:1px solid #ffffff99;border-radius:50%;background:#101a15d9;color:white;font-size:19px;line-height:1;box-shadow:0 2px 9px #0005}
+.character-card .card-zoom:disabled{opacity:.35;cursor:not-allowed}
+.character-card.selected{border:3px solid #a9c37d;background:#e8efd9;box-shadow:0 0 0 3px #b8cb9464,3px 4px 0 #536747}
+.character-card.crossed{opacity:.3;filter:grayscale(1);transform:scale(.97);box-shadow:none}
+.character-card.crossed .card-zoom{filter:none;opacity:1}
+.character-image-viewer{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;background:#050906ef;backdrop-filter:blur(12px);opacity:0;animation:photoViewerIn .22s ease forwards;cursor:zoom-out}
+.character-image-viewer img{display:block;max-width:min(1100px,94vw);max-height:84vh;width:auto;height:auto;object-fit:contain;border:2px solid #d2d9bd;border-radius:14px;box-shadow:0 28px 100px #000b;transform:scale(.88);animation:photoImageIn .32s cubic-bezier(.2,.85,.25,1) forwards;cursor:default}
 .character-image-viewer .viewer-caption{position:absolute;left:20px;right:20px;bottom:18px;text-align:center;color:#e8eadc;font:600 13px Oswald;letter-spacing:.08em;text-shadow:0 2px 8px #000}
 @keyframes photoViewerIn{to{opacity:1}}
 @keyframes photoImageIn{to{transform:scale(1)}}
-@media(max-width:560px){.character-card{min-height:160px}.character-card .file-card-photo,.character-card>img:not(.file-card-photo){height:100px!important}.character-card .face{height:94px;font-size:55px}}
+@media(max-width:560px){#characterBoard{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:9px}.character-card{aspect-ratio:3/4}.character-card>div:not(.card-zoom){font-size:13px;padding-bottom:8px}.character-card .card-zoom{width:32px;height:32px}}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -75,8 +79,7 @@ input,textarea,select{width:100%;padding:13px 14px;border:1px solid #778a714d;bo
       <div class="hero-index">KAZO / DETECTIVE CLUB <span>EST. 2026</span></div>
     </div>
     <div class="home-bottom"><div class="section-label"><span>01</span> ДОСТУП К ДЕЛАМ</div><div class="home-actions">
-      <button class="action-tile action-primary" onclick="openPlayMenu()"><span class="tile-symbol">＋</span><span><b>Новая игра</b><small>Создать комнату или подключиться</small></span><strong>↗</strong></button>
-      <button class="action-tile" onclick="openPublicRooms()"><span class="tile-symbol">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><strong>↗</strong></button>
+<button class="action-tile" onclick="openPublicRooms()"><span class="tile-symbol">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><strong>↗</strong></button>
       <button class="action-tile" onclick="openPacksMenu()"><span class="tile-symbol">▤</span><span><b>Архив объектов</b><small>Коллекции людей, предметов, мест и многого другого</small></span><strong>↗</strong></button>
     </div></div>
   </section>
@@ -951,21 +954,37 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
 const fileImageCache=new Map();
 const fileImageObserver=typeof IntersectionObserver!=='undefined'?new IntersectionObserver(entries=>{
   entries.forEach(entry=>{if(entry.isIntersecting){fileImageObserver.unobserve(entry.target);findFileCardImage(entry.target)}});
-},{rootMargin:'180px'}):null;
+},{rootMargin:'240px'}):null;
+function normalizeImageTitle(value){
+  return String(value||'').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/[^a-zа-я0-9]+/gi,' ').trim().replace(/\\s+/g,' ');
+}
+function imageTitleMatch(cardName,pageTitle){
+  const a=normalizeImageTitle(cardName),b=normalizeImageTitle(pageTitle);
+  if(!a||!b)return false;
+  if(a===b||b.includes(a)||a.includes(b))return true;
+  const aa=new Set(a.split(' ')),bb=new Set(b.split(' '));
+  const overlap=[...aa].filter(token=>bb.has(token)).length;
+  return overlap/Math.max(aa.size,bb.size)>=.72;
+}
 function findFileCardImage(img){
-  const name=img.dataset.imageName||'',key='kazo-classified-image-v1:'+name.toLowerCase();
+  const name=img.dataset.imageName||'',key='kazo-classified-image-v2:'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
-  const url='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(name.trim()+' filetype:bitmap')+'&gsrnamespace=6&gsrlimit=1&prop=imageinfo&iiprop=url&iiurlwidth=360&format=json&origin=*';
-  fetch(url).then(r=>{if(!r.ok)throw Error('Image search failed');return r.json()}).then(data=>{
-    const pages=Object.values(data.query?.pages||{}),image=pages[0]?.imageinfo?.[0],src=image?.thumburl||image?.url;if(!src)return;
+  const query='intitle:"'+name.trim()+'"';
+  const url='https://ru.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(query)+'&gsrnamespace=0&gsrlimit=6&prop=pageimages&piprop=thumbnail&pithumbsize=900&format=json&origin=*';
+  fetch(url).then(r=>{if(!r.ok)throw Error('Wikipedia image lookup failed');return r.json()}).then(data=>{
+    const pages=Object.values(data.query?.pages||{}).filter(page=>page.thumbnail?.source&&imageTitleMatch(name,page.title));
+    if(!pages.length)return;
+    pages.sort((a,b)=>normalizeImageTitle(b.title)===normalizeImageTitle(name)?1:0);
+    const src=pages[0].thumbnail.source;
     fileImageCache.set(key,src);try{localStorage.setItem(key,src)}catch(e){}applyFileCardImage(img,src);
   }).catch(()=>{});
 }
 function applyFileCardImage(img,src){
   if(!img.isConnected)return;
-  img.onload=()=>{img.classList.add('loaded');const face=img.parentElement?.querySelector('.face');if(face)face.classList.add('image-replaced')};
-  img.onerror=()=>img.remove();img.src=src;
+  img.onload=()=>img.classList.add('loaded');
+  img.onerror=()=>{img.remove();const zoom=img.parentElement?.querySelector('.card-zoom');if(zoom)zoom.disabled=true};
+  img.src=src;
 }
 function observeFileCardImage(img){if(fileImageObserver)fileImageObserver.observe(img);else findFileCardImage(img)}
 function openCharacterImage(src,name){
@@ -983,25 +1002,30 @@ function openCharacterImage(src,name){
 function renderGame(){
   const root=document.getElementById('characterBoard');root.innerHTML='';
   currentCharacters.forEach(character=>{
-    const card=document.createElement('button');card.className='character-card';
+    const card=document.createElement('div');card.className='character-card';card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label',character.name+' — отметить исключённым');
     if(gameCrossed.has(character.id))card.classList.add('crossed');
+    let photo=null;
     if(character.image){
-      const img=document.createElement('img');img.src=character.image;img.alt=character.name;
-      img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
-      img.addEventListener('click',event=>{event.stopPropagation();openCharacterImage(img.currentSrc||img.src,character.name)});
-      card.appendChild(img);
+      photo=document.createElement('img');photo.src=character.image;photo.alt=character.name;photo.className='file-card-photo loaded';photo.decoding='async';card.appendChild(photo);
     }else{
       const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
-      const img=document.createElement('img');img.className='file-card-photo';img.alt=character.name;img.dataset.imageName=character.name;img.loading='lazy';img.decoding='async';img.addEventListener('click',event=>{event.stopPropagation();if(img.src&&img.classList.contains('loaded'))openCharacterImage(img.currentSrc||img.src,character.name)});card.appendChild(img);observeFileCardImage(img);
+      photo=document.createElement('img');photo.className='file-card-photo';photo.alt=character.name;photo.dataset.imageName=character.name;photo.loading='lazy';photo.decoding='async';card.appendChild(photo);observeFileCardImage(photo);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
-    card.onclick=()=>toggleCrossed(character.id);
+    const zoom=document.createElement('button');zoom.type='button';zoom.className='card-zoom';zoom.textContent='⌕';zoom.title='Увеличить изображение';zoom.setAttribute('aria-label','Увеличить: '+character.name);zoom.disabled=!character.image;zoom.onclick=event=>{event.stopPropagation();if(photo?.classList.contains('loaded')||character.image)openCharacterImage(photo.currentSrc||photo.src,character.name)};card.appendChild(zoom);
+    const toggle=()=>toggleCrossed(character.id);
+    card.addEventListener('click',toggle);
+    card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
     card.oncontextmenu=event=>{event.preventDefault();requestGuess(character)};
     let holdTimer;
     card.addEventListener('touchstart',()=>{holdTimer=setTimeout(()=>requestGuess(character),600)},{passive:true});
     card.addEventListener('touchend',()=>clearTimeout(holdTimer));
     card.addEventListener('touchmove',()=>clearTimeout(holdTimer));
     root.appendChild(card);
+    if(!character.image&&photo){
+      const check=()=>{if(photo.classList.contains('loaded'))zoom.disabled=false};
+      photo.addEventListener('load',check,{once:true});
+    }
   });
 }
 function toggleCrossed(id){
