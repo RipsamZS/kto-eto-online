@@ -484,3 +484,261 @@ body[data-game="territory"] .generic-board button,body[data-game="territory"] .g
 @keyframes kazoFloat{from{transform:translate3d(0,0,0)}to{transform:translate3d(-35px,28px,0)}}
 @keyframes kazoDrift{from{transform:translate3d(-3%,0,0) scale(1)}to{transform:translate3d(5%,4%,0) scale(1.08)}}
 @media(max-width:700px){.game-world{padding:12px;border-radius:22px;min-height:360px}.game-console{padding:17px;border-radius:20px}.game-world--quiz .generic-answers,.game-world--truth .generic-answers{grid-template-columns:1fr}.game-world--alias .alias-scoreboard{grid-template-columns:1fr 1fr}.game-world--alias .alias-timer{grid-column:1/-1;grid-row:1}.game-world--alias .alias-word-card{min-height:150px}.game-world--codenames .word-card{min-height:58px!important;font-size:11px}}
+
+
+/* =========================================================
+   PLAYROOM // IN-GAME EXPERIENCE v4
+   Full game-surface redesign. Loaded after the base skin so
+   every individual game owns its own visual language.
+   ========================================================= */
+:root{
+  --ink:#f7f5ff;--sub:#aaa8bc;--glass:rgba(19,18,32,.76);
+  --glass2:rgba(29,27,48,.88);--stroke:rgba(255,255,255,.11);
+  --shadow:0 28px 70px rgba(0,0,0,.34);
+}
+body{
+  padding:0 14px 44px;
+  color:var(--ink);
+  background:#090914;
+  background-image:
+    radial-gradient(circle at 15% 10%,rgba(124,92,255,.18),transparent 32%),
+    radial-gradient(circle at 85% 80%,rgba(45,214,196,.12),transparent 28%),
+    linear-gradient(145deg,#080811,#111022 52%,#080812);
+  overflow-x:hidden;
+}
+body:before{
+  content:"";position:fixed;inset:-30%;pointer-events:none;z-index:-1;
+  background:conic-gradient(from 180deg at 50% 50%,transparent,#8b6cff12,transparent,#43e0cc0d,transparent);
+  filter:blur(40px);animation:kzAurora 18s ease-in-out infinite alternate;
+}
+.page{width:min(1180px,100%);padding-top:14px}
+.top{padding:4px 2px 8px}.top a,.top .brand{
+  background:rgba(18,17,29,.72);border:1px solid var(--stroke);color:#dcd8ef;
+  backdrop-filter:blur(18px);box-shadow:0 8px 30px #0002
+}
+.brand{letter-spacing:.14em}
+.hero{padding:18px 10px 16px;text-align:left;display:flex;align-items:end;gap:16px}
+.hero .emoji{width:62px;height:62px;display:grid;place-items:center;font-size:30px;
+  border:1px solid var(--stroke);border-radius:20px;background:linear-gradient(145deg,#ffffff12,#ffffff05);
+  box-shadow:inset 0 1px #fff1,0 14px 40px #0003}
+.hero h1{margin:0;font-size:clamp(30px,5vw,48px);color:#fff;text-shadow:0 8px 30px #0006}
+.hero p{margin:0 0 3px;color:#aaa7bb}
+.game-title-panel{
+  position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:16px;
+  align-items:center;margin:10px 0 14px;padding:18px 20px;border:1px solid var(--stroke);
+  border-radius:24px;background:linear-gradient(135deg,#ffffff0c,#ffffff03);
+  box-shadow:var(--shadow);backdrop-filter:blur(22px)
+}
+.game-title-panel:after{content:"";position:absolute;inset:auto -10% -70%;height:150px;background:radial-gradient(ellipse,#fff1,transparent 65%);pointer-events:none}
+.game-title-emblem{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;
+  background:linear-gradient(145deg,#ffffff18,#ffffff05);border:1px solid #fff2;box-shadow:inset 0 1px #fff2}
+.game-title-kicker{font-size:10px;letter-spacing:.2em;color:#8f8ba3;font-weight:900}
+.game-title-copy h2{margin:3px 0 2px;font:800 clamp(22px,4vw,34px)/1.05 "Space Grotesk",sans-serif;color:#fff}
+.game-title-copy p{margin:0;color:#9692a7}
+.status{border:1px solid #ffffff16!important;background:#ffffff08!important;color:#ddd9eb!important;border-radius:14px!important}
+.panel{background:linear-gradient(145deg,rgba(26,24,43,.82),rgba(13,13,24,.82));border:1px solid var(--stroke);
+  box-shadow:0 18px 50px #0003;backdrop-filter:blur(20px);border-radius:22px}
+.game-world{
+  --gameA:#8c6cff;--gameB:#38d9c2;--gameC:#ffce68;
+  position:relative;overflow:hidden;min-height:470px;padding:18px;border-radius:30px;
+  background:
+    radial-gradient(circle at 80% 0,var(--gameA)20,transparent 30%),
+    radial-gradient(circle at 0 100%,var(--gameB)13,transparent 28%),
+    linear-gradient(145deg,#161529,#0d0d19 65%,#111021);
+  border:1px solid color-mix(in srgb,var(--gameA) 35%,transparent);
+  box-shadow:0 30px 90px #0006,inset 0 1px #fff1;
+}
+.game-world:before,.game-world:after{content:"";position:absolute;pointer-events:none;border-radius:999px;filter:blur(2px)}
+.game-world:before{width:220px;height:220px;right:-80px;top:-90px;background:var(--gameA);opacity:.12;animation:kzFloat 9s ease-in-out infinite alternate}
+.game-world:after{width:180px;height:180px;left:-90px;bottom:-90px;background:var(--gameB);opacity:.09;animation:kzFloat 12s ease-in-out infinite alternate-reverse}
+.game-console{
+  position:relative;z-index:1;max-width:1080px;margin:auto;padding:24px;border-radius:24px;
+  background:linear-gradient(145deg,rgba(23,22,40,.9),rgba(12,12,22,.78));
+  border:1px solid #fff12;box-shadow:0 20px 60px #0004,inset 0 1px #fff1
+}
+.game-console h2,.game-console h3{color:#fff}
+.game-console .muted{color:#a19db1}
+.game-console input,.game-console select,.game-console textarea{
+  background:#0d0d18;color:#f4f1ff;border-color:#ffffff14;border-radius:14px
+}
+.game-console input:focus,.game-console select:focus{border-color:var(--gameA);box-shadow:0 0 0 4px color-mix(in srgb,var(--gameA) 18%,transparent)}
+.game-console button.primary{
+  background:linear-gradient(135deg,var(--gameA),color-mix(in srgb,var(--gameA) 55%,#fff));
+  box-shadow:0 10px 30px color-mix(in srgb,var(--gameA) 25%,transparent)
+}
+.game-console button.secondary{
+  color:#eeeaf9;background:#ffffff0a;border:1px solid #fff16;box-shadow:none
+}
+.game-console button.secondary:hover:not(:disabled){background:#ffffff12;border-color:#fff2}
+.players{display:grid;gap:8px}.player{
+  background:#ffffff07;border:1px solid #fff0f;padding:10px 12px;border-radius:14px;color:#e7e3f2;
+  transition:.2s ease
+}.player:hover{transform:translateX(3px);background:#ffffff0d}
+.score{font-weight:900;color:var(--gameC)}
+.game-console .generic-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.game-console .generic-answers button{
+  min-height:72px;border-radius:18px;text-align:left;padding:15px 18px;
+  background:linear-gradient(145deg,#ffffff0b,#ffffff05);border:1px solid #fff14;color:#eeeaf7;
+  transition:transform .2s,background .2s,border .2s,box-shadow .2s
+}
+.game-console .generic-answers button:hover:not(:disabled){transform:translateY(-4px) scale(1.01);background:#ffffff12;border-color:var(--gameA);box-shadow:0 14px 30px #0003}
+.game-console .generic-board{max-width:560px;margin:18px auto;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.game-console .generic-board>*{
+  aspect-ratio:1;min-height:52px;border-radius:13px;display:grid;place-items:center;
+  background:#ffffff06;border:1px solid #fff12;color:#e8e4f4
+}
+.game-console .generic-board button{padding:0}
+.game-console .generic-board button:hover:not(:disabled){background:var(--gameA);box-shadow:0 8px 20px #0004}
+.game-console .generic-board.own>*{background:#ffffff08}
+.game-console .board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.game-console .word-card{
+  min-height:82px!important;border-radius:17px!important;padding:10px!important;
+  color:#ede9f7!important;background:linear-gradient(145deg,#ffffff0c,#ffffff04)!important;
+  border:1px solid #fff14!important;box-shadow:inset 0 1px #fff1,0 8px 18px #0002!important;
+  transition:transform .18s,background .18s,border .18s,box-shadow .18s!important
+}
+.game-console .word-card:hover:not(:disabled){transform:translateY(-5px) rotate(-.4deg);border-color:var(--gameA)!important;box-shadow:0 14px 30px #0005!important}
+.game-console .word-card.revealed{background:linear-gradient(145deg,var(--gameA),color-mix(in srgb,var(--gameA) 55%,#151321))!important}
+.game-world [class*="secret-word"],.game-world .alias-word-card{
+  min-height:150px;display:grid;place-items:center;text-align:center;padding:28px;border-radius:26px;
+  font:900 clamp(34px,7vw,66px)/1 "Space Grotesk",sans-serif;color:#fff;
+  background:radial-gradient(circle at 30% 20%,#fff2,transparent 30%),linear-gradient(145deg,var(--gameA),#171426 72%);
+  border:1px solid #fff2;box-shadow:0 22px 50px #0005,inset 0 1px #fff2;
+  animation:kzCardIn .42s cubic-bezier(.2,.9,.2,1)
+}
+.game-world .alias-scoreboard{display:grid;grid-template-columns:1fr 150px 1fr;gap:12px;margin-bottom:20px}
+.game-world .alias-scoreboard>div{
+  padding:14px;border-radius:17px;background:#ffffff08;border:1px solid #fff12;text-align:center
+}
+.game-world .alias-scoreboard span{display:block;color:#aaa6b8;font-size:10px;letter-spacing:.16em;font-weight:900}
+.game-world .alias-scoreboard strong{font-size:32px;color:#fff}
+.game-world .alias-timer{font-weight:900;font-size:20px;color:var(--gameC)!important}
+.game-world .alias-timer.is-low{color:#ff6675!important;animation:kzPulse .6s infinite alternate}
+.alias-review-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.alias-review-word{padding:14px;border-radius:15px!important;background:#fff07!important;border:1px solid #fff13!important;color:#fff!important;text-align:left}
+.alias-review-word.is-guessed{background:#50d6a31c!important;border-color:#50d6a36b!important}
+.hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.hand button{min-height:130px;border-radius:18px!important;background:linear-gradient(145deg,#ffffff12,#ffffff05)!important;border:1px solid #fff14!important;color:#fff!important;font-size:28px;transition:.25s}
+.hand button:hover{transform:translateY(-7px) rotate(1deg);border-color:var(--gameA)!important}
+.hand button.selected{transform:translateY(-9px);background:linear-gradient(145deg,var(--gameA),#fff1)!important;box-shadow:0 18px 35px #0005}
+.room-roster-bar{margin-top:16px;padding:16px;border:1px solid #fff10;border-radius:18px;background:#ffffff04}
+@keyframes kzAurora{from{transform:rotate(0) scale(1)}to{transform:rotate(18deg) scale(1.08)}}
+@keyframes kzFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(-25px,20px) scale(1.12)}}
+@keyframes kzCardIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes kzPulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+/* ---------- individual game identities ---------- */
+.game-world--alias{--gameA:#ff5c8a;--gameB:#ffb84d;--gameC:#ffe36e}
+.game-world--codenames{--gameA:#e34855;--gameB:#3c8dff;--gameC:#f5c65d}
+.game-world--spy{--gameA:#5d70ff;--gameB:#8d5cff;--gameC:#66e6d2}
+.game-world--imaginarium{--gameA:#c85cff;--gameB:#43d9ff;--gameC:#ffd36a}
+.game-world--mafia{--gameA:#d34a62;--gameB:#5b3d77;--gameC:#e7bb72}
+.game-world--battleship{--gameA:#168dff;--gameB:#00d1c1;--gameC:#69e4ff}
+.game-world--quiz{--gameA:#ff8a3d;--gameB:#ff4f91;--gameC:#ffd166}
+.game-world--truth{--gameA:#36b88c;--gameB:#6d6cff;--gameC:#f3e56b}
+.game-world--charades{--gameA:#ff5e9c;--gameB:#ff9f43;--gameC:#ffe066}
+.game-world--associations{--gameA:#7b61ff;--gameB:#2dd4bf;--gameC:#f9a8d4}
+.game-world--dots-duel{--gameA:#ff5b73;--gameB:#5b8cff;--gameC:#ffe066}
+.game-world--territory{--gameA:#a76cff;--gameB:#39e5b6;--gameC:#f4d35e}
+.game-world--codebreaker{--gameA:#26d0ce;--gameB:#7c5cff;--gameC:#f8e16c}
+.game-world--memory-duel{--gameA:#5c7cff;--gameB:#b36cff;--gameC:#8ff7d2}
+.game-world--number-duel{--gameA:#ff6a3d;--gameB:#ffcc4d;--gameC:#fff0a6}
+.game-world--word-duel{--gameA:#28c7b7;--gameB:#5f7cff;--gameC:#f4d35e}
+
+/* Alias = kinetic neon word arena */
+.game-world--alias .alias-word-card{letter-spacing:-.02em}
+.game-world--alias .alias-skip-button{border-color:#ffb84d55!important}
+.game-world--alias .alias-review-word span{font-weight:900;font-size:17px}
+
+/* Codenames = tactical command table */
+.game-world--codenames .game-console{background:linear-gradient(145deg,#171924,#10131b)}
+.game-world--codenames .word-card{font-family:"Space Grotesk",sans-serif;font-weight:800;letter-spacing:.02em}
+.game-world--codenames .word-card.revealed.red{background:linear-gradient(145deg,#c73e4c,#5b2029)!important}
+.game-world--codenames .word-card.revealed.blue{background:linear-gradient(145deg,#3679e8,#193b78)!important}
+.game-world--codenames .word-card.revealed.neutral{background:#746b61!important}
+.game-world--codenames .word-card.revealed.assassin{background:linear-gradient(145deg,#09090d,#000)!important;color:#ff6170!important}
+
+/* Spy = dark dossier */
+.game-world--spy .game-console{background:radial-gradient(circle at 85% 5%,#5d70ff15,transparent 32%),#0b0d16}
+.game-world--spy .players .player{border-left:3px solid #5d70ff}
+.game-world--spy .game-console h2{letter-spacing:.08em;text-transform:uppercase}
+
+/* Imaginarium = cards on a gallery table */
+.game-world--imaginarium .hand button{font-size:40px;min-height:150px}
+.game-world--imaginarium .game-console{background:linear-gradient(145deg,#20152d,#111322)}
+.game-world--imaginarium .generic-answers button{min-height:110px}
+
+/* Mafia = night city */
+.game-world--mafia{background:radial-gradient(circle at 50% 0,#d34a6220,transparent 35%),linear-gradient(145deg,#15101d,#08090e)}
+.game-world--mafia .game-console{background:linear-gradient(145deg,#1b1421,#0c0c12)}
+.game-world--mafia .player{border-left:3px solid #d34a62}
+
+/* Battleship = sonar deck */
+.game-world--battleship{background:radial-gradient(circle at 50% 50%,#168dff13 1px,transparent 1px),#07121d;background-size:24px 24px}
+.game-world--battleship .generic-board>*{border-color:#168dff35;background:#0a2030;color:#69e4ff}
+.game-world--battleship .generic-board button:hover:not(:disabled){background:#168dff!important}
+.game-world--battleship .ship{background:#168dff2b!important;color:#69e4ff}
+
+/* Quiz = game show */
+.game-world--quiz .game-console{background:linear-gradient(145deg,#24161a,#11101a)}
+.game-world--quiz .generic-answers button{font-weight:850}
+.game-world--quiz .generic-answers button:nth-child(1){border-color:#ff8a3d55}.game-world--quiz .generic-answers button:nth-child(2){border-color:#ff4f9155}
+.game-world--quiz .generic-answers button:nth-child(3){border-color:#7c7cff55}.game-world--quiz .generic-answers button:nth-child(4){border-color:#35c7a655}
+
+/* Truth = verdict chamber */
+.game-world--truth .game-console{text-align:center}
+.game-world--truth .generic-answers{grid-template-columns:1fr 1fr}
+.game-world--truth .generic-answers button{min-height:120px;text-align:center;justify-content:center;font-size:20px}
+.game-world--truth .generic-answers button:first-child{border-color:#36b88c66}.game-world--truth .generic-answers button:last-child{border-color:#d34a6266}
+
+/* Charades = stage */
+.game-world--charades .secret-word{font-size:clamp(42px,8vw,82px)!important}
+.game-world--charades .game-console{background:radial-gradient(circle at 50% 0,#ff5e9c16,transparent 35%),#17111b}
+.game-world--charades .primary{box-shadow:0 14px 40px #ff5e9c30!important}
+
+/* Associations = thought cloud */
+.game-world--associations .secret-word{border-radius:999px!important;min-height:190px!important;background:radial-gradient(circle,#7b61ff33,#151327 65%)!important}
+.game-world--associations .game-console{background:linear-gradient(145deg,#15132b,#0e101b)}
+
+/* Dots = physical board */
+.game-world--dots-duel .game-console{background:#0d101a}
+.game-world--dots-duel [data-edge]{transition:background .18s,transform .18s!important}
+.game-world--dots-duel [data-edge]:hover:not(:disabled){transform:scale(1.15)}
+/* Territory = living map */
+.game-world--territory .game-console{background:radial-gradient(circle at 50% 50%,#a76cff0b,transparent 45%),#10131b}
+.game-world--territory [data-cell]{font-size:0!important;position:relative}
+.game-world--territory [data-cell]:not(:disabled){border-color:#a76cff45!important}
+.game-world--territory [data-cell]:not(:disabled):hover{background:#a76cff22!important}
+
+/* Codebreaker = terminal */
+.game-world--codebreaker .game-console{background:linear-gradient(145deg,#071817,#0b1016)}
+.game-world--codebreaker input{font-family:"Space Grotesk",monospace;letter-spacing:.25em;text-align:center;font-size:24px}
+.game-world--codebreaker .status{font-family:monospace}
+
+/* Memory = sequence vault */
+.game-world--memory-duel .game-console{text-align:center;background:radial-gradient(circle at 50% 0,#5c7cff1a,transparent 42%),#0b0e18}
+.game-world--memory-duel #memorySequence{font-family:"Space Grotesk",monospace;color:#8ff7d2;text-shadow:0 0 30px #5c7cff88}
+
+/* Number = radar duel */
+.game-world--number-duel .game-console{text-align:center;background:radial-gradient(circle,#ff6a3d12,transparent 45%),#17120f}
+.game-world--number-duel input{max-width:300px;margin:auto;text-align:center;font-size:28px;font-weight:900}
+
+/* Word = letter forge */
+.game-world--word-duel .game-console{text-align:center;background:linear-gradient(145deg,#0d1a1a,#10111c)}
+.game-world--word-duel input{text-transform:uppercase;text-align:center;font-weight:900;font-size:24px;letter-spacing:.12em}
+.game-world--word-duel .game-console .muted{color:#91c9c5}
+.game-world--word-duel .game-console > div:first-of-type:not(.status){font-family:"Space Grotesk",sans-serif;text-shadow:0 0 25px #28c7b755}
+
+/* turn state / micro-motion */
+body[data-phase="finished"] .game-world{filter:saturate(1.08)}
+body[data-phase="result"] .game-world{--gameA:#ffd166;--gameB:#7c5cff}
+body[data-phase="waiting"] .game-world{--gameA:#7c879d;--gameB:#4d5567}
+.game-world button:focus-visible{outline:2px solid var(--gameC);outline-offset:3px}
+@media(max-width:700px){
+ .hero{align-items:center}.game-title-panel{grid-template-columns:auto 1fr}.game-title-panel #notice{grid-column:1/-1}
+ .game-world{min-height:410px;padding:10px;border-radius:22px}.game-console{padding:16px;border-radius:19px}
+ .game-console .generic-answers{grid-template-columns:1fr}.game-console .board{grid-template-columns:repeat(5,minmax(48px,1fr));gap:6px}
+ .game-world .alias-scoreboard{grid-template-columns:1fr 1fr}.game-world .alias-timer{grid-column:1/-1;grid-row:1}
+ .alias-review-list{grid-template-columns:1fr}.game-world--codenames .word-card{min-height:62px!important;font-size:11px}
+ .hero h1{font-size:31px}.hero p{font-size:13px}
+}
