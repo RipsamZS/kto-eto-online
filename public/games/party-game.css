@@ -253,3 +253,33 @@ body[data-game] #roomArea{animation:game-enter .32s ease both}
 #roomArea .score{color:var(--game-accent-dark)}
 #roomArea .alias-room-code{color:var(--game-accent-dark)}
 @media(max-width:620px){#roomArea .prestart-playfield{padding:12px}#roomArea .room-roster-bar{margin-top:18px;padding-top:16px}}
+
+
+/* Signature game title panel */
+.game-title-panel{display:grid;grid-template-columns:72px 1fr;align-items:center;gap:18px;padding:18px 22px;margin:16px 0 14px;border:1px solid var(--game-line);border-radius:22px;background:linear-gradient(115deg,var(--game-surface),var(--game-surface-2));box-shadow:var(--game-shadow);position:relative;overflow:hidden}
+.game-title-panel:after{content:"";position:absolute;right:-34px;top:-72px;width:180px;height:180px;border:1px solid color-mix(in srgb,var(--game-accent) 20%,transparent);border-radius:50%;box-shadow:0 0 0 18px color-mix(in srgb,var(--game-accent) 5%,transparent),0 0 0 38px color-mix(in srgb,var(--game-accent) 4%,transparent);pointer-events:none}
+.game-title-emblem{display:grid;place-items:center;width:68px;height:68px;border-radius:20px;background:color-mix(in srgb,var(--game-accent) 16%,var(--game-surface));border:1px solid color-mix(in srgb,var(--game-accent) 25%,var(--game-line));font-size:34px;box-shadow:0 6px 0 color-mix(in srgb,var(--game-accent) 12%,transparent)}
+.game-title-copy{position:relative;z-index:1}.game-title-kicker{font-size:9px;letter-spacing:.18em;font-weight:900;color:var(--game-accent-dark);margin-bottom:5px}.game-title-copy h2{font:700 clamp(21px,3.4vw,30px) "Space Grotesk";margin:0;color:var(--game-ink);letter-spacing:-.8px}.game-title-copy p{font-size:12px;color:var(--game-muted);margin:5px 0 0}
+.game-title-panel #notice{grid-column:1/-1;margin:0}
+body:has(#roomArea:not(:empty)) .page>.hero{display:none}
+body:has(#roomArea:not(:empty)) .page>.top{margin-bottom:22px}
+body[data-game="spy"] .game-title-panel{background:linear-gradient(110deg,#2c3935,#35433e);border-color:#53635b}
+body[data-game="spy"] .game-title-copy h2{color:#f0eee4}
+body[data-game="spy"] .game-title-copy p{color:#b6c0b8}
+body[data-game="mafia"] .game-title-panel{background:linear-gradient(110deg,#2b2029,#382630)}
+body[data-game="mafia"] .game-title-copy h2{color:#f6edf0}
+body[data-game="mafia"] .game-title-copy p{color:#c0aeb5}
+body[data-game="quiz"] .game-title-panel{background:linear-gradient(110deg,#39301e,#4b3c22)}
+body[data-game="quiz"] .game-title-copy h2{color:#fff4d6}
+body[data-game="quiz"] .game-title-copy p{color:#c6b995}
+.game-stage{overflow:hidden}
+body[data-game="battleship"] .game-stage{background:linear-gradient(145deg,#f4fbfc,#dceff2)}
+body[data-game="charades"] .game-stage{background:linear-gradient(145deg,#f8fff9,#e4f4e9)}
+body[data-game="alias"] .game-stage{background:linear-gradient(145deg,#fff9ed,#f4e5cf)}
+body[data-game="codenames"] .game-stage{background:linear-gradient(145deg,#f8fbf8,#e8f0ed)}
+body[data-game="imaginarium"] .game-stage{background:linear-gradient(145deg,#fffaff,#f0e3f3)}
+body[data-game="battleship"] .game-title-emblem{border-radius:50% 50% 17px 17px}
+body[data-game="alias"] .game-title-emblem{border-radius:50% 50% 40% 40%}
+body[data-game="imaginarium"] .game-title-emblem{border-radius:24px 8px 24px 8px;transform:rotate(4deg)}
+body[data-game="charades"] .game-title-emblem{border-radius:25px 25px 8px 25px;transform:rotate(-4deg)}
+@media(max-width:560px){.game-title-panel{grid-template-columns:52px 1fr;gap:12px;padding:14px;border-radius:17px}.game-title-emblem{width:50px;height:50px;border-radius:15px;font-size:25px}.game-title-copy p{font-size:11px}}
