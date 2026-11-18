@@ -386,3 +386,101 @@ body[data-game] .generic-board{max-width:100%!important}
 body[data-game="codenames"] .generic-board button,body[data-game="codenames"] .generic-board span{min-height:55px;font-size:11px}
 body[data-game="territory"] .generic-board button,body[data-game="territory"] .generic-board span{min-height:42px}
 }
+
+
+/* KAZO IN-GAME REDESIGN — actual game surfaces */
+.game-world{position:relative;min-height:430px;padding:28px;border-radius:32px;overflow:hidden;margin:12px 0 18px}
+.game-world:before{content:"";position:absolute;inset:-30%;background:radial-gradient(circle,var(--world-glow) 0,transparent 28%);animation:kazoDrift 12s ease-in-out infinite alternate;pointer-events:none}
+.game-world-orb{position:absolute;width:180px;height:180px;border-radius:50%;right:-60px;top:-70px;background:var(--world-glow);filter:blur(5px);opacity:.55;animation:kazoFloat 7s ease-in-out infinite;pointer-events:none}
+.game-console{position:relative;z-index:2;max-width:1050px;margin:auto;padding:28px;border-radius:28px;border:1px solid var(--world-line);background:var(--world-surface);box-shadow:0 30px 80px rgba(15,20,30,.13);backdrop-filter:blur(12px);animation:kazoEnter .45s cubic-bezier(.2,.8,.2,1)}
+.game-console h2,.game-console h3{font-family:"Space Grotesk",sans-serif}
+.game-console button{border-radius:14px!important;min-height:48px;position:relative;overflow:hidden}
+.game-console button:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(255,255,255,.25),transparent);transform:translateX(-120%);transition:transform .45s}
+.game-console button:hover:after{transform:translateX(120%)}
+.game-console .generic-answers button{font-size:15px;font-weight:800;min-height:68px}
+.game-console .generic-board{border-radius:24px!important;overflow:hidden}
+.game-console .player{border-radius:13px!important}
+.game-world--alias{--world-glow:#e3a13d;--world-line:#e2c596;--world-surface:#fffaf0;background:radial-gradient(circle at 12% 20%,#fff7dd,#f0dfc1 70%,#dfc29b);color:#513a21}
+.game-world--alias .alias-scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:20px}
+.game-world--alias .alias-scoreboard>div{padding:18px;border-radius:20px;background:#fffdf6;border:1px solid #e2c596;box-shadow:0 8px 0 #e5d0aa}
+.game-world--alias .alias-scoreboard strong{display:block;font:900 42px "Space Grotesk";color:#a76818}
+.game-world--alias .alias-timer{font:900 22px "Space Grotesk";white-space:nowrap;color:#7d5424}
+.game-world--alias .alias-timer.is-low{color:#c44536;animation:kazoPulse .5s infinite alternate}
+.game-world--alias .alias-word-card{display:grid;place-items:center;min-height:190px;margin:20px auto;padding:28px;border:3px solid #d6ae6e;border-radius:28px;background:#fffdf7;color:#513a21;font:900 clamp(34px,7vw,64px) "Space Grotesk";box-shadow:0 12px 0 #dfc79e,0 25px 50px #7d542420;animation:kazoCardIn .4s ease}
+.game-world--alias #correct{background:#4d936a!important;color:#fff!important;box-shadow:0 5px 0 #34724e!important}
+.game-world--alias #skip{background:#fff!important;color:#8a5c24!important;border:1px solid #dfc49a!important}
+.game-world--codenames{--world-glow:#77a58f;--world-line:#315b4c;--world-surface:#f7f3e8;background:linear-gradient(135deg,#d9e7df,#f2f0e4)}
+.game-world--codenames .game-console{background:#315b4c;color:#f8f2df;border:12px solid #244b3d;box-shadow:0 25px 60px #18382d35}
+.game-world--codenames .word-card{background:#f7f1df!important;color:#3c403a!important;border:2px solid #d5cdbb!important;min-height:78px!important;font-weight:900!important;box-shadow:0 5px 0 #c9c0ab!important;transition:transform .18s,background .18s}
+.game-world--codenames .word-card:hover:not(:disabled){transform:translateY(-4px) rotate(-1deg)!important}
+.game-world--codenames .word-card.revealed{animation:kazoReveal .38s ease}
+.game-world--spy{--world-glow:#8ca89d;--world-line:#53655d;--world-surface:#202b28;background:radial-gradient(circle at 50% 0,#455850,#1c2422 62%);color:#eef1ea}
+.game-world--spy .game-console{background:linear-gradient(145deg,#27332f,#1d2523);color:#eef1ea;border-color:#56665f;box-shadow:0 30px 80px #10171580}
+.game-world--spy .player,.game-world--spy button{background:#35443f!important;color:#eef1ea!important;border-color:#65766e!important}
+.game-world--spy input{background:#1d2724!important;color:#eef1ea!important}
+.game-world--imaginarium{--world-glow:#c99bdd;--world-line:#d7c2dc;--world-surface:#fffaff;background:radial-gradient(circle at 20% 10%,#fff,#e9d9ee)}
+.game-world--imaginarium .game-console{background:#fffaff;border-color:#d7c2dc}
+.game-world--imaginarium .hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px}
+.game-world--imaginarium .hand button{min-height:130px;background:linear-gradient(145deg,#fff,#f1e5f4)!important;border:2px solid #d7c2dc!important;color:#66456d!important;font-size:24px;box-shadow:0 8px 0 #dfd0e5!important;transform:rotate(var(--r,0deg));transition:transform .2s}
+.game-world--imaginarium .hand button:nth-child(2n){--r:1.5deg}.game-world--imaginarium .hand button:nth-child(3n){--r:-1.5deg}
+.game-world--imaginarium .hand button.selected{outline:4px solid #a76fba!important;transform:translateY(-8px) rotate(0)!important}
+.game-world--mafia{--world-glow:#a14e68;--world-line:#5d3d49;--world-surface:#281e25;background:radial-gradient(circle at 50% 0,#69394b,#201820 65%);color:#f5edf0}
+.game-world--mafia .game-console{background:#291f26;color:#f5edf0;border-color:#60414e}
+.game-world--mafia button,.game-world--mafia .player{background:#3a2932!important;color:#f5edf0!important;border-color:#70505e!important}
+.game-world--mafia .status{background:#382731!important;color:#f6dfe8!important}
+.game-world--battleship{--world-glow:#61b6c8;--world-line:#9ac9d3;--world-surface:#f5fdff;background:linear-gradient(145deg,#d6edf1,#eefbfc)}
+.game-world--battleship .generic-board{padding:14px!important;background:#a8d1d9!important;border:8px solid #6fa9b5!important;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;box-shadow:inset 0 0 40px #386b7518,0 20px 40px #386b7522}
+.game-world--battleship .generic-board button,.game-world--battleship .generic-board span{min-height:clamp(45px,7vw,70px)!important;border-radius:9px!important;background:#eefbfc!important;color:#337687!important;border:1px solid #8fbfc8!important;font-size:20px}
+.game-world--battleship .generic-board button:hover:not(:disabled){background:#d4f2f6!important;transform:translateY(-2px)}
+.game-world--battleship .generic-board button:disabled{opacity:.72}
+.game-world--battleship .generic-board.own{opacity:.92}
+.game-world--quiz{--world-glow:#d8ad45;--world-line:#80683c;--world-surface:#2c2419;background:radial-gradient(circle at 50% -10%,#634e2d,#241e16 68%);color:#fff0c8}
+.game-world--quiz .game-console{background:linear-gradient(145deg,#34291b,#211b14);color:#fff0c8;border-color:#7d6538}
+.game-world--quiz h2{font-size:clamp(28px,5vw,48px);line-height:1.08}
+.game-world--quiz .generic-answers{display:grid;grid-template-columns:1fr 1fr}
+.game-world--quiz .generic-answers button{background:#46381f!important;color:#fff0c8!important;border:2px solid #7d6538!important;min-height:82px!important}
+.game-world--quiz .generic-answers button:hover:not(:disabled){border-color:#e0b84f!important;box-shadow:0 0 0 4px #e0b84f22!important}
+.game-world--truth{--world-glow:#7f9bda;--world-line:#c5cfea;--world-surface:#fbfcff;background:linear-gradient(145deg,#e5ebfa,#f8f7fc)}
+.game-world--truth .game-console{background:#fff;border-color:#c5cfea}
+.game-world--truth .generic-answers{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.game-world--truth .generic-answers button:first-child{background:#eaf7ef!important;color:#2f7651!important;border-color:#9dceb2!important;font-size:20px}
+.game-world--truth .generic-answers button:last-child{background:#fbedee!important;color:#a24f58!important;border-color:#e0b2b7!important;font-size:20px}
+.game-world--charades{--world-glow:#63b88d;--world-line:#a9d2bb;--world-surface:#fbfffc;background:linear-gradient(145deg,#dff3e8,#f7fff9)}
+.game-world--charades .game-console{background:#fff;border-color:#acd1bd}
+.game-world--charades .secret-word{display:grid;place-items:center;min-height:190px;margin:20px auto;border-radius:30px;background:linear-gradient(145deg,#e7f7ed,#fff);border:3px solid #9bcab0;color:#286b52;font:900 clamp(38px,7vw,70px) "Space Grotesk";box-shadow:0 12px 0 #c5e1d0;animation:kazoCardIn .45s}
+.game-world--charades #charadesDone{background:#2f8a67!important;color:#fff!important}
+.game-world--associations{--world-glow:#c78c78;--world-line:#e0c0b7;--world-surface:#fffaf6;background:linear-gradient(145deg,#f3ddd6,#fffaf5)}
+.game-world--associations .game-console{background:#fffaf6;border-color:#dfc0b7}
+.game-world--associations .secret-word{font:900 clamp(36px,7vw,64px) "Space Grotesk";color:#754b45;padding:28px;border-radius:25px;background:#fff;border:2px solid #dfc0b7;box-shadow:0 10px 0 #ead0c8;animation:kazoCardIn .4s}
+.game-world--dots-duel{--world-glow:#9f7ac7;--world-line:#d0b9df;--world-surface:#fffaf1;background:linear-gradient(145deg,#eadabd,#fff9ed)}
+.game-world--dots-duel .game-console{background:#f8edda;border-color:#d1b48c}
+.game-world--dots-duel button[data-edge]{background:#cdb188!important;border:0!important;transition:background .2s,transform .15s}
+.game-world--dots-duel button[data-edge]:hover:not(:disabled){background:#7048a8!important;transform:scale(1.15)}
+.game-world--dots-duel button[data-edge]:disabled{opacity:1}
+.game-world--territory{--world-glow:#78a36e;--world-line:#a9c19f;--world-surface:#f9fff5;background:linear-gradient(145deg,#dce9d5,#f7fbf2)}
+.game-world--territory .game-console{background:#f9fff5;border-color:#a9c19f}
+.game-world--territory [data-cell]{background:#eef5e9!important;border:1px solid #b4c8aa!important;color:#5d8055!important;box-shadow:inset 0 0 0 2px #fff8}
+.game-world--territory [data-cell]:not(:disabled):hover{background:#d8e9cf!important;transform:scale(1.04)}
+.game-world--codebreaker{--world-glow:#6d8dbd;--world-line:#b8c7dc;--world-surface:#f8fbff;background:linear-gradient(145deg,#dfe7f1,#f8fbff)}
+.game-world--codebreaker .game-console{background:#f8fbff;border-color:#b8c7dc}
+.game-world--codebreaker input{font:800 26px "Space Grotesk";letter-spacing:.35em;text-align:center}
+.game-world--codebreaker button{background:#38587f!important;color:#fff!important}
+.game-world--memory-duel{--world-glow:#a875c4;--world-line:#d4c2e1;--world-surface:#fcf9ff;background:linear-gradient(145deg,#e7d9f0,#faf5ff)}
+.game-world--memory-duel .game-console{background:#fcf9ff;border-color:#d4c2e1}
+.game-world--memory-duel #memorySequence{display:inline-flex;align-items:center;justify-content:center;min-width:280px;min-height:110px;padding:20px;border-radius:24px;background:#fff;border:2px solid #d4c2e1;color:#72488b;box-shadow:0 10px 0 #dfd1e9;font:900 40px "Space Grotesk";animation:kazoPulse 2.2s ease-in-out}
+.game-world--number-duel{--world-glow:#d69a48;--world-line:#e2c69f;--world-surface:#fffaf2;background:linear-gradient(145deg,#f0ddc1,#fff9ef)}
+.game-world--number-duel .game-console{background:#fffaf2;border-color:#e2c69f}
+.game-world--number-duel input{font:900 34px "Space Grotesk";text-align:center}
+.game-world--number-duel button{background:#a86627!important;color:#fff!important}
+.game-world--word-duel{--world-glow:#66aebf;--world-line:#b9d3da;--world-surface:#f8fdff;background:linear-gradient(145deg,#d9edf1,#f8fdff)}
+.game-world--word-duel .game-console{background:#f8fdff;border-color:#b9d3da}
+.game-world--word-duel>div{background:#f8fdff}
+.game-world--word-duel input{font:800 22px "Space Grotesk";text-transform:uppercase}
+.game-world--word-duel button{background:#2f7283!important;color:#fff!important}
+@keyframes kazoEnter{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes kazoCardIn{from{opacity:0;transform:translateY(20px) rotate(2deg) scale(.97)}to{opacity:1;transform:none}}
+@keyframes kazoReveal{0%{transform:rotateY(90deg);opacity:.4}100%{transform:rotateY(0);opacity:1}}
+@keyframes kazoPulse{from{transform:scale(1);filter:brightness(1)}to{transform:scale(1.035);filter:brightness(1.1)}}
+@keyframes kazoFloat{from{transform:translate3d(0,0,0)}to{transform:translate3d(-35px,28px,0)}}
+@keyframes kazoDrift{from{transform:translate3d(-3%,0,0) scale(1)}to{transform:translate3d(5%,4%,0) scale(1.08)}}
+@media(max-width:700px){.game-world{padding:12px;border-radius:22px;min-height:360px}.game-console{padding:17px;border-radius:20px}.game-world--quiz .generic-answers,.game-world--truth .generic-answers{grid-template-columns:1fr}.game-world--alias .alias-scoreboard{grid-template-columns:1fr 1fr}.game-world--alias .alias-timer{grid-column:1/-1;grid-row:1}.game-world--alias .alias-word-card{min-height:150px}.game-world--codenames .word-card{min-height:58px!important;font-size:11px}}
