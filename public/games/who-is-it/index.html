@@ -305,7 +305,7 @@ const makeCharacters=(names,emoji)=>names.map((name,i)=>({
 
 const builtInPacks=[
 {id:'animals',name:'Животные',description:'Животные со всего мира',emoji:'🐾',characters:makeCharacters([
-'Лев','Тигр','Слон','Жираф','Зебра','Панда','Коала','Кенгуру','Волк','Лиса','Медведь','Заяц','Белка','Ёж','Олень','Лось','Лошадь','Корова','Овца','Коза','Свинья','Собака','Кошка','Хомяк','Мышь','Крыса','Бобр','Выдра','Енот','Барсук','Верблюд','Лама','Альпака','Носорог','Бегемот','Крокодил','Аллигатор','Черепаха','Змея','Ящерица','Лягушка','Жаба','Акула','Дельфин','Кит','Осьминог','Краб','Медуза','Пингвин','Фламинго','Орёл','Сова','Попугай','Ворона','Воробей','Павлин','Лебедь','Утка','Петух','Бабочка'
+'Лев','Тигр','Слон','Жираф','Зебра','Панда','Коала','Кенгуру','Волк','Лиса','Медведь','Заяц','Белка','Ёж','Олень','Лось','Лошадь','Корова','Овца','Коза','Свинья','Собака','Кошка','Хомяк','Мышь','Крыса','Бобр','Выдра','Енот','Барсук','Верблюд','Лама','Альпака','Носорог','Бегемот','Крокодил','Аллигатор','Черепаха','Змея','Ящерица','Лягушка','Сурикат','Акула','Дельфин','Кит','Осьминог','Краб','Медуза','Пингвин','Фламинго','Орёл','Сова','Попугай','Ворона','Воробей','Павлин','Лебедь','Утка','Петух','Бабочка'
 ],'🐾')},
 {id:'plants',name:'Растения',description:'Деревья, цветы и другие растения',emoji:'🌿',characters:makeCharacters([
 'Роза','Тюльпан','Подсолнух','Ромашка','Пион','Лилия','Орхидея','Ирис','Нарцисс','Гвоздика','Мак','Лаванда','Петуния','Гортензия','Хризантема','Фиалка','Кактус','Алоэ','Бамбук','Папоротник','Мох','Плющ','Пальма','Берёза','Дуб','Клён','Сосна','Ель','Кедр','Ива','Тополь','Осина','Липа','Рябина','Каштан','Яблоня','Груша','Вишня','Черешня','Слива','Персик','Абрикос','Лимон','Апельсин','Банан','Кокос','Клубника','Малина','Черника','Арбуз','Тыква','Огурец','Помидор','Морковь','Картофель','Капуста','Подорожник','Одуванчик','Клевер','Кактус-опунция'
@@ -1045,21 +1045,22 @@ const imageSearchAliases={
   'аллей':'Allay'
 };
 const animalImageSearchAliases={
-  'лев':'lion','тигр':'tiger','слон':'elephant','жираф':'giraffe','зебра':'zebra',
-  'панда':'giant panda','коала':'koala','кенгуру':'kangaroo','волк':'gray wolf',
-  'лиса':'red fox','медведь':'brown bear','заяц':'hare','белка':'squirrel',
-  'ёж':'hedgehog','олень':'red deer','лось':'moose','лошадь':'horse',
-  'корова':'cow','овца':'sheep','коза':'goat','свинья':'pig','собака':'dog',
-  'кошка':'domestic cat','хомяк':'hamster','мышь':'mouse','крыса':'rat',
-  'бобр':'beaver','выдра':'otter','енот':'raccoon','барсук':'badger',
+  'лев':'lion','тигр':'Bengal tiger','слон':'African elephant','жираф':'giraffe','зебра':'plains zebra',
+  'панда':'giant panda','коала':'koala bear animal','кенгуру':'red kangaroo','волк':'gray wolf',
+  'лиса':'red fox','медведь':'brown bear','заяц':'European hare','белка':'red squirrel',
+  'ёж':'European hedgehog','олень':'red deer','лось':'moose','лошадь':'horse',
+  'корова':'cow','овца':'sheep','коза':'domestic goat animal','свинья':'pig','собака':'dog',
+  'кошка':'domestic cat','хомяк':'hamster','мышь':'house mouse animal','крыса':'brown rat',
+  'бобр':'beaver','выдра':'otter','енот':'raccoon','барсук':'European badger',
   'верблюд':'camel','лама':'llama','альпака':'alpaca','носорог':'rhinoceros',
   'бегемот':'hippopotamus','крокодил':'crocodile','аллигатор':'alligator',
   'черепаха':'tortoise','змея':'snake','ящерица':'lizard','лягушка':'frog',
-  'жаба':'toad','акула':'shark','дельфин':'dolphin','кит':'whale',
-  'осьминог':'octopus','краб':'crab','медуза':'jellyfish','пингвин':'penguin',
-  'фламинго':'flamingo','орёл':'eagle','сова':'owl','попугай':'parrot',
-  'ворона':'crow','воробей':'sparrow','павлин':'peacock','лебедь':'swan',
-  'утка':'duck','петух':'rooster','бабочка':'butterfly'
+  'сурикат':'meerkat animal','акула':'great white shark','дельфин':'bottlenose dolphin',
+  'кит':'humpback whale','осьминог':'common octopus','краб':'crab',
+  'медуза':'moon jellyfish','пингвин':'emperor penguin','фламинго':'greater flamingo',
+  'орёл':'bald eagle bird','сова':'owl','попугай':'parrot',
+  'ворона':'crow','воробей':'house sparrow','павлин':'Indian peafowl','лебедь':'mute swan',
+  'утка':'mallard duck','петух':'rooster','бабочка':'monarch butterfly'
 };
 function getImageSearchTerms(name,pack){
   const key=normalizeImageTitle(name);
@@ -1125,7 +1126,7 @@ async function findCommonsCardImage(img,terms,key){
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v10:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v11:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
   const terms=getImageSearchTerms(name,pack);
