@@ -292,10 +292,9 @@ body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
     </div>
     <div class="case-access-title">01 ДОСТУП К ДЕЛАМ</div>
     <div class="case-access">
-      <button class="case-access-card" onclick="openPlayMenu()"><span class="access-icon">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><i>↗</i></button>
+      <button class="case-access-card" onclick="openPublicRooms()"><span class="access-icon">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><i>↗</i></button>
       <button class="case-access-card" onclick="openPacksMenu()"><span class="access-icon">▤</span><span><b>Архив объектов</b><small>Коллекции людей, предметов, мест и многого другого</small></span><i>↗</i></button>
     </div>
-    <div class="case-exit-note">Ты вышел из комнаты.</div>
   </section>
 
   <section id="playScreen" class="screen">
@@ -1109,6 +1108,7 @@ function openRoomSettings(access='private'){
   document.getElementById('roomCode').value='';
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
   document.getElementById('roomAccess').value=access;
+  const accessRadio=document.querySelector('input[name="caseAccess"][value="'+access+'"]');if(accessRadio)accessRadio.checked=true;
   document.getElementById('roomCardCount').value='20';
   document.getElementById('roomTimer').value='60';
   Array.from(document.getElementById('roomCardCount').options).forEach(o=>o.disabled=false);
