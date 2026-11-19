@@ -77,10 +77,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .field{display:grid;gap:7px}
 .field label{color:var(--muted);font-size:14px}
 .character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px}
-.character-card{min-height:150px;padding:12px;border:2px solid var(--border);border-radius:15px;background:#211a38;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;min-width:0;overflow:hidden}
-.character-card .face{font-size:42px;display:block;margin:12px auto}
-.character-card .character-image{display:block;width:100%;max-width:132px;height:132px;aspect-ratio:1/1;object-fit:contain;object-position:center;border-radius:10px;background:#f3f0e9;padding:5px;flex:0 0 auto}
-.character-card>div{width:100%;overflow-wrap:anywhere}
+.character-card{min-height:120px;padding:12px;border:2px solid var(--border);border-radius:15px;background:#211a38;text-align:center}
+.character-card .face{font-size:42px;display:block;margin-bottom:8px}
 .character-card.selected{border-color:var(--accent);background:#30234e}
 .character-card.crossed{opacity:.35;filter:grayscale(1)}
 .game-layout{display:grid;grid-template-columns:1fr;gap:16px}
@@ -164,356 +162,12 @@ body[data-game="who-is-it"] .badge{background:#e3eadc;color:#42604a}
 body[data-game="who-is-it"] .topbar a{color:#416b58}
 body[data-game="who-is-it"] .muted{color:#6c776c}
 
-/* KAZO DETECTIVE ARCHIVE — reconstruction from user's original screenshots */
-:root{--bg:#0d1712;--panel:#18251d;--panel2:#202f25;--line:#344437;--text:#e9e8d8;--muted:#98a18c;--accent:#b8c98d;--accent2:#78936b;--danger:#b86e58;--success:#a8c58b;--border:#354537}
-body[data-game="who-is-it"]{background:radial-gradient(ellipse at 50% 0%,#24372a 0%,#111d16 48%,#0b130f 100%);color:#e8e7d8;font-family:Georgia,"Times New Roman",serif}
-body[data-game="who-is-it"] .app{max-width:1180px;padding:24px 20px 42px}
-body[data-game="who-is-it"] .topbar{height:54px;border-bottom:1px solid #344336;margin-bottom:22px;padding:0 4px}
-body[data-game="who-is-it"] .brand{font-family:Georgia,serif;font-weight:900;letter-spacing:.12em;color:#dfe4c9!important;font-size:15px}
-body[data-game="who-is-it"] .brand:before{content:"▣";display:inline-grid;place-items:center;border:1px solid #728367;width:30px;height:30px;margin-right:10px;transform:rotate(45deg);color:#bdca9b}
-body[data-game="who-is-it"] .brand span{color:#c7d78e}
-body[data-game="who-is-it"] .screen{color:#e8e7d8}
-body[data-game="who-is-it"] h1,body[data-game="who-is-it"] h2,body[data-game="who-is-it"] h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.035em;color:#e9e9dc}
-body[data-game="who-is-it"] .case-kicker{display:flex;justify-content:space-between;gap:12px;color:#98a58b;font:700 9px/1.4 monospace;letter-spacing:.16em;margin:10px 0 14px}
-body[data-game="who-is-it"] .online-dot:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#b6d18a;box-shadow:0 0 10px #b6d18a;margin-right:8px}
-body[data-game="who-is-it"] .case-hero{display:grid;grid-template-columns:1.2fr 1fr;min-height:430px;border:1px solid #a9ae8d;background:#ded9c4;color:#253026;box-shadow:0 10px 0 #070d09}
-body[data-game="who-is-it"] .case-hero-copy{padding:48px 48px 30px;position:relative}
-body[data-game="who-is-it"] .case-hero-copy>small:first-child{font:700 9px monospace;letter-spacing:.17em;color:#879276}
-body[data-game="who-is-it"] .case-hero h1{font-family:Impact,"Arial Narrow",sans-serif;font-size:clamp(48px,6vw,78px);line-height:.82;letter-spacing:-.035em;color:#202b22;margin:22px 0 16px;overflow-wrap:anywhere}
-body[data-game="who-is-it"] .case-hero h1 em{font-style:normal;color:#778c63}
-body[data-game="who-is-it"] .case-hero-copy p{max-width:410px;color:#697264;font:14px/1.8 system-ui;margin:0 0 24px}
-body[data-game="who-is-it"] .case-open{width:min(100%,220px);padding:15px 16px;background:#b9cb91;color:#1e2a20;text-align:left;font:800 9px monospace;letter-spacing:.1em;box-shadow:4px 4px 0 #58694c;display:flex;justify-content:space-between}
-body[data-game="who-is-it"] .case-foot{display:block;margin-top:30px;color:#7d8872;font:8px monospace;letter-spacing:.18em}
-body[data-game="who-is-it"] .case-hero-art{position:relative;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 50%,#344b3a,#52664e 65%,#66765a);min-height:400px}
-body[data-game="who-is-it"] .unknown-file{width:150px;height:190px;border:5px solid #c7d5a4;border-radius:44% 44% 18px 18px;background:linear-gradient(145deg,#24392d,#0d1c14);box-shadow:0 0 0 8px #1b2d22;color:#dce6b7;font:bold 130px/180px Georgia;text-align:center;z-index:2}
-body[data-game="who-is-it"] .orbit{position:absolute;width:78%;height:42%;border:1px solid #a7b29777;border-radius:50%;transform:rotate(-24deg)}
-body[data-game="who-is-it"] .orbit-b{transform:rotate(28deg);width:85%;height:55%}
-body[data-game="who-is-it"] .top-secret{position:absolute;right:12%;top:20%;z-index:3;border:2px solid #b56c58;color:#b56c58;padding:9px 12px;font:bold 12px monospace;transform:rotate(12deg)}
-body[data-game="who-is-it"] .case-hero-art>small{position:absolute;left:10%;bottom:10%;font:bold 9px/1.4 monospace;letter-spacing:.18em}
-body[data-game="who-is-it"] .case-est{position:absolute;right:9%;bottom:8%;font:8px monospace;letter-spacing:.15em;color:#c3cfad}
-body[data-game="who-is-it"] .case-access-title{margin:30px 0 12px;color:#a6b28e;font:700 9px monospace;letter-spacing:.18em}
-body[data-game="who-is-it"] .case-access{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:620px}
-body[data-game="who-is-it"] .case-access-card{display:flex;align-items:center;gap:14px;text-align:left;padding:16px;background:#18251d;border:1px solid #354638;color:#e7e7d7;min-height:82px}
-body[data-game="who-is-it"] .case-access-card b{display:block;font-size:14px}
-body[data-game="who-is-it"] .case-access-card small{display:block;color:#98a18c;font:10px/1.5 system-ui;margin-top:4px}
-body[data-game="who-is-it"] .case-access-card i{margin-left:auto;color:#c1d394;font-style:normal}
-body[data-game="who-is-it"] .access-icon{width:38px;height:38px;border:1px solid #78866b;display:grid;place-items:center;color:#d1dba9;font-size:22px}
-body[data-game="who-is-it"] .case-exit-note{margin:34px auto 0;width:max-content;padding:13px 20px;border:1px solid #64765b;background:#233328;color:#d7ddc5;font:10px system-ui}
-body[data-game="who-is-it"] .page-head{border-bottom:1px solid #354638;padding-bottom:16px;margin-bottom:18px}
-body[data-game="who-is-it"] .page-head h2{font-size:38px}
-body[data-game="who-is-it"] .secondary{border:1px solid #65765d;border-radius:2px;background:#233328;color:#dce1ce;box-shadow:none;padding:11px 16px;font:700 10px system-ui}
-body[data-game="who-is-it"] .primary{border:1px solid #91a779;border-radius:2px;background:#b8ca91;color:#1d2a20;box-shadow:3px 3px 0 #506344;font:800 10px monospace;letter-spacing:.08em}
-body[data-game="who-is-it"] .panel,body[data-game="who-is-it"] .game-info{border:1px solid #354638;border-radius:0;background:#19271f;color:#e7e7d7;box-shadow:none}
-body[data-game="who-is-it"] .muted{color:#9aa58e}
-body[data-game="who-is-it"] input,body[data-game="who-is-it"] select,body[data-game="who-is-it"] textarea{border:1px solid #39493c;border-radius:0;background:#111c15;color:#e7e7d7}
-body[data-game="who-is-it"] .notice{border:1px solid #485a45;border-left:3px solid #b6ca8d;border-radius:0;background:#26372a;color:#e1e6d0}
-body[data-game="who-is-it"] .case-page-head{margin-bottom:18px}
-body[data-game="who-is-it"] .case-room-layout{display:grid;grid-template-columns:232px minmax(0,1fr);gap:18px;align-items:start}
-body[data-game="who-is-it"] .case-room-aside{position:sticky;top:18px}
-body[data-game="who-is-it"] .case-file-cover{position:relative;min-height:300px;padding:24px 20px;background:#ded9c4;color:#263229;box-shadow:5px 6px 0 #070d09}
-body[data-game="who-is-it"] .case-file-cover>small{font:9px monospace;letter-spacing:.16em}
-body[data-game="who-is-it"] .cover-question{margin:30px auto 10px;width:88px;height:88px;border:2px solid #81916d;border-radius:50%;display:grid;place-items:center;color:#748963;font:bold 62px Georgia}
-body[data-game="who-is-it"] .confidential{position:absolute;right:12px;top:62px;border:2px solid #b46a57;color:#b46a57;padding:6px;font:bold 9px monospace;transform:rotate(12deg)}
-body[data-game="who-is-it"] .case-file-cover h3{text-align:center;color:#1e2b22;font:bold 26px/.9 Impact,"Arial Narrow",sans-serif;margin:12px 0}
-body[data-game="who-is-it"] .case-file-cover p{font:10px/1.5 system-ui;color:#737968;text-align:center}
-body[data-game="who-is-it"] .case-steps{display:grid;gap:17px;padding:22px 0;font:10px monospace;color:#71806e}
-body[data-game="who-is-it"] .case-steps b{color:#d9e1c8;border-left:3px solid #b6ca8d;padding:5px 10px}
-body[data-game="who-is-it"] .case-form-section{padding:22px 20px;border:1px solid #354638;border-bottom:0;background:#18251d}
-body[data-game="who-is-it"] .case-form-section:last-of-type{border-bottom:1px solid #354638}
-body[data-game="who-is-it"] .case-section-title{display:flex;gap:12px;align-items:center;margin-bottom:20px}
-body[data-game="who-is-it"] .case-section-title>b{display:grid;place-items:center;width:29px;height:29px;border:1px solid #8b9a70;color:#c5d69b;font:10px monospace}
-body[data-game="who-is-it"] .case-section-title strong{display:block;font-size:15px}
-body[data-game="who-is-it"] .case-section-title small{display:block;color:#8d9a84;font:10px system-ui;margin-top:4px}
-body[data-game="who-is-it"] .case-form-section .field label{color:#a5b28d;font:700 9px monospace;letter-spacing:.13em}
-body[data-game="who-is-it"] .case-form-section input,body[data-game="who-is-it"] .case-form-section select{min-height:42px;padding:10px 12px}
-body[data-game="who-is-it"] .case-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-body[data-game="who-is-it"] .case-access-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-body[data-game="who-is-it"] .case-access-options label{display:flex;align-items:center;gap:8px;padding:14px;border:1px solid #3c4b3d;background:#111c15;cursor:pointer}
-body[data-game="who-is-it"] .case-access-options label input{accent-color:#b9cc91}
-body[data-game="who-is-it"] .case-access-options b{display:block;color:#dce3cb;font-size:12px}
-body[data-game="who-is-it"] .case-access-options small{display:block;color:#94a18b;font:10px system-ui;margin-top:4px}
-body[data-game="who-is-it"] .case-hidden-access{position:absolute!important;width:1px;height:1px;opacity:0;pointer-events:none}
-body[data-game="who-is-it"] .case-create{width:100%;display:flex;justify-content:space-between;padding:20px;background:#b8ca91;color:#1c2a20;font:800 10px monospace;letter-spacing:.12em;text-align:left}
-body[data-game="who-is-it"] #publicRoomsList{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-body[data-game="who-is-it"] #publicRoomsList>*{border:1px solid #394b3d;background:#1b2a20;padding:14px;color:#e4e7d6}
-body[data-game="who-is-it"] .game-layout{display:grid;gap:14px}
-body[data-game="who-is-it"] .game-info{display:flex;justify-content:space-between;align-items:center;padding:16px}
-body[data-game="who-is-it"] .character-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:16px;border:1px solid #8a8b70;background:repeating-linear-gradient(35deg,#1a3023,#1a3023 20px,#20372a 21px,#20372a 22px)}
-body[data-game="who-is-it"] .character-card{position:relative;overflow:hidden;border:2px solid #9a9a79;border-radius:9px;background:#101b14;color:#f1f0df;box-shadow:0 4px 0 #080e0a}
-body[data-game="who-is-it"] .character-card:after{content:"⌕";position:absolute;right:8px;top:8px;width:28px;height:28px;border:1px solid #a8b49b;border-radius:50%;display:grid;place-items:center;background:#0c1712e8;color:#d7e2c4;font:25px Georgia}
-body[data-game="who-is-it"] .character-card img{width:100%;height:190px;object-fit:cover;display:block}
-body[data-game="who-is-it"] .character-card strong,body[data-game="who-is-it"] .character-card .name{display:block;padding:8px;text-align:center;color:#f0efdf;font:bold 13px Georgia}
-body[data-game="who-is-it"] .game-layout .panel{padding:16px}
-body[data-game="who-is-it"] .game-layout .panel strong{color:#e6e9d8}
-body[data-game="who-is-it"] .badge{background:#293a2b;color:#d6e0c2;border:1px solid #52634a}
-body[data-game="who-is-it"] .tabs .tab{background:#1a291f;color:#aab59c;border:1px solid #394a3b;border-radius:0}
-body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
-@media(max-width:760px){
- body[data-game="who-is-it"] .app{padding:14px 10px 30px}
- body[data-game="who-is-it"] .case-hero{grid-template-columns:1fr}
- body[data-game="who-is-it"] .case-hero-copy{padding:30px 24px}
- body[data-game="who-is-it"] .case-hero-art{min-height:280px}
- body[data-game="who-is-it"] .case-room-layout{grid-template-columns:1fr}
- body[data-game="who-is-it"] .case-room-aside{position:static}
- body[data-game="who-is-it"] .case-file-cover{min-height:210px}
- body[data-game="who-is-it"] .case-steps{display:flex;gap:14px;flex-wrap:wrap}
- body[data-game="who-is-it"] .character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- body[data-game="who-is-it"] #publicRoomsList{grid-template-columns:repeat(2,minmax(0,1fr))}
- body[data-game="who-is-it"] .case-access{grid-template-columns:1fr}
- body[data-game="who-is-it"] .case-form-grid{grid-template-columns:1fr}
-}
-
-
-/* RESTORE: exact dark case-setup panel and access choices from reference screenshots */
-body[data-game="who-is-it"] #roomSettingsScreen .case-room-form{background:#111c15;border:1px solid #354638;box-shadow:0 12px 34px rgba(0,0,0,.24)}
-body[data-game="who-is-it"] #roomSettingsScreen .case-form-section{background:#1a2a20!important;border-color:#3b4b3d!important;color:#e8eadc!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-form-section:last-of-type{border-bottom:1px solid #3b4b3d!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-section-title strong{color:#e9eadb!important;font-size:15px!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-section-title small{color:#a5b097!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-form-section .field label{color:#c0cc9e!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-form-section input:not([type="radio"]),
-body[data-game="who-is-it"] #roomSettingsScreen .case-form-section select{background:#101a13!important;color:#f0f0e5!important;border:1px solid #465744!important;border-radius:0!important;box-shadow:inset 0 1px 3px rgba(0,0,0,.28)!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-form-section input::placeholder{color:#899582!important;opacity:1}
-body[data-game="who-is-it"] #roomSettingsScreen #selectedRoomPack{background:#26372a!important;color:#e3e8d5!important;border-left:3px solid #b8ca91!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options label{position:relative!important;display:flex!important;align-items:center!important;min-height:58px!important;padding:14px 42px 14px 14px!important;background:#101a13!important;border:1px solid #465744!important;color:#e8eadc!important;cursor:pointer!important;transition:background .15s,border-color .15s}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options label:has(input:checked){background:#26382a!important;border-color:#b5c88d!important;box-shadow:inset 3px 0 0 #b5c88d!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options label input{position:absolute!important;right:12px!important;top:10px!important;margin:0!important;width:12px!important;height:12px!important;accent-color:#b9cc91!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options label span{display:block!important;min-width:0}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options b{display:block!important;color:#f0f0e5!important;font-size:12px!important;font-weight:700!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-access-options small{display:block!important;color:#b0bba4!important;font:10px/1.45 system-ui!important;margin-top:4px!important}
-body[data-game="who-is-it"] #roomSettingsScreen .case-create{background:#b8ca91!important;color:#1c2a20!important;border:1px solid #d0dda9!important;box-shadow:3px 3px 0 #506344!important}
-@media(max-width:760px){body[data-game="who-is-it"] #roomSettingsScreen .case-access-options{grid-template-columns:1fr!important}}
-
-
-/* GLOBAL DARK ARCHIVE THEME — all screens */
-html,body,body[data-game="who-is-it"]{min-height:100%;background:#0b1510!important;color:#e8eadb!important}
-body[data-game="who-is-it"]{background-image:radial-gradient(ellipse at 50% 0%,#1b3023 0%,#101d15 46%,#080f0b 100%)!important}
-body[data-game="who-is-it"] .screen,
-body[data-game="who-is-it"] .screen *{color:inherit}
-body[data-game="who-is-it"] .panel,
-body[data-game="who-is-it"] .pack-card,
-body[data-game="who-is-it"] .character-card,
-body[data-game="who-is-it"] .game-info,
-body[data-game="who-is-it"] .modal,
-body[data-game="who-is-it"] .empty,
-body[data-game="who-is-it"] .upload-banner,
-body[data-game="who-is-it"] .case-form-section,
-body[data-game="who-is-it"] .case-room-form,
-body[data-game="who-is-it"] .case-room-aside,
-body[data-game="who-is-it"] .room-card{
- background:#17251c!important;color:#e8eadb!important;border-color:#3b5140!important;box-shadow:0 8px 24px #0005!important
-}
-body[data-game="who-is-it"] .case-file-cover,
-body[data-game="who-is-it"] .case-hero{background:#27372b!important;color:#f0efdf!important}
-body[data-game="who-is-it"] .case-file-cover *,
-body[data-game="who-is-it"] .case-hero *{color:inherit}
-body[data-game="who-is-it"] .case-file-cover p,
-body[data-game="who-is-it"] .case-hero-copy p{color:#c2cbb7!important}
-body[data-game="who-is-it"] .case-hero h1{color:#f0efdf!important}
-body[data-game="who-is-it"] .field label,
-body[data-game="who-is-it"] .muted,
-body[data-game="who-is-it"] .small,
-body[data-game="who-is-it"] .case-section-title small{color:#b4c0ad!important}
-body[data-game="who-is-it"] input,
-body[data-game="who-is-it"] select,
-body[data-game="who-is-it"] textarea{background:#0e1912!important;color:#f0efdf!important;border-color:#465b48!important}
-body[data-game="who-is-it"] select option{background:#17251c!important;color:#f0efdf!important}
-body[data-game="who-is-it"] .case-access-options label{background:#17251c!important;color:#e8eadb!important;border-color:#465b48!important}
-body[data-game="who-is-it"] .case-access-options label *{color:inherit}
-body[data-game="who-is-it"] .case-access-options label small{color:#b4c0ad!important}
-body[data-game="who-is-it"] .notice{background:#26382a!important;color:#e8eadb!important;border-color:#53684e!important}
-body[data-game="who-is-it"] .secondary{background:#26382a!important;color:#e8eadb!important;border-color:#52674d!important}
-body[data-game="who-is-it"] .primary,body[data-game="who-is-it"] .case-create{background:#b8ca91!important;color:#172318!important}
-body[data-game="who-is-it"] .page-head h2,
-body[data-game="who-is-it"] .case-section-title strong,
-body[data-game="who-is-it"] .case-steps{color:#e8eadb!important}
-
-/* CONTRAST + CLASSIC DETECTIVE BOARD RESTORE */
-body[data-game="who-is-it"],body[data-game="who-is-it"] .app{color:#f2f0df!important}
-body[data-game="who-is-it"] h1,body[data-game="who-is-it"] h2,body[data-game="who-is-it"] h3,
-body[data-game="who-is-it"] strong,body[data-game="who-is-it"] b,
-body[data-game="who-is-it"] .page-head,body[data-game="who-is-it"] .brand,
-body[data-game="who-is-it"] .case-section-title strong,
-body[data-game="who-is-it"] .field label{color:#f4f1df!important}
-body[data-game="who-is-it"] p,body[data-game="who-is-it"] small,
-body[data-game="who-is-it"] .muted,body[data-game="who-is-it"] .small,
-body[data-game="who-is-it"] .case-steps span,
-body[data-game="who-is-it"] .case-form-section .muted{color:#c5cfbd!important}
-body[data-game="who-is-it"] .notice,body[data-game="who-is-it"] .badge,
-body[data-game="who-is-it"] .case-access-options label,
-body[data-game="who-is-it"] .case-access-options label b{color:#f1f0df!important}
-body[data-game="who-is-it"] input,body[data-game="who-is-it"] textarea,
-body[data-game="who-is-it"] select{color:#f5f2e5!important;background:#0b1710!important}
-body[data-game="who-is-it"] input::placeholder,
-body[data-game="who-is-it"] textarea::placeholder{color:#aebaa9!important;opacity:1}
-body[data-game="who-is-it"] button.secondary{color:#f1f0df!important}
-body[data-game="who-is-it"] button.primary,
-body[data-game="who-is-it"] .case-create{color:#172318!important}
-body[data-game="who-is-it"] .screen .panel,
-body[data-game="who-is-it"] #onlineGamePanel .panel,
-body[data-game="who-is-it"] .game-info{color:#f2f0df!important}
-body[data-game="who-is-it"] #characterBoard{
-  padding:18px;background:#101d15;border:1px solid #53664c;
-  box-shadow:inset 0 0 0 5px #19291e,0 12px 28px #0006;
-  gap:14px
-}
-body[data-game="who-is-it"] #characterBoard .character-card{
-  position:relative;min-height:178px;padding:10px 10px 13px;
-  border:2px solid #a5a184;border-radius:3px;
-  background:linear-gradient(145deg,#f1ecd9,#d9d2b9)!important;
-  color:#26372b!important;box-shadow:3px 4px 0 #070d09,0 0 0 3px #26392b;
-  transition:transform .15s,border-color .15s,box-shadow .15s
-}
-body[data-game="who-is-it"] #characterBoard .character-card:after{
-  content:"KAZO • CASE FILE";display:block;margin-top:auto;padding-top:7px;
-  border-top:1px solid #b8b095;color:#56624d;font:700 8px monospace;letter-spacing:.12em
-}
-body[data-game="who-is-it"] #characterBoard .character-card>div{
-  color:#25372b!important;font:700 13px/1.3 Georgia,serif
-}
-body[data-game="who-is-it"] #characterBoard .character-card .face{color:#26372b!important}
-body[data-game="who-is-it"] #characterBoard .character-card .character-image{
-  width:100%;max-width:124px;height:116px;object-fit:contain;
-  background:#eee8d4;border:1px solid #c7bea0;border-radius:2px
-}
-body[data-game="who-is-it"] #characterBoard .character-card.selected{
-  border-color:#d7a85b!important;background:#f4e5bd!important;
-  box-shadow:0 0 0 3px #c18a3d,3px 4px 0 #070d09
-}
-body[data-game="who-is-it"] #characterBoard .character-card.crossed{
-  opacity:.42;filter:grayscale(1)
-}
-body[data-game="who-is-it"] #gameScreen .game-info,
-body[data-game="who-is-it"] #gameScreen .panel{background:#17271c!important;border-color:#52664d!important;color:#f2f0df!important}
-body[data-game="who-is-it"] #gameScreen .panel strong,
-body[data-game="who-is-it"] #gameScreen .game-info strong{color:#f4f1df!important}
-body[data-game="who-is-it"] #pickerModal .character-card{
-  background:#eee8d4!important;color:#26372b!important;border:2px solid #a5a184!important;border-radius:3px
-}
-body[data-game="who-is-it"] #pickerModal .character-card>div{color:#26372b!important}
-
-/* RECTANGULAR CASE CARDS */
-body[data-game="who-is-it"] #characterBoard .character-card{
-  aspect-ratio:1.28 / 1;
-  min-height:0;
-  height:auto;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  padding:9px 10px 10px;
-}
-body[data-game="who-is-it"] #characterBoard .character-card .character-image{
-  width:100%;
-  max-width:132px;
-  height:clamp(68px,8vw,104px);
-  flex:0 0 auto;
-  object-fit:contain;
-}
-body[data-game="who-is-it"] #characterBoard .character-card>div{
-  flex:0 0 auto;
-  text-align:center;
-}
-@media(max-width:760px){
-  body[data-game="who-is-it"] #characterBoard{grid-template-columns:repeat(2,minmax(0,1fr))}
-  body[data-game="who-is-it"] #characterBoard .character-card{aspect-ratio:1.18 / 1}
-  body[data-game="who-is-it"] #characterBoard .character-card .character-image{height:76px}
-}
-
-
-/* TRUE RECTANGULAR FULL-BLEED CASE CARDS + WORKING GUESS LENS */
-body[data-game="who-is-it"] #characterBoard{
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  align-items:stretch;
-}
-body[data-game="who-is-it"] #characterBoard .character-card{
-  position:relative!important;
-  display:block!important;
-  width:100%;
-  min-width:0;
-  height:auto!important;
-  min-height:0!important;
-  aspect-ratio:3 / 4!important;
-  padding:0!important;
-  overflow:hidden!important;
-  border:2px solid #a5a184!important;
-  border-radius:6px!important;
-  background:#d9d2b9!important;
-  box-shadow:3px 4px 0 #070d09,0 0 0 2px #26392b!important;
-  clip-path:none!important;
-}
-body[data-game="who-is-it"] #characterBoard .character-card>.character-image{
-  position:absolute!important;
-  inset:0!important;
-  display:block!important;
-  width:100%!important;
-  height:100%!important;
-  max-width:none!important;
-  max-height:none!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  margin:0!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:0!important;
-  background:#d9d2b9!important;
-}
-body[data-game="who-is-it"] #characterBoard .character-card>.face{
-  position:absolute;inset:0;display:grid;place-items:center;
-  width:100%;height:100%;font-size:clamp(42px,7vw,76px);
-  background:linear-gradient(145deg,#e8e1cc,#c9c1a7);
-}
-body[data-game="who-is-it"] #characterBoard .character-card>.character-name{
-  position:absolute;left:0;right:0;bottom:0;z-index:2;
-  display:block;padding:10px 7px 9px!important;
-  color:#f7f0d9!important;
-  background:linear-gradient(transparent,#101a13ed 34%);
-  text-align:center;font:700 13px/1.2 Georgia,serif!important;
-  text-shadow:0 1px 3px #000;
-}
-body[data-game="who-is-it"] #characterBoard .character-card:after{content:none!important}
-body[data-game="who-is-it"] #characterBoard .character-card .guess-lens{
-  position:absolute;z-index:4;top:8px;right:8px;
-  width:36px;height:36px;display:grid;place-items:center;
-  border:1px solid #d5d7bd;border-radius:50%;
-  background:#101a13eF;color:#f4f0dc;
-  font:25px/1 Arial,sans-serif;cursor:pointer;
-  box-shadow:0 2px 7px #0008;
-}
-body[data-game="who-is-it"] #characterBoard .character-card .guess-lens:hover{
-  background:#b8ca91;color:#18251d;border-color:#f0e6bd;
-}
-#characterImageViewer{
-  position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;
-  padding:24px;background:#050807ed;backdrop-filter:blur(7px);cursor:zoom-out;
-}
-#characterImageViewer.open{display:flex}
-#characterImageViewer img{
-  display:block;max-width:min(94vw,1200px);max-height:88vh;width:auto;height:auto;
-  object-fit:contain;border-radius:8px;box-shadow:0 18px 70px #000b;
-}
-#characterImageViewer .viewer-name{
-  position:absolute;left:20px;right:20px;bottom:18px;text-align:center;
-  color:#f7f0d9;font:700 16px Georgia,serif;text-shadow:0 2px 5px #000;
-}
-#characterImageViewer .viewer-close{
-  position:absolute;top:16px;right:18px;width:44px;height:44px;border:1px solid #ffffff66;
-  border-radius:50%;background:#17231d;color:#fff;font-size:28px;cursor:pointer;
-}
-body[data-game="who-is-it"] #characterBoard .character-card.selected{
-  border:3px solid #d7a85b!important;
-}
-body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
-  content:"";position:absolute;inset:0;z-index:3;
-  background:#0a100bb0;pointer-events:none;
-}
-@media(max-width:760px){
-  body[data-game="who-is-it"] #characterBoard{grid-template-columns:repeat(2,minmax(0,1fr))}
-  body[data-game="who-is-it"] #characterBoard .character-card{aspect-ratio:3 / 4!important}
-}
-
+/* Режимы игры — вертикальный список, как единое меню Kazo */
+#playScreen .menu-grid{display:flex;flex-direction:column;gap:12px;width:min(560px,100%);margin:0 auto}
+#playScreen .menu-card{display:flex;align-items:center;gap:16px;width:100%;min-height:82px;padding:15px 18px;text-align:left}
+#playScreen .menu-card .emoji{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:14px;font-size:27px}
+#playScreen .menu-card strong,#playScreen .menu-card small{display:block}
+#playScreen .menu-card small{margin-top:4px}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -524,27 +178,46 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
 
   <!-- ГЛАВНОЕ МЕНЮ -->
   <section id="homeScreen" class="screen active">
-    <div class="case-kicker"><span>THE UNKNOWN FILES · CASE NO. 001</span><span class="online-dot">DETECTIVE NETWORK ONLINE</span></div>
-    <div class="case-hero">
-      <div class="case-hero-copy">
-        <small>ДЕЛО № 001 / ЛИЧНОСТЬ НЕ УСТАНОВЛЕНА</small>
-        <h1>ЗАСЕКРЕЧЕН<br>НЫЕ <em>ФАЙЛЫ</em></h1>
-        <p>Перед тобой неизвестные объекты и загадочные досье. Задавай вопросы, собирай улики и выясни, что скрывается в засекреченном файле.</p>
-        <button class="case-open" onclick="openRoomSettings('private')">ОТКРЫТЬ НОВОЕ ДЕЛО <span>↗</span></button>
-        <small class="case-foot">KAZO / DETECTIVE CLUB</small>
-      </div>
-      <div class="case-hero-art">
-        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
-        <div class="top-secret">TOP<br>SECRET</div>
-        <div class="unknown-file">?</div>
-        <small>SUBJECT<br>UNKNOWN</small>
-        <span class="case-est">EST. 2026</span>
-      </div>
+    <div class="hero">
+      <h1>Кто <span>это?</span></h1>
+      <p>Задавай вопросы, исключай персонажей и угадывай первым!</p>
     </div>
-    <div class="case-access-title">01 ДОСТУП К ДЕЛАМ</div>
-    <div class="case-access">
-      <button class="case-access-card" onclick="openPublicRooms()"><span class="access-icon">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><i>↗</i></button>
-      <button class="case-access-card" onclick="openPacksMenu()"><span class="access-icon">▤</span><span><b>Архив объектов</b><small>Коллекции людей, предметов, мест и многого другого</small></span><i>↗</i></button>
+    <div class="menu-grid">
+      <button class="menu-card" onclick="openPlayMenu()">
+        <span class="emoji">🎮</span>
+        <strong>Играть</strong>
+        <small>Выбери режим игры</small>
+      </button>
+      <button class="menu-card" onclick="openPacksMenu()">
+        <span class="emoji">🗂️</span>
+        <strong>Паки</strong>
+        <small>Скачивай, создавай и выбирай наборы</small>
+      </button>
+    </div>
+  </section>
+
+  <section id="playScreen" class="screen">
+    <div class="page-head">
+      <h2>Выбери режим</h2>
+      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
+    </div>
+    <div class="menu-grid">
+      <button class="menu-card" onclick="showBotNotice()">
+        <span class="emoji">🤖</span><strong>Играть с ботом</strong>
+        <small>Создай тренировочную комнату с пассивным соперником</small>
+      </button>
+      <button class="menu-card" onclick="openJoinPicker('private')">
+        <span class="emoji">🔒</span><strong>Закрытая игра</strong>
+        <small>Войти в комнату по коду</small>
+      </button>
+      <button class="menu-card" onclick="openPublicRooms()">
+        <span class="emoji">🌍</span><strong>Публичная игра</strong>
+        <small>Найти открытую комнату</small>
+      </button>
+      <button class="menu-card" onclick="openRoomSettings('public')">
+        <span class="emoji">➕</span><strong>Создать комнату</strong>
+        <small>Настроить собственную игру</small>
+      </button>
     </div>
   </section>
 
@@ -556,10 +229,12 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
     </div>
     <div class="menu-grid">
       <button class="menu-card" onclick="openOnlinePacks()">
+        <span class="emoji">🌐</span>
         <strong>Онлайн паки</strong>
         <small>Публикуй свои и скачивай паки игроков</small>
       </button>
       <button class="menu-card" onclick="openPackManager('mine')">
+        <span class="emoji">📚</span>
         <strong>Мои паки</strong>
         <small>Свои, скачанные и встроенные наборы</small>
       </button>
@@ -574,7 +249,7 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
     </div>
 
     <div class="upload-banner">
-      <h3>Загрузить пак в общий доступ</h3>
+      <h3>📤 Загрузить пак в общий доступ</h3>
       <p>Опубликуй собственный набор, чтобы другие игроки могли найти и скачать его.</p>
       <button class="primary" onclick="openUploadPackPicker()">Выбрать свой пак для публикации</button>
     </div>
@@ -622,6 +297,7 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
         <label>Добавить персонажей</label>
         <div class="row">
           <input id="characterName" placeholder="Имя персонажа">
+          <input id="characterEmoji" placeholder="Эмодзи" maxlength="8" style="max-width:100px">
           <button class="primary fit" onclick="addPlaceholder()">Добавить</button>
         </div>
         <input id="characterImage" type="file" accept="image/*" multiple onchange="addFiles(event)">
@@ -640,37 +316,55 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
   </section>
 
   <section id="roomSettingsScreen" class="screen">
-    <div class="page-head case-page-head"><h2>Оформление дела</h2><button class="secondary" onclick="showScreen('homeScreen')">← Назад</button></div>
-    <div class="case-room-layout">
-      <aside class="case-room-aside">
-        <div class="case-file-cover"><small>KAZO / CASE FILE</small><div class="cover-question">?</div><span class="confidential">CONFIDENTIAL</span><h3>ДЕЛО<br>ОТКРЫТО</h3><p>Собери комнату для дуэли детективов. После создания передай сопернику код доступа.</p></div>
-        <div class="case-steps"><b>01　Параметры</b><span>02　Персонажи</span><span>03　Приглашение</span></div>
-      </aside>
-      <div class="case-room-form">
-        <section class="case-form-section"><div class="case-section-title"><b>01</b><span><strong>Идентификация комнаты</strong><small>Как будет выглядеть твоё игровое дело</small></span></div>
-          <div class="field"><label for="roomName">НАЗВАНИЕ ДЕЛА</label><input id="roomName" maxlength="40" placeholder="Например, Наша игра"></div>
-          <input id="roomCode" type="hidden" value="">
-        </section>
-        <section class="case-form-section"><div class="case-section-title"><b>02</b><span><strong>Материалы расследования</strong><small>Выбери набор и размер игрового стола</small></span></div>
-          <div class="field"><label>АРХИВ ПЕРСОНАЖЕЙ</label><div id="selectedRoomPack" class="notice">Пак не выбран</div><button class="secondary full" onclick="openRoomPackPicker()">▤　Выбрать коллекцию</button></div>
-          <div class="case-form-grid">
-            <div class="field"><label for="roomCardCount">КАРТОЧЕК НА СТОЛЕ</label><select id="roomCardCount"><option value="20">20 карточек</option><option value="30">30 карточек</option><option value="40">40 карточек</option><option value="50">50 карточек</option><option value="60">60 карточек</option></select></div>
-            <div class="field"><label for="roomTimer">ВРЕМЯ НА ВОПРОС</label><select id="roomTimer"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="0">Без ограничения</option></select></div>
-          </div>
-        </section>
-        <section class="case-form-section"><div class="case-section-title"><b>03</b><span><strong>Режим доступа</strong><small>Кто сможет найти твою комнату</small></span></div>
-          <div class="case-access-options"><label><input type="radio" name="caseAccess" value="private" checked onchange="document.getElementById('roomAccess').value='private'"><span><b>▣　По приглашению</b><small>Только по коду</small></span></label><label><input type="radio" name="caseAccess" value="public" onchange="document.getElementById('roomAccess').value='public'"><span><b>◎　Открытая</b><small>В общем списке</small></span></label></div>
-          <select id="roomAccess" class="case-hidden-access"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
-        </section>
-        <button class="case-create" onclick="createConfiguredRoom()">СОЗДАТЬ ИГРОВОЕ ДЕЛО <span>↗</span></button>
+    <div class="page-head">
+      <h2>Настройки комнаты</h2>
+      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
+    </div>
+    <div class="panel stack">
+      <div class="field">
+        <label for="roomName">Название комнаты</label>
+        <input id="roomName" maxlength="40" placeholder="Например, Наша игра">
       </div>
+      <div class="field">
+        <label for="roomCode">Код комнаты — придумай сам</label>
+        <input id="roomCode" maxlength="16" placeholder="Например, FRIENDS7" autocomplete="off">
+        <span class="muted small">От 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.</span>
+      </div>
+      <div class="field">
+        <label>Пак персонажей</label>
+        <div id="selectedRoomPack" class="notice">Пак не выбран</div>
+        <button class="secondary" onclick="openRoomPackPicker()">Выбрать пак</button>
+      </div>
+      <div class="field">
+        <label for="roomCardCount">Количество карточек</label>
+        <select id="roomCardCount">
+          <option value="20">20 карточек</option><option value="30">30 карточек</option>
+          <option value="40">40 карточек</option><option value="50">50 карточек</option>
+          <option value="60">60 карточек</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="roomTimer">Время на вопрос</label>
+        <select id="roomTimer">
+          <option value="15">15 секунд</option><option value="30">30 секунд</option>
+          <option value="45">45 секунд</option><option value="60" selected>60 секунд</option>
+          <option value="90">90 секунд</option><option value="0">Без ограничения</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="roomAccess">Тип комнаты</label>
+        <select id="roomAccess">
+          <option value="private">Закрытая</option><option value="public">Открытая</option>
+        </select>
+      </div>
+      <button class="primary full" onclick="createConfiguredRoom()">Создать комнату</button>
     </div>
   </section>
 
   <section id="joinScreen" class="screen">
     <div class="page-head">
       <h2>Войти в комнату</h2>
-      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
+      <button class="secondary" onclick="showScreen('playScreen')">Назад</button>
     </div>
     <div class="panel stack">
       <div class="field">
@@ -686,7 +380,7 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
       <h2>Публичные комнаты</h2>
       <div class="row" style="flex:0 0 auto">
         <button class="secondary" onclick="openPublicRooms()">Обновить</button>
-        <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
+        <button class="secondary" onclick="showScreen('playScreen')">Назад</button>
       </div>
     </div>
     <div id="publicRoomsList"></div>
@@ -763,45 +457,39 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
 const STORAGE_MY_PACKS='guessWhoPacks';
 const STORAGE_DOWNLOADED='guessWhoDownloadedPacks';
 
-const animalAssetFiles={
-  'Лев':'lion.webp','Тигр':'tiger.webp','Слон':'elephant.webp','Жираф':'giraffe.webp','Зебра':'zebra.webp',
-  'Панда':'panda.webp','Коала':'koala.webp','Кенгуру':'kangaroo.webp','Волк':'wolf.webp','Лиса':'fox.webp',
-  'Медведь':'bear.webp','Заяц':'hare.webp','Белка':'squirrel.webp','Ёж':'hedgehog.webp','Олень':'deer.webp',
-  'Лось':'moose.webp','Лошадь':'horse.webp','Корова':'cow.webp','Овца':'sheep.webp','Коза':'goat.webp',
-  'Свинья':'pig.webp','Собака':'dog.webp','Кошка':'cat.webp','Хомяк':'hamster.webp','Мышь':'mouse.webp',
-  'Крыса':'rat.webp','Бобр':'beaver.webp','Выдра':'otter.webp','Енот':'raccoon.webp','Барсук':'badger.webp',
-  'Верблюд':'camel.webp','Лама':'llama.webp','Альпака':'alpaca.webp','Носорог':'rhinoceros.webp','Бегемот':'hippo.webp',
-  'Крокодил':'crocodile.webp','Аллигатор':'alligator.webp','Черепаха':'turtle.webp','Змея':'snake.webp','Ящерица':'lizard.webp',
-  'Лягушка':'frog.webp','Жаба':'toad.webp','Акула':'shark.webp','Дельфин':'dolphin.webp','Кит':'whale.webp',
-  'Осьминог':'octopus.webp','Краб':'crab.webp','Медуза':'jellyfish.webp','Пингвин':'penguin.webp','Фламинго':'flamingo.webp',
-  'Орёл':'eagle.webp','Сова':'owl.webp','Попугай':'parrot.webp','Ворона':'crow.webp','Воробей':'sparrow.webp',
-  'Павлин':'peacock.webp','Лебедь':'swan.webp','Утка':'duck.webp','Петух':'rooster.webp','Бабочка':'butterfly.webp'
-};
-const animalFixedImageUrl=name=>animalAssetFiles[name]
-  ?'/games/who-is-it/assets/characters/animals/'+animalAssetFiles[name]:'';
-function getAnimalImage(name){return animalFixedImageUrl(name)}
-function appendCharacterVisual(card,character,useAnimalLookup=false){
-  const url=character.image||(useAnimalLookup?getAnimalImage(character.name):'');
-  if(!url)return;
-  const img=document.createElement('img');
-  img.className='character-image';img.alt=character.name;img.loading='lazy';img.decoding='async';
-  img.onerror=()=>{if(img.isConnected)img.remove()};
-  img.src=url;
-  card.appendChild(img);
-}
-const makeCharacters=(names,isAnimals=false)=>names.map((name,i)=>({
+const makeCharacters=(names,emoji)=>names.map((name,i)=>({
   id:`${name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi,'-')}-${i}`,
-  name,image:isAnimals?animalFixedImageUrl(name):''
+  name,emoji,image:''
 }));
 
 const builtInPacks=[
-
-{id:'animals',name:'Животные',description:'Животные со всего мира',characters:makeCharacters([
+{id:'animals',name:'Животные',description:'Животные со всего мира',emoji:'🐾',characters:makeCharacters([
 'Лев','Тигр','Слон','Жираф','Зебра','Панда','Коала','Кенгуру','Волк','Лиса','Медведь','Заяц','Белка','Ёж','Олень','Лось','Лошадь','Корова','Овца','Коза','Свинья','Собака','Кошка','Хомяк','Мышь','Крыса','Бобр','Выдра','Енот','Барсук','Верблюд','Лама','Альпака','Носорог','Бегемот','Крокодил','Аллигатор','Черепаха','Змея','Ящерица','Лягушка','Жаба','Акула','Дельфин','Кит','Осьминог','Краб','Медуза','Пингвин','Фламинго','Орёл','Сова','Попугай','Ворона','Воробей','Павлин','Лебедь','Утка','Петух','Бабочка'
-],true)},
-{id:'minecraft',name:'Minecraft',description:'Мобы и персонажи Minecraft',characters:makeCharacters([
+],'🐾')},
+{id:'plants',name:'Растения',description:'Деревья, цветы и другие растения',emoji:'🌿',characters:makeCharacters([
+'Роза','Тюльпан','Подсолнух','Ромашка','Пион','Лилия','Орхидея','Ирис','Нарцисс','Гвоздика','Мак','Лаванда','Петуния','Гортензия','Хризантема','Фиалка','Кактус','Алоэ','Бамбук','Папоротник','Мох','Плющ','Пальма','Берёза','Дуб','Клён','Сосна','Ель','Кедр','Ива','Тополь','Осина','Липа','Рябина','Каштан','Яблоня','Груша','Вишня','Черешня','Слива','Персик','Абрикос','Лимон','Апельсин','Банан','Кокос','Клубника','Малина','Черника','Арбуз','Тыква','Огурец','Помидор','Морковь','Картофель','Капуста','Подорожник','Одуванчик','Клевер','Кактус-опунция'
+],'🌿')},
+{id:'professions',name:'Профессии',description:'Люди разных профессий',emoji:'🧑‍🔧',characters:makeCharacters([
+'Врач','Медсестра','Учитель','Воспитатель','Повар','Пекарь','Полицейский','Пожарный','Спасатель','Пилот','Космонавт','Моряк','Машинист','Водитель','Таксист','Строитель','Архитектор','Инженер','Электрик','Сантехник','Программист','Дизайнер','Художник','Фотограф','Музыкант','Певец','Актёр','Режиссёр','Танцор','Писатель','Журналист','Библиотекарь','Учёный','Биолог','Химик','Астроном','Археолог','Историк','Адвокат','Судья','Фермер','Садовник','Ветеринар','Парикмахер','Портной','Ювелир','Продавец','Кассир','Курьер','Почтальон','Спортсмен','Тренер','Судья матча','Эколог','Переводчик','Гид','Психолог','Экономист','Пожарный инспектор','Механик'
+],'🧑‍🔧')},
+{id:'landmarks',name:'Достопримечательности',description:'Известные места и памятники',emoji:'🏛️',characters:makeCharacters([
+'Эйфелева башня','Колизей','Тадж-Махал','Статуя Свободы','Биг-Бен','Пизанская башня','Сфинкс','Пирамиды Гизы','Великая стена','Стоунхендж','Акрополь','Парфенон','Бранденбургские ворота','Триумфальная арка','Лувр','Нотр-Дам','Собор Святого Петра','Саграда Фамилия','Альгамбра','Пражский град','Красная площадь','Кремль','Храм Василия Блаженного','Эрмитаж','Петергоф','Байтерек','Бурдж-Халифа','Пальма Джумейра','Оперный театр Сиднея','Мост Золотые Ворота','Гора Рашмор','Ниагарский водопад','Гранд-Каньон','Йеллоустоун','Мачу-Пикчу','Чичен-Ица','Теотиуакан','Статуи Моаи','Ангкор-Ват','Бородобудур','Фудзияма','Токийская башня','Запретный город','Терракотовая армия','Дворец Потала','Храм Лотоса','Голубая мечеть','Айя-София','Мон-Сен-Мишель','Замок Нойшванштайн','Замок Эдинбурга','Вестминстерское аббатство','Тауэрский мост','Петропавловская крепость','Музей Прадо','Площадь Сан-Марко','Фонтан Треви','Пантеон','Гора Эверест','Мёртвое море'
+],'🏛️')},
+{id:'transport',name:'Транспорт',description:'Наземный, воздушный и водный транспорт',emoji:'🚗',characters:makeCharacters([
+'Легковой автомобиль','Такси','Автобус','Троллейбус','Трамвай','Метро','Поезд','Электричка','Скоростной поезд','Грузовик','Фургон','Пикап','Мотоцикл','Скутер','Мопед','Велосипед','Самокат','Моноколесо','Квадроцикл','Трактор','Экскаватор','Бульдозер','Кран','Погрузчик','Снегоход','Катер','Яхта','Парусник','Корабль','Паром','Подводная лодка','Гидроцикл','Каяк','Каноэ','Байдарка','Плот','Самолёт','Вертолёт','Дирижабль','Воздушный шар','Планер','Истребитель','Бомбардировщик','Гидросамолёт','Ракета','Космический корабль','Марсоход','Луноход','Санки','Снегокат','Карета','Повозка','Рикша','Канатная дорога','Фуникулёр','Эскалатор','Лифт','Монорельс','Скорая помощь','Пожарная машина'
+],'🚗')},
+{id:'space',name:'Космос',description:'Планеты, звёзды и космические объекты',emoji:'🚀',characters:makeCharacters([
+'Меркурий','Венера','Земля','Марс','Юпитер','Сатурн','Уран','Нептун','Плутон','Луна','Солнце','Проксима Центавра','Сириус','Полярная звезда','Бетельгейзе','Ригель','Вега','Альтаир','Антарес','Арктур','Млечный Путь','Андромеда','Туманность Ориона','Туманность Кольцо','Крабовидная туманность','Чёрная дыра','Белый карлик','Красный гигант','Сверхновая','Пульсар','Нейтронная звезда','Комета Галлея','Комета','Астероид','Метеор','Метеорит','Пояс астероидов','Пояс Койпера','Облако Оорта','Экзопланета','Спутник','Международная космическая станция','Телескоп Хаббл','Телескоп Джеймс Уэбб','Ракета-носитель','Космический зонд','Вояджер-1','Вояджер-2','Марсоход Curiosity','Марсоход Perseverance','Луноход','Космический скафандр','Солнечное затмение','Лунное затмение','Полярное сияние','Солнечный ветер','Галактика','Карликовая галактика','Скопление галактик','Квазар'
+],'🌌')},
+{id:'food',name:'Еда',description:'Блюда, продукты и вкусности',emoji:'🍕',characters:makeCharacters([
+'Пицца','Бургер','Хот-дог','Сэндвич','Шаурма','Тако','Буррито','Суши','Роллы','Рамен','Паста','Спагетти','Лазанья','Ризотто','Пельмени','Вареники','Блины','Оладьи','Борщ','Щи','Окрошка','Плов','Шашлык','Котлета','Стейк','Курица гриль','Рыба запечённая','Картофель фри','Пюре','Рис','Гречка','Овсянка','Салат Цезарь','Оливье','Винегрет','Греческий салат','Суп-пюре','Сырники','Творог','Йогурт','Мороженое','Торт','Чизкейк','Пончик','Пирог','Круассан','Печенье','Шоколад','Конфета','Мармелад','Яблоко','Банан','Апельсин','Клубника','Виноград','Арбуз','Манго','Ананас','Авокадо','Кукуруза'
+],'🍽️')},
+{id:'fantasy',name:'Фэнтези',description:'Волшебные существа и фантастические герои',emoji:'🧙',characters:makeCharacters([
+'Дракон','Единорог','Феникс','Грифон','Пегас','Кентавр','Минотавр','Циклоп','Гидра','Кракен','Русалка','Сирена','Морской змей','Левиафан','Василиск','Мантикора','Химера','Гарпия','Сфинкс','Виверна','Эльф','Тёмный эльф','Гном','Дварф','Хоббит','Орк','Гоблин','Тролль','Огр','Великан','Фея','Пикси','Дриада','Лесной дух','Домовой','Леший','Водяной','Банши','Призрак','Вампир','Оборотень','Зомби','Скелет-воин','Лич','Некромант','Маг','Волшебница','Чародей','Алхимик','Паладин','Рыцарь','Следопыт','Бард','Друид','Колдун','Ведьма','Волшебный кот','Фамильяр','Голем','Живой доспех'
+],'✨')},
+{id:'minecraft',name:'Minecraft',description:'Мобы и персонажи Minecraft',emoji:'⛏️',characters:makeCharacters([
 'Стив','Алекс','Зомби','Скелет','Крипер','Эндермен','Паук','Пещерный паук','Ведьма','Слизень','Магмовый куб','Зомби-житель','Утопленник','Кадавр','Фантом','Разоритель','Поборник','Вызыватель','Досаждатель','Страж','Древний страж','Гаст','Ифрит','Лавовый куб','Пиглин','Зомбифицированный пиглин','Хоглин','Зоглин','Глиняный голем','Снежный голем','Железный голем','Сельчанин','Странствующий торговец','Лама','Лошадь','Осёл','Мул','Корова','Грибная корова','Овца','Свинья','Курица','Кролик','Кошка','Волк','Лиса','Панда','Пчела','Черепаха','Дельфин','Аксолотль','Кальмар','Светящийся кальмар','Треска','Лосось','Тропическая рыба','Иглобрюх','Лягушка','Головастик','Светящийся спрут'
- ])}
+],'⛏️')}
 ];
 
 let myPacks=loadStorage(STORAGE_MY_PACKS,[]);
@@ -820,23 +508,6 @@ let gameCrossed=new Set();
 let selectedLocalPack=null;
 let activeRoomSettings=null;
 let autoAddTestBot=false;
-
-function syncDownloadedBuiltinImages(){
-  let changed=false;
-  const sourcePacks=new Map(builtInPacks.map(pack=>[String(pack.id),pack]));
-  downloadedPacks.forEach(pack=>{
-    const source=sourcePacks.get(String(pack.id));
-    if(!source||!Array.isArray(pack.characters))return;
-    const sourceCharacters=new Map(source.characters.map(character=>[String(character.id),character]));
-    const sourceByName=new Map(source.characters.map(character=>[character.name,character]));
-    pack.characters.forEach(character=>{
-      const latest=sourceCharacters.get(String(character.id))||sourceByName.get(character.name);
-      if(latest?.image&&character.image!==latest.image){character.image=latest.image;changed=true;}
-    });
-  });
-  if(changed)persistPacks();
-}
-syncDownloadedBuiltinImages();
 
 function loadStorage(key,fallback){
   try{const value=JSON.parse(localStorage.getItem(key)||'null');return value??fallback}
@@ -862,11 +533,13 @@ function toast(message){
   clearTimeout(window.toastTimer);
   window.toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
+function showBotNotice(){openRoomSettings('private');autoAddTestBot=true;toast('Выбери пак персонажей и создай комнату — тестовый соперник добавится автоматически.')}
 
 /* -------------------------------------------------------
    ГЛАВНОЕ МЕНЮ И ПАКИ
 ------------------------------------------------------- */
 
+function openPlayMenu(){showScreen('playScreen')}
 function openPacksMenu(){showScreen('packsScreen')}
 
 function openPackManager(tab='downloaded'){
@@ -915,7 +588,7 @@ function renderOnlinePackCatalog(packs){
     const card=document.createElement('div');
     card.className='pack-card';
     const title=document.createElement('h3');
-    title.textContent=pack.name||'Пак без названия';
+    title.textContent=`${pack.emoji||'🗂️'} ${pack.name||'Пак без названия'}`;
     const description=document.createElement('p');
     description.className='muted small';
     description.textContent=pack.description||'Без описания';
@@ -924,7 +597,7 @@ function renderOnlinePackCatalog(packs){
     count.textContent=`${(pack.characters||[]).length} карточек`;
     const preview=document.createElement('div');
     preview.className='preview';
-    preview.textContent=(pack.characters||[]).slice(0,7).map(c=>c.name).filter(Boolean).join(' · ');
+    preview.textContent=(pack.characters||[]).slice(0,7).map(c=>c.emoji||'🖼️').join(' ');
     const download=document.createElement('button');
     download.className='primary full';
     download.style.marginTop='12px';
@@ -973,7 +646,7 @@ function openUploadPackPicker(){
     const card=document.createElement('div');
     card.className='pack-card';
     const title=document.createElement('h3');
-    title.textContent=pack.name;
+    title.textContent=`${pack.emoji||'🗂️'} ${pack.name}`;
     const info=document.createElement('p');
     info.className='muted small';
     info.textContent=`${(pack.characters||[]).length} карточек`;
@@ -1078,13 +751,13 @@ function renderPackGrid(packs,type){
     const card=document.createElement('div');
     card.className='pack-card';
     const title=document.createElement('h3');
-    title.textContent=pack.name||'Без названия';
+    title.textContent=`${pack.emoji||'🗂️'} ${pack.name||'Без названия'}`;
     const description=document.createElement('p');
     description.className='muted small';
     description.textContent=pack.description||'';
     const preview=document.createElement('div');
     preview.className='preview';
-    preview.textContent=(pack.characters||[]).slice(0,7).map(c=>c.name).filter(Boolean).join(' · ');
+    preview.textContent=(pack.characters||[]).slice(0,7).map(c=>c.emoji||'🖼️').join(' ');
     const count=document.createElement('span');
     count.className='badge';
     count.textContent=`${(pack.characters||[]).length} карточек`;
@@ -1160,41 +833,32 @@ function editPack(id){
 }
 function addPlaceholder(){
   const nameInput=document.getElementById('characterName');
+  const emojiInput=document.getElementById('characterEmoji');
   const name=nameInput.value.trim();
   if(!name){toast('Введи имя персонажа.');return}
   editorCharacters.push({
     id:`custom-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    name,image:''
+    name,emoji:emojiInput.value.trim()||'❔',image:''
   });
-  nameInput.value='';renderEditor();
+  nameInput.value='';emojiInput.value='';renderEditor();
 }
-async function addFiles(event){
+function addFiles(event){
   const files=Array.from(event.target.files||[]);
-  event.target.value='';
-  for(const file of files){
-    if(!file.type.startsWith('image/'))continue;
-    if(file.size>12*1024*1024){toast(`Файл ${file.name} слишком большой. Максимум 12 МБ.`);continue}
-    try{
-      const bitmap=await createImageBitmap(file);
-      const scale=Math.min(1,512/Math.max(bitmap.width,bitmap.height));
-      const canvas=document.createElement('canvas');
-      canvas.width=Math.max(1,Math.round(bitmap.width*scale));
-      canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-      const context=canvas.getContext('2d',{alpha:false});
-      context.fillStyle='#f3f0e9';context.fillRect(0,0,canvas.width,canvas.height);
-      context.drawImage(bitmap,0,0,canvas.width,canvas.height);
-      bitmap.close?.();
-      let compressed=canvas.toDataURL('image/webp',0.78);
-      if(compressed.length>500000)compressed=canvas.toDataURL('image/jpeg',0.66);
-      if(compressed.length>500000){toast(`Не удалось сжать ${file.name} до нужного размера.`);continue}
+  files.forEach(file=>{
+    if(!file.type.startsWith('image/'))return;
+    if(file.size>450000){toast(`Файл ${file.name} слишком большой. Выбери изображение до 450 КБ.`);return}
+    const reader=new FileReader();
+    reader.onload=()=>{
       editorCharacters.push({
         id:`image-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         name:file.name.replace(/\.[^.]+$/,''),
-        image:compressed
+        emoji:'🖼️',image:String(reader.result)
       });
       renderEditor();
-    }catch(error){toast(`Не удалось обработать изображение ${file.name}.`)}
-  }
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value='';
 }
 function renderEditor(){
   document.getElementById('editorCount').textContent=editorCharacters.length;
@@ -1203,7 +867,15 @@ function renderEditor(){
   editorCharacters.forEach((character,index)=>{
     const card=document.createElement('div');
     card.className='character-card';
-    appendCharacterVisual(card,character,false);
+    if(character.image){
+      const img=document.createElement('img');
+      img.src=character.image;img.alt=character.name;
+      img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
+      card.appendChild(img);
+    }else{
+      const face=document.createElement('span');
+      face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
+    }
     const name=document.createElement('div');name.textContent=character.name;
     const remove=document.createElement('button');
     remove.className='secondary danger';remove.style.marginTop='8px';remove.textContent='Удалить';
@@ -1219,10 +891,10 @@ function clearEditorCharacters(){
 function savePack(){
   const name=document.getElementById('packName').value.trim();
   const description=document.getElementById('packDescription').value.trim();
-  if(!name){toast('Укажи название пака.');return false}
-  if(editorCharacters.length<2){toast('Добавь хотя бы двух персонажей.');return false}
+  if(!name){toast('Укажи название пака.');return}
+  if(editorCharacters.length<2){toast('Добавь хотя бы двух персонажей.');return}
   const pack={
-    id:editingPackId||`pack-${Date.now()}`,name,description,
+    id:editingPackId||`pack-${Date.now()}`,name,description,emoji:'🗂️',
     characters:JSON.parse(JSON.stringify(editorCharacters))
   };
   if(editingPackId){
@@ -1231,11 +903,11 @@ function savePack(){
   }else myPacks.push(pack);
   persistPacks();editingPackId=pack.id;
   toast('Пак сохранён.');renderPackManager();
-  return true;
 }
 function savePackAndReturn(){
-  if(!savePack())return;
-  showScreen('packManagerScreen');setPackTab('mine');
+  const before=editingPackId;
+  savePack();
+  if(editingPackId){showScreen('packManagerScreen');setPackTab('mine')}
 }
 function deletePack(id){
   if(!confirm('Удалить этот пак?'))return;
@@ -1316,21 +988,12 @@ function openPackSelectionModal(onChoose){
    СОЗДАНИЕ И ПОДКЛЮЧЕНИЕ К КОМНАТАМ
 ------------------------------------------------------- */
 
-function makeRoomToken(length=6){
-  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const bytes=new Uint8Array(length);
-  if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);
-  else for(let i=0;i<length;i++)bytes[i]=Math.floor(Math.random()*256);
-  return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('');
-}
-function makeDefaultRoomName(){return 'Комната '+String(Math.floor(100000+Math.random()*900000));}
 function openRoomSettings(access='private'){
   autoAddTestBot=false;roomAccessDefault=access;selectedRoomPack=null;
-  document.getElementById('roomName').value=makeDefaultRoomName();
-  document.getElementById('roomCode').value=makeRoomToken(); 
+  document.getElementById('roomName').value='';
+  document.getElementById('roomCode').value='';
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
   document.getElementById('roomAccess').value=access;
-  const accessRadio=document.querySelector('input[name="caseAccess"][value="'+access+'"]');if(accessRadio)accessRadio.checked=true;
   document.getElementById('roomCardCount').value='20';
   document.getElementById('roomTimer').value='60';
   Array.from(document.getElementById('roomCardCount').options).forEach(o=>o.disabled=false);
@@ -1341,8 +1004,10 @@ async function createConfiguredRoom(){
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
   if(!window.onlineGame?.createRoom){toast('Онлайн-игра пока недоступна.');return}
-  const roomName=document.getElementById('roomName').value.trim()||makeDefaultRoomName();
-  const roomCode=makeRoomToken();
+  const roomName=document.getElementById('roomName').value.trim();
+  const roomCode=document.getElementById('roomCode').value.trim().toUpperCase();
+  if(!roomName){toast('Введи название комнаты.');return}
+  if(!/^[A-Z0-9_-]{3,16}$/.test(roomCode)){toast('Придумай код длиной от 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.');return}
   const settings={
     roomName,
     roomCode,
@@ -1424,7 +1089,7 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
   document.getElementById('questionFeedback').textContent='';
   const onlinePanel=document.getElementById('onlineGamePanel');
   onlinePanel.classList.toggle('hidden',mode!=='online');
-  onlinePanel.innerHTML=mode==='online'&&window.onlineGame?.isRoomHost?.()?'<div class="panel row" style="justify-content:space-between;gap:12px"><span class="muted small">Тестовый режим</span><button class="secondary fit" id="addWhoIsItBot">Добавить тестового соперника</button></div>':'';
+  onlinePanel.innerHTML=mode==='online'&&window.onlineGame?.isRoomHost?.()?'<div class="panel row" style="justify-content:space-between;gap:12px"><span class="muted small">Тестовый режим</span><button class="secondary fit" id="addWhoIsItBot">🤖 Добавить тестового соперника</button></div>':'';
   document.getElementById('addWhoIsItBot')?.addEventListener('click',async()=>{const result=await window.onlineGame.sendGameAction('test-bots-add',{count:1});if(!result.ok)toast(result.message||'Не удалось добавить бота.');else toast('Тестовый соперник добавлен.');});
   updateCharacterButton();renderGame();showScreen('gameScreen');
   if(mode==='online'){
@@ -1435,38 +1100,24 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
 function renderGame(){
   const root=document.getElementById('characterBoard');root.innerHTML='';
   currentCharacters.forEach(character=>{
-    const card=document.createElement('button');card.type='button';card.className='character-card';card.setAttribute('aria-label',character.name);
+    const card=document.createElement('button');card.className='character-card';
     if(gameCrossed.has(character.id))card.classList.add('crossed');
-    appendCharacterVisual(card,character,(currentGameMode==='local'&&selectedLocalPack?.id==='animals')||(currentGameMode!=='local'&&selectedRoomPack?.id==='animals'));
-    const name=document.createElement('div');name.className='character-name';name.textContent=character.name;card.appendChild(name);
-    const lens=document.createElement('span');lens.className='guess-lens';lens.textContent='⌕';lens.setAttribute('role','button');lens.setAttribute('tabindex','0');lens.setAttribute('aria-label',`Увеличить изображение: ${character.name}`);
-    const zoom=event=>{event.preventDefault();event.stopPropagation();openCharacterViewer(character,card)};
-    lens.addEventListener('click',zoom);
-    lens.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){zoom(event)}});
-    card.appendChild(lens);
+    if(character.image){
+      const img=document.createElement('img');img.src=character.image;img.alt=character.name;
+      img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
+      card.appendChild(img);
+    }else{
+      const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
+    }
+    const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>toggleCrossed(character.id);
     card.oncontextmenu=event=>{event.preventDefault();requestGuess(character)};
+    let holdTimer;
+    card.addEventListener('touchstart',()=>{holdTimer=setTimeout(()=>requestGuess(character),600)},{passive:true});
+    card.addEventListener('touchend',()=>clearTimeout(holdTimer));
+    card.addEventListener('touchmove',()=>clearTimeout(holdTimer));
     root.appendChild(card);
   });
-}
-function openCharacterViewer(character,card){
-  let viewer=document.getElementById('characterImageViewer');
-  if(!viewer){
-    viewer=document.createElement('div');viewer.id='characterImageViewer';viewer.setAttribute('role','dialog');viewer.setAttribute('aria-modal','true');
-    viewer.innerHTML='<button type="button" class="viewer-close" aria-label="Закрыть">×</button><div class="viewer-name"></div>';
-    viewer.addEventListener('click',event=>{if(event.target===viewer||event.target.closest('.viewer-close'))viewer.classList.remove('open')});
-    document.body.appendChild(viewer);
-  }
-  viewer.querySelector('img')?.remove();
-  const source=card.querySelector('.character-image');
-  if(source){
-    const image=document.createElement('img');image.src=source.currentSrc||source.src;image.alt=character.name;
-    viewer.insertBefore(image,viewer.querySelector('.viewer-name'));
-  }
-  viewer.querySelector('.viewer-name').textContent=character.name;
-  viewer.classList.add('open');
-  const closeOnEscape=event=>{if(event.key==='Escape'){viewer.classList.remove('open');document.removeEventListener('keydown',closeOnEscape)}};
-  document.addEventListener('keydown',closeOnEscape);
 }
 function toggleCrossed(id){
   if(gameCrossed.has(id))gameCrossed.delete(id);else gameCrossed.add(id);
@@ -1475,7 +1126,7 @@ function toggleCrossed(id){
 function updateCharacterButton(){
   const button=document.getElementById('chooseSecretButton');
   const label=document.getElementById('secretCharacter');
-  label.textContent=secretCharacter?secretCharacter.name:'Ещё не выбран';
+  label.textContent=secretCharacter?`${secretCharacter.emoji||'❔'} ${secretCharacter.name}`:'Ещё не выбран';
   if(currentGameMode==='online'){
     const canChoose=!!window.onlineGame?.canChooseCharacter?.();
     button.disabled=!canChoose||!!secretCharacter;
@@ -1494,9 +1145,11 @@ function openPicker(){
   currentCharacters.forEach(character=>{
     const card=document.createElement('button');card.className='character-card';
     if(character.image){
-      const img=document.createElement('img');img.className='character-image';img.src=character.image;img.alt=character.name;
-      img.loading='lazy';img.decoding='async';
+      const img=document.createElement('img');img.src=character.image;
+      img.style.cssText='width:65px;height:65px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 8px';
       card.appendChild(img);
+    }else{
+      const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>{
@@ -1522,6 +1175,7 @@ async function confirmCharacter(){
 }
 function requestGuess(character){
   if(!character)return;
+  if(currentGameMode==='online'&&!window.onlineGame?.isMyTurn?.()){toast('Сейчас не твой ход.');return}
   pendingGuess=character;
   document.getElementById('guessPrompt').textContent=`Ты хочешь угадать персонажа «${character.name}»?`;
   document.getElementById('guessModal').classList.add('open');
