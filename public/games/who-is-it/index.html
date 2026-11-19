@@ -1181,7 +1181,7 @@ function renderGame(){
   currentCharacters.forEach(character=>{
     const card=document.createElement('button');card.className='character-card';
     if(gameCrossed.has(character.id))card.classList.add('crossed');
-    appendCharacterVisual(card,character,selectedLocalPack?.id==='animals'||selectedRoomPack?.id==='animals');
+    appendCharacterVisual(card,character,(currentGameMode==='local'&&selectedLocalPack?.id==='animals')||(currentGameMode!=='local'&&selectedRoomPack?.id==='animals'));
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>toggleCrossed(character.id);
     card.oncontextmenu=event=>{event.preventDefault();requestGuess(character)};
