@@ -422,6 +422,81 @@ body[data-game="who-is-it"] #characterBoard .character-card>div{
   body[data-game="who-is-it"] #characterBoard .character-card .character-image{height:76px}
 }
 
+
+/* TRUE RECTANGULAR FULL-BLEED CASE CARDS + WORKING GUESS LENS */
+body[data-game="who-is-it"] #characterBoard{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  align-items:stretch;
+}
+body[data-game="who-is-it"] #characterBoard .character-card{
+  position:relative!important;
+  display:block!important;
+  width:100%;
+  min-width:0;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:3 / 4!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:2px solid #a5a184!important;
+  border-radius:0!important;
+  background:#d9d2b9!important;
+  box-shadow:3px 4px 0 #070d09,0 0 0 2px #26392b!important;
+  clip-path:none!important;
+}
+body[data-game="who-is-it"] #characterBoard .character-card>.character-image{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#d9d2b9!important;
+}
+body[data-game="who-is-it"] #characterBoard .character-card>.face{
+  position:absolute;inset:0;display:grid;place-items:center;
+  width:100%;height:100%;font-size:clamp(42px,7vw,76px);
+  background:linear-gradient(145deg,#e8e1cc,#c9c1a7);
+}
+body[data-game="who-is-it"] #characterBoard .character-card>.character-name{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  display:block;padding:10px 7px 9px!important;
+  color:#f7f0d9!important;
+  background:linear-gradient(transparent,#101a13ed 34%);
+  text-align:center;font:700 13px/1.2 Georgia,serif!important;
+  text-shadow:0 1px 3px #000;
+}
+body[data-game="who-is-it"] #characterBoard .character-card:after{content:none!important}
+body[data-game="who-is-it"] #characterBoard .character-card .guess-lens{
+  position:absolute;z-index:4;top:8px;right:8px;
+  width:36px;height:36px;display:grid;place-items:center;
+  border:1px solid #d5d7bd;border-radius:50%;
+  background:#101a13eF;color:#f4f0dc;
+  font:25px/1 Arial,sans-serif;cursor:pointer;
+  box-shadow:0 2px 7px #0008;
+}
+body[data-game="who-is-it"] #characterBoard .character-card .guess-lens:hover{
+  background:#b8ca91;color:#18251d;border-color:#f0e6bd;
+}
+body[data-game="who-is-it"] #characterBoard .character-card.selected{
+  border:3px solid #d7a85b!important;
+}
+body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
+  content:"";position:absolute;inset:0;z-index:3;
+  background:#0a100bb0;pointer-events:none;
+}
+@media(max-width:760px){
+  body[data-game="who-is-it"] #characterBoard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-game="who-is-it"] #characterBoard .character-card{aspect-ratio:3 / 4!important}
+}
+
 </style>
 </head>
 <body data-game="who-is-it">
@@ -1353,10 +1428,15 @@ function startGameFromCharacters(characters,title='Игра',mode='local'){
 function renderGame(){
   const root=document.getElementById('characterBoard');root.innerHTML='';
   currentCharacters.forEach(character=>{
-    const card=document.createElement('button');card.className='character-card';
+    const card=document.createElement('button');card.type='button';card.className='character-card';card.setAttribute('aria-label',character.name);
     if(gameCrossed.has(character.id))card.classList.add('crossed');
     appendCharacterVisual(card,character,(currentGameMode==='local'&&selectedLocalPack?.id==='animals')||(currentGameMode!=='local'&&selectedRoomPack?.id==='animals'));
-    const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
+    const name=document.createElement('div');name.className='character-name';name.textContent=character.name;card.appendChild(name);
+    const lens=document.createElement('span');lens.className='guess-lens';lens.textContent='⌕';lens.setAttribute('role','button');lens.setAttribute('tabindex','0');lens.setAttribute('aria-label',`Угадать персонажа: ${character.name}`);
+    const guess=event=>{event.preventDefault();event.stopPropagation();requestGuess(character)};
+    lens.addEventListener('click',guess);
+    lens.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){guess(event)}});
+    card.appendChild(lens);
     card.onclick=()=>toggleCrossed(character.id);
     card.oncontextmenu=event=>{event.preventDefault();requestGuess(character)};
     let holdTimer;
