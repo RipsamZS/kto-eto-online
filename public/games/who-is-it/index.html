@@ -485,6 +485,23 @@ body[data-game="who-is-it"] #characterBoard .character-card .guess-lens{
 body[data-game="who-is-it"] #characterBoard .character-card .guess-lens:hover{
   background:#b8ca91;color:#18251d;border-color:#f0e6bd;
 }
+#characterImageViewer{
+  position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;
+  padding:24px;background:#050807ed;backdrop-filter:blur(7px);cursor:zoom-out;
+}
+#characterImageViewer.open{display:flex}
+#characterImageViewer img{
+  display:block;max-width:min(94vw,1200px);max-height:88vh;width:auto;height:auto;
+  object-fit:contain;border-radius:8px;box-shadow:0 18px 70px #000b;
+}
+#characterImageViewer .viewer-name{
+  position:absolute;left:20px;right:20px;bottom:18px;text-align:center;
+  color:#f7f0d9;font:700 16px Georgia,serif;text-shadow:0 2px 5px #000;
+}
+#characterImageViewer .viewer-close{
+  position:absolute;top:16px;right:18px;width:44px;height:44px;border:1px solid #ffffff66;
+  border-radius:50%;background:#17231d;color:#fff;font-size:28px;cursor:pointer;
+}
 body[data-game="who-is-it"] #characterBoard .character-card.selected{
   border:3px solid #d7a85b!important;
 }
@@ -1432,19 +1449,38 @@ function renderGame(){
     if(gameCrossed.has(character.id))card.classList.add('crossed');
     appendCharacterVisual(card,character,(currentGameMode==='local'&&selectedLocalPack?.id==='animals')||(currentGameMode!=='local'&&selectedRoomPack?.id==='animals'));
     const name=document.createElement('div');name.className='character-name';name.textContent=character.name;card.appendChild(name);
-    const lens=document.createElement('span');lens.className='guess-lens';lens.textContent='⌕';lens.setAttribute('role','button');lens.setAttribute('tabindex','0');lens.setAttribute('aria-label',`Угадать персонажа: ${character.name}`);
-    const guess=event=>{event.preventDefault();event.stopPropagation();requestGuess(character)};
-    lens.addEventListener('click',guess);
-    lens.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){guess(event)}});
+    const lens=document.createElement('span');lens.className='guess-lens';lens.textContent='⌕';lens.setAttribute('role','button');lens.setAttribute('tabindex','0');lens.setAttribute('aria-label',`Увеличить изображение: ${character.name}`);
+    const zoom=event=>{event.preventDefault();event.stopPropagation();openCharacterViewer(character,card)};
+    lens.addEventListener('click',zoom);
+    lens.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){zoom(event)}});
     card.appendChild(lens);
     card.onclick=()=>toggleCrossed(character.id);
     card.oncontextmenu=event=>{event.preventDefault();requestGuess(character)};
-    let holdTimer;
-    card.addEventListener('touchstart',()=>{holdTimer=setTimeout(()=>requestGuess(character),600)},{passive:true});
-    card.addEventListener('touchend',()=>clearTimeout(holdTimer));
-    card.addEventListener('touchmove',()=>clearTimeout(holdTimer));
     root.appendChild(card);
   });
+}
+function openCharacterViewer(character,card){
+  let viewer=document.getElementById('characterImageViewer');
+  if(!viewer){
+    viewer=document.createElement('div');viewer.id='characterImageViewer';viewer.setAttribute('role','dialog');viewer.setAttribute('aria-modal','true');
+    viewer.innerHTML='<button type="button" class="viewer-close" aria-label="Закрыть">×</button><div class="viewer-name"></div>';
+    viewer.addEventListener('click',event=>{if(event.target===viewer||event.target.closest('.viewer-close'))viewer.classList.remove('open')});
+    document.body.appendChild(viewer);
+  }
+  viewer.querySelector('img')?.remove();
+  const source=card.querySelector('.character-image');
+  if(source){
+    const image=document.createElement('img');image.src=source.currentSrc||source.src;image.alt=character.name;
+    viewer.insertBefore(image,viewer.querySelector('.viewer-name'));
+  }else{
+    const fallback=document.createElement('div');fallback.textContent=character.emoji||'❔';
+    fallback.style.cssText='font-size:min(45vw,280px);line-height:1';
+    viewer.insertBefore(fallback,viewer.querySelector('.viewer-name'));
+  }
+  viewer.querySelector('.viewer-name').textContent=character.name;
+  viewer.classList.add('open');
+  const closeOnEscape=event=>{if(event.key==='Escape'){viewer.classList.remove('open');document.removeEventListener('keydown',closeOnEscape)}};
+  document.addEventListener('keydown',closeOnEscape);
 }
 function toggleCrossed(id){
   if(gameCrossed.has(id))gameCrossed.delete(id);else gameCrossed.add(id);
