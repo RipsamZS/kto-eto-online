@@ -392,6 +392,36 @@ body[data-game="who-is-it"] #pickerModal .character-card{
   background:#eee8d4!important;color:#26372b!important;border:2px solid #a5a184!important;border-radius:3px
 }
 body[data-game="who-is-it"] #pickerModal .character-card>div{color:#26372b!important}
+
+/* RECTANGULAR CASE CARDS */
+body[data-game="who-is-it"] #characterBoard .character-card{
+  aspect-ratio:1.28 / 1;
+  min-height:0;
+  height:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:9px 10px 10px;
+}
+body[data-game="who-is-it"] #characterBoard .character-card .character-image{
+  width:100%;
+  max-width:132px;
+  height:clamp(68px,8vw,104px);
+  flex:0 0 auto;
+  object-fit:contain;
+}
+body[data-game="who-is-it"] #characterBoard .character-card>div{
+  flex:0 0 auto;
+  text-align:center;
+}
+@media(max-width:760px){
+  body[data-game="who-is-it"] #characterBoard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-game="who-is-it"] #characterBoard .character-card{aspect-ratio:1.18 / 1}
+  body[data-game="who-is-it"] #characterBoard .character-card .character-image{height:76px}
+}
+
 </style>
 </head>
 <body data-game="who-is-it">
