@@ -416,8 +416,6 @@ function setPackTab(tab){
   });
   renderPackManager();
 }
-function getAllBuiltins(){return builtInPacks}
-
 function openOnlinePacks(){
   showScreen('onlinePacksScreen');
   loadOnlinePacks();
@@ -782,9 +780,6 @@ function deletePack(id){
    ВЫБОР ПАКА И РАЗМЕРА
 ------------------------------------------------------- */
 
-function getPackById(id){
-  return [...builtInPacks,...myPacks,...downloadedPacks].find(p=>String(p.id)===String(id));
-}
 function openRoomPackPicker(){
   openPackSelectionModal(pack=>{
     selectedRoomPack=pack;
