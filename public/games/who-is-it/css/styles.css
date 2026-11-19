@@ -1,0 +1,165 @@
+
+:root {
+  --bg:#100d20;--panel:#1c1732;--panel2:#282044;
+  --accent:#a78bfa;--accent2:#7c3aed;--text:#f6f2ff;
+  --muted:#b8accf;--danger:#fb7185;--success:#4ade80;
+  --border:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at 15% 10%,rgba(124,58,237,.25),transparent 35%),radial-gradient(circle at 90% 85%,rgba(99,102,241,.18),transparent 35%),var(--bg)
+}
+button,input,textarea,select{font:inherit}
+button{border:0;cursor:pointer;color:var(--text);transition:.18s ease}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1)}
+input,textarea,select{
+  width:100%;padding:13px 14px;border:1px solid var(--border);
+  border-radius:12px;color:var(--text);background:#151128;outline:none
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{min-height:90px;resize:vertical}
+select option{background:#211a38}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.app{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:26px 0 50px}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:30px}
+.brand{font-size:22px;font-weight:900;letter-spacing:-.7px}
+.brand span{color:var(--accent)}
+.screen{display:none}
+.screen.active{display:block}
+.hero{text-align:center;padding:45px 15px 35px}
+.hero h1{margin:0 0 12px;font-size:clamp(38px,8vw,66px);line-height:1;letter-spacing:-2px}
+.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);font-size:17px}
+.menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:850px;margin:25px auto}
+.menu-card{
+  min-height:165px;padding:25px 18px;border:1px solid var(--border);
+  border-radius:22px;background:linear-gradient(145deg,rgba(42,32,69,.95),rgba(25,20,44,.96));text-align:center
+}
+.menu-card .emoji{font-size:38px;display:block;margin-bottom:14px}
+.menu-card strong{display:block;font-size:19px}
+.menu-card small{display:block;margin-top:8px;color:var(--muted)}
+.primary{padding:13px 19px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);font-weight:750}
+.secondary{padding:12px 17px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);font-weight:650}
+.danger{background:#7f1d35}
+.success{background:#166534}
+.ghost{background:transparent;border:1px solid var(--border)}
+.full{width:100%}
+.page-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+.page-head h2{margin:0;font-size:29px}
+.panel{padding:22px;border-radius:20px;border:1px solid var(--border);background:rgba(28,23,50,.9);margin-bottom:18px}
+.panel h3{margin-top:0}
+.stack{display:grid;gap:13px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.row>*{flex:1}
+.row .fit{flex:0 0 auto}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{padding:10px 15px;border:1px solid var(--border);border-radius:11px;background:#201a35}
+.tab.active{background:var(--accent2);border-color:transparent}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
+.pack-card{padding:17px;border:1px solid var(--border);border-radius:16px;background:#211a38;min-width:0}
+.pack-card h3{margin:0 0 8px}
+.pack-card .preview{font-size:25px;line-height:1.7;min-height:48px}
+.pack-card .actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.pack-card .actions button{flex:1;min-width:75px}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;color:#ddd6fe;background:rgba(139,92,246,.2);font-size:11px}
+.field{display:grid;gap:7px}
+.field label{color:var(--muted);font-size:14px}
+.character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px}
+.character-card{min-height:150px;padding:12px;border:2px solid var(--border);border-radius:15px;background:#211a38;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;min-width:0;overflow:hidden}
+.character-card .face{font-size:42px;display:block;margin:12px auto}
+.character-card .character-image{display:block;width:100%;max-width:132px;height:132px;aspect-ratio:1/1;object-fit:contain;object-position:center;border-radius:10px;background:#f3f0e9;padding:5px;flex:0 0 auto}
+.character-card>div{width:100%;overflow-wrap:anywhere}
+.character-card.selected{border-color:var(--accent);background:#30234e}
+.character-card.crossed{opacity:.35;filter:grayscale(1)}
+.game-layout{display:grid;grid-template-columns:1fr;gap:16px}
+.game-info{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:15px;border:1px solid var(--border);border-radius:15px;background:var(--panel)}
+.game-actions{display:flex;flex-wrap:wrap;gap:8px}
+.modal-backdrop{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:16px;background:rgba(5,3,12,.78)}
+.modal-backdrop.open{display:flex}
+.modal{width:min(520px,100%);max-height:90vh;overflow:auto;padding:24px;border:1px solid var(--border);border-radius:20px;background:#1c1732;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+.modal h2{margin-top:0}
+.modal-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.modal-actions button{flex:1}
+.empty{padding:30px 15px;text-align:center;border:1px dashed var(--border);border-radius:15px;color:var(--muted)}
+.notice{padding:13px 15px;border-radius:12px;background:rgba(139,92,246,.12);border:1px solid rgba(167,139,250,.22);color:#e9ddff}
+.hidden{display:none!important}
+#toast{position:fixed;z-index:200;bottom:20px;left:50%;transform:translateX(-50%);max-width:calc(100% - 30px);padding:12px 18px;border-radius:12px;background:#30234e;border:1px solid var(--border);box-shadow:0 8px 30px #0008;display:none;text-align:center}
+#toast.show{display:block}
+#onlineGamePanel{margin-top:15px}
+.upload-banner{
+  padding:22px;border:1px solid rgba(167,139,250,.35);border-radius:18px;
+  background:linear-gradient(135deg,rgba(124,58,237,.24),rgba(42,32,69,.8));
+  margin-bottom:20px
+}
+.upload-banner h3{margin:0 0 8px;font-size:20px}
+.upload-banner p{color:var(--muted);margin:0 0 15px}
+@media(max-width:700px){
+  .menu-grid{grid-template-columns:1fr;max-width:430px}
+  .menu-card{min-height:125px}
+  .hero{padding-top:30px}
+  .panel{padding:16px}
+  .page-head h2{font-size:24px}
+  .topbar{margin-bottom:18px}
+}
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+:root{color-scheme:light;--bg:#f3f0e9;--panel:#fffdf8;--panel2:#eee9df;--accent:#6546a5;--accent2:#513487;--text:#252231;--muted:#777181;--line:#ded8ce;--lime:#d7f36a;--border:#ded8ce}
+body{background-color:#f3f0e9!important;background-image:radial-gradient(#d8d0c4 .7px,transparent .7px)!important;background-size:18px 18px!important;color:#252231!important;font-family:"DM Sans",Inter,system-ui,sans-serif!important}
+.panel,.card,.room-card,.game-panel,.modal,.notice{background:#fffdf8!important;color:#252231!important;border:1px solid #ded8ce!important;border-radius:18px!important;box-shadow:0 8px 24px #30251a0a!important}
+h1,h2,h3,.hero h1{font-family:"Space Grotesk","DM Sans",sans-serif!important;color:#252231!important}
+p,.muted,.description{color:#777181}
+button,.btn{border-radius:999px!important}
+button.primary,.primary,.btn-primary{background:#6546a5!important;color:white!important}
+button.secondary,.secondary,.btn-secondary{background:#eee8f6!important;color:#6546a5!important;border:1px solid #ded3ef!important}
+input,textarea,select{background:#fffefa!important;color:#252231!important;border:1px solid #ded8ce!important;border-radius:12px!important}
+a{color:#6546a5}
+.top a{background:#fffdf8!important;color:#6546a5!important;border:1px solid #ded8ce!important;box-shadow:none!important}
+
+body[data-game="who-is-it"]{background-color:#f3f0e9!important;background-image:radial-gradient(rgba(101,70,165,.12) .7px,transparent .7px),radial-gradient(ellipse at 14% 10%,#d9d2ef,transparent 38%),radial-gradient(ellipse at 90% 84%,#e7d9f0,transparent 40%)!important;background-size:20px 20px,auto,auto!important;color:#292536!important}
+#roomSettingsScreen .panel{background:linear-gradient(145deg,#fffdf9,#f0ebf7)!important;border:1px solid #ded5e8!important;border-radius:22px!important;box-shadow:0 18px 48px rgba(48,35,62,.09)!important}
+#roomSettingsScreen .field label{color:#777181!important;font-weight:650}
+#roomSettingsScreen input,#roomSettingsScreen select{background:#fffefa!important;color:#292536!important;border:1px solid #ded8e7!important;border-radius:12px!important}
+#roomSettingsScreen .primary{background:#6546a5!important;box-shadow:0 6px 18px #6546a522}
+#roomSettingsScreen .secondary{background:#f0ebf7!important;color:#6546a5!important;border:1px solid #ded3ef!important}
+
+/* Who Is It? — classic detective bureau / case file */
+body[data-game="who-is-it"]{--case-bg:#e7e5d7;--case-ink:#26342e;--case-muted:#6c776c;--case-line:#cbd0bd;--case-paper:#fbf8ec;--case-green:#416b58;--case-red:#a64f48;background:radial-gradient(ellipse at 12% 8%,#d4ddc8,transparent 36%),radial-gradient(ellipse at 88% 82%,#e7d4c2,transparent 34%),#e7e5d7!important;color:#26342e!important}
+body[data-game="who-is-it"]::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(70,93,71,.045) 32px 33px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(70,93,71,.035) 32px 33px);opacity:.75}
+body[data-game="who-is-it"] .app{width:min(1160px,calc(100% - 28px))}
+body[data-game="who-is-it"] .topbar{padding:12px 0 16px;border-bottom:1px solid #c5cbb8}
+body[data-game="who-is-it"] .brand{color:#294c3c;letter-spacing:-.5px}
+body[data-game="who-is-it"] .brand span{color:#b25a4e}
+body[data-game="who-is-it"] .hero h1{color:#26342e;letter-spacing:-2px}
+body[data-game="who-is-it"] .hero p{color:#687467}
+body[data-game="who-is-it"] .menu-card{border:1px solid #c6cbb9;border-radius:8px 18px 8px 18px;background:linear-gradient(145deg,#fffdf4,#e8ecdf);box-shadow:0 7px 0 #d0d4c5,0 14px 26px #344c3914;color:#26342e;transition:transform .18s,box-shadow .18s}
+body[data-game="who-is-it"] .menu-card:hover{transform:translateY(-4px) rotate(-.5deg);box-shadow:0 11px 0 #d0d4c5,0 20px 30px #344c3920}
+body[data-game="who-is-it"] .menu-card .emoji{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#e4e9d9;border:1px solid #c7d0bc}
+body[data-game="who-is-it"] .menu-card small{color:#6c776c}
+body[data-game="who-is-it"] .panel,body[data-game="who-is-it"] .modal{border:1px solid #c8cdbd;border-radius:12px;background:linear-gradient(145deg,#fffdf5,#f0efdf);box-shadow:0 12px 30px #30433614;color:#26342e}
+body[data-game="who-is-it"] .primary{border:1px solid #294c3c;border-radius:8px;background:linear-gradient(180deg,#527d66,#345a47);box-shadow:0 4px 0 #294c3c;color:#fffdf1}
+body[data-game="who-is-it"] .secondary{border:1px solid #c4cbb9;border-radius:8px;background:#e9eddf;box-shadow:0 3px 0 #d2d8c8;color:#365541}
+body[data-game="who-is-it"] .danger{border-radius:8px;background:#f2e2dc;color:#91443e;border:1px solid #dfbcb2;box-shadow:0 3px 0 #e3c9c0}
+body[data-game="who-is-it"] input,body[data-game="who-is-it"] select,body[data-game="who-is-it"] textarea{border:1px solid #c6cbb9;border-radius:8px;background:#fffdf5;color:#26342e}
+body[data-game="who-is-it"] .tabs .tab{border:1px solid #c6cbb9;border-radius:8px;background:#e8ebdf;color:#45614d}
+body[data-game="who-is-it"] .tabs .tab.active{background:#456b54;color:#fffdf1;border-color:#456b54}
+body[data-game="who-is-it"] .pack-card{border:1px solid #c6cbb9;border-radius:10px;background:#f8f6e9;color:#26342e}
+body[data-game="who-is-it"] .character-card{border:2px solid #c6cbb9;border-radius:10px;background:#f8f6e9;color:#26342e}
+body[data-game="who-is-it"] .character-card.selected{border-color:#416b58;background:#e0e9d9;box-shadow:0 0 0 3px #416b5820}
+body[data-game="who-is-it"] .character-card.crossed{background:#e6e3d9}
+body[data-game="who-is-it"] .game-info{border:1px solid #c6cbb9;border-radius:10px;background:#f8f6e9}
+body[data-game="who-is-it"] .notice{border:1px solid #c6cbb9;border-left:5px solid #a64f48;border-radius:8px;background:#f8f1df;color:#39483c}
+body[data-game="who-is-it"] .badge{background:#e3eadc;color:#42604a}
+body[data-game="who-is-it"] .topbar a{color:#416b58}
+body[data-game="who-is-it"] .muted{color:#6c776c}
+
+/* Режимы игры — вертикальный список, как единое меню Kazo */
+#playScreen .menu-grid{display:flex;flex-direction:column;gap:12px;width:min(560px,100%);margin:0 auto}
+#playScreen .menu-card{display:flex;align-items:center;gap:16px;width:100%;min-height:82px;padding:15px 18px;text-align:left}
+#playScreen .menu-card .emoji{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:14px;font-size:27px}
+#playScreen .menu-card strong,#playScreen .menu-card small{display:block}
+#playScreen .menu-card small{margin-top:4px}
