@@ -556,12 +556,10 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
     </div>
     <div class="menu-grid">
       <button class="menu-card" onclick="openOnlinePacks()">
-        <span class="emoji">🌐</span>
         <strong>Онлайн паки</strong>
         <small>Публикуй свои и скачивай паки игроков</small>
       </button>
       <button class="menu-card" onclick="openPackManager('mine')">
-        <span class="emoji">📚</span>
         <strong>Мои паки</strong>
         <small>Свои, скачанные и встроенные наборы</small>
       </button>
@@ -624,7 +622,6 @@ body[data-game="who-is-it"] #characterBoard .character-card.crossed:before{
         <label>Добавить персонажей</label>
         <div class="row">
           <input id="characterName" placeholder="Имя персонажа">
-          <input id="characterEmoji" placeholder="Эмодзи" maxlength="8" style="max-width:100px">
           <button class="primary fit" onclick="addPlaceholder()">Добавить</button>
         </div>
         <input id="characterImage" type="file" accept="image/*" multiple onchange="addFiles(event)">
@@ -784,28 +781,22 @@ const animalFixedImageUrl=name=>animalAssetFiles[name]
   ?'/games/who-is-it/assets/characters/animals/'+animalAssetFiles[name]:'';
 function getAnimalImage(name){return animalFixedImageUrl(name)}
 function appendCharacterVisual(card,character,useAnimalLookup=false){
-  const face=document.createElement('span');
-  face.className='face';face.textContent=character.emoji||'❔';
-  const attach=url=>{
-    if(!url)return;
-    const img=document.createElement('img');
-    img.className='character-image';img.alt=character.name;img.loading='lazy';img.decoding='async';
-    img.onerror=()=>{if(img.isConnected)img.replaceWith(face)};
-    img.src=url;
-    if(face.isConnected)face.replaceWith(img);else card.appendChild(img);
-  };
-  card.appendChild(face);
-  if(character.image)attach(character.image);
-  else if(useAnimalLookup)attach(getAnimalImage(character.name));
+  const url=character.image||(useAnimalLookup?getAnimalImage(character.name):'');
+  if(!url)return;
+  const img=document.createElement('img');
+  img.className='character-image';img.alt=character.name;img.loading='lazy';img.decoding='async';
+  img.onerror=()=>{if(img.isConnected)img.remove()};
+  img.src=url;
+  card.appendChild(img);
 }
-const makeCharacters=(names,emoji)=>names.map((name,i)=>({
+const makeCharacters=(names,isAnimals=false)=>names.map((name,i)=>({
   id:`${name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi,'-')}-${i}`,
-  name,emoji,image:emoji==='🐾'?animalFixedImageUrl(name):''
+  name,image:isAnimals?animalFixedImageUrl(name):''
 }));
 
 const builtInPacks=[
 
-{id:'animals',name:'Животные',description:'Животные со всего мира',emoji:'🐾',characters:makeCharacters([
+{id:'animals',name:'Животные',description:'Животные со всего мира',characters:makeCharacters([
 'Лев','Тигр','Слон','Жираф','Зебра','Панда','Коала','Кенгуру','Волк','Лиса','Медведь','Заяц','Белка','Ёж','Олень','Лось','Лошадь','Корова','Овца','Коза','Свинья','Собака','Кошка','Хомяк','Мышь','Крыса','Бобр','Выдра','Енот','Барсук','Верблюд','Лама','Альпака','Носорог','Бегемот','Крокодил','Аллигатор','Черепаха','Змея','Ящерица','Лягушка','Жаба','Акула','Дельфин','Кит','Осьминог','Краб','Медуза','Пингвин','Фламинго','Орёл','Сова','Попугай','Ворона','Воробей','Павлин','Лебедь','Утка','Петух','Бабочка'
 ],'🐾')},
 {id:'minecraft',name:'Minecraft',description:'Мобы и персонажи Minecraft',emoji:'⛏️',characters:makeCharacters([
@@ -924,7 +915,7 @@ function renderOnlinePackCatalog(packs){
     const card=document.createElement('div');
     card.className='pack-card';
     const title=document.createElement('h3');
-    title.textContent=`${pack.emoji||'🗂️'} ${pack.name||'Пак без названия'}`;
+    title.textContent=pack.name||'Пак без названия';
     const description=document.createElement('p');
     description.className='muted small';
     description.textContent=pack.description||'Без описания';
@@ -933,7 +924,7 @@ function renderOnlinePackCatalog(packs){
     count.textContent=`${(pack.characters||[]).length} карточек`;
     const preview=document.createElement('div');
     preview.className='preview';
-    preview.textContent=(pack.characters||[]).slice(0,7).map(c=>c.emoji||'🖼️').join(' ');
+    preview.textContent=(pack.characters||[]).slice(0,7).map(c=>c.name).filter(Boolean).join(' · ');
     const download=document.createElement('button');
     download.className='primary full';
     download.style.marginTop='12px';
@@ -982,7 +973,7 @@ function openUploadPackPicker(){
     const card=document.createElement('div');
     card.className='pack-card';
     const title=document.createElement('h3');
-    title.textContent=`${pack.emoji||'🗂️'} ${pack.name}`;
+    title.textContent=pack.name;
     const info=document.createElement('p');
     info.className='muted small';
     info.textContent=`${(pack.characters||[]).length} карточек`;
@@ -1087,7 +1078,7 @@ function renderPackGrid(packs,type){
     const card=document.createElement('div');
     card.className='pack-card';
     const title=document.createElement('h3');
-    title.textContent=`${pack.emoji||'🗂️'} ${pack.name||'Без названия'}`;
+    title.textContent=pack.name||'Без названия';
     const description=document.createElement('p');
     description.className='muted small';
     description.textContent=pack.description||'';
@@ -1169,14 +1160,13 @@ function editPack(id){
 }
 function addPlaceholder(){
   const nameInput=document.getElementById('characterName');
-  const emojiInput=document.getElementById('characterEmoji');
   const name=nameInput.value.trim();
   if(!name){toast('Введи имя персонажа.');return}
   editorCharacters.push({
     id:`custom-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    name,emoji:emojiInput.value.trim()||'❔',image:''
+    name,image:''
   });
-  nameInput.value='';emojiInput.value='';renderEditor();
+  nameInput.value='';renderEditor();
 }
 async function addFiles(event){
   const files=Array.from(event.target.files||[]);
@@ -1200,7 +1190,7 @@ async function addFiles(event){
       editorCharacters.push({
         id:`image-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         name:file.name.replace(/\.[^.]+$/,''),
-        emoji:'🖼️',image:compressed
+        image:compressed
       });
       renderEditor();
     }catch(error){toast(`Не удалось обработать изображение ${file.name}.`)}
@@ -1232,7 +1222,7 @@ function savePack(){
   if(!name){toast('Укажи название пака.');return false}
   if(editorCharacters.length<2){toast('Добавь хотя бы двух персонажей.');return false}
   const pack={
-    id:editingPackId||`pack-${Date.now()}`,name,description,emoji:'🗂️',
+    id:editingPackId||`pack-${Date.now()}`,name,description,
     characters:JSON.parse(JSON.stringify(editorCharacters))
   };
   if(editingPackId){
@@ -1472,10 +1462,6 @@ function openCharacterViewer(character,card){
   if(source){
     const image=document.createElement('img');image.src=source.currentSrc||source.src;image.alt=character.name;
     viewer.insertBefore(image,viewer.querySelector('.viewer-name'));
-  }else{
-    const fallback=document.createElement('div');fallback.textContent=character.emoji||'❔';
-    fallback.style.cssText='font-size:min(45vw,280px);line-height:1';
-    viewer.insertBefore(fallback,viewer.querySelector('.viewer-name'));
   }
   viewer.querySelector('.viewer-name').textContent=character.name;
   viewer.classList.add('open');
@@ -1489,7 +1475,7 @@ function toggleCrossed(id){
 function updateCharacterButton(){
   const button=document.getElementById('chooseSecretButton');
   const label=document.getElementById('secretCharacter');
-  label.textContent=secretCharacter?`${secretCharacter.emoji||'❔'} ${secretCharacter.name}`:'Ещё не выбран';
+  label.textContent=secretCharacter?secretCharacter.name:'Ещё не выбран';
   if(currentGameMode==='online'){
     const canChoose=!!window.onlineGame?.canChooseCharacter?.();
     button.disabled=!canChoose||!!secretCharacter;
@@ -1511,8 +1497,6 @@ function openPicker(){
       const img=document.createElement('img');img.className='character-image';img.src=character.image;img.alt=character.name;
       img.loading='lazy';img.decoding='async';
       card.appendChild(img);
-    }else{
-      const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
     }
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>{
