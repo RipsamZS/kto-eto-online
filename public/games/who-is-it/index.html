@@ -950,8 +950,8 @@ function clearEditorCharacters(){
 function savePack(){
   const name=document.getElementById('packName').value.trim();
   const description=document.getElementById('packDescription').value.trim();
-  if(!name){toast('Укажи название пака.');return}
-  if(editorCharacters.length<2){toast('Добавь хотя бы двух персонажей.');return}
+  if(!name){toast('Укажи название пака.');return false}
+  if(editorCharacters.length<2){toast('Добавь хотя бы двух персонажей.');return false}
   const pack={
     id:editingPackId||`pack-${Date.now()}`,name,description,emoji:'🗂️',
     characters:JSON.parse(JSON.stringify(editorCharacters))
@@ -962,11 +962,11 @@ function savePack(){
   }else myPacks.push(pack);
   persistPacks();editingPackId=pack.id;
   toast('Пак сохранён.');renderPackManager();
+  return true;
 }
 function savePackAndReturn(){
-  const before=editingPackId;
-  savePack();
-  if(editingPackId){showScreen('packManagerScreen');setPackTab('mine')}
+  if(!savePack())return;
+  showScreen('packManagerScreen');setPackTab('mine');
 }
 function deletePack(id){
   if(!confirm('Удалить этот пак?'))return;
