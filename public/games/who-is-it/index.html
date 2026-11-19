@@ -439,7 +439,7 @@ body[data-game="who-is-it"] #characterBoard .character-card{
   padding:0!important;
   overflow:hidden!important;
   border:2px solid #a5a184!important;
-  border-radius:0!important;
+  border-radius:6px!important;
   background:#d9d2b9!important;
   box-shadow:3px 4px 0 #070d09,0 0 0 2px #26392b!important;
   clip-path:none!important;
@@ -1502,7 +1502,6 @@ async function confirmCharacter(){
 }
 function requestGuess(character){
   if(!character)return;
-  if(currentGameMode==='online'&&!window.onlineGame?.isMyTurn?.()){toast('Сейчас не твой ход.');return}
   pendingGuess=character;
   document.getElementById('guessPrompt').textContent=`Ты хочешь угадать персонажа «${character.name}»?`;
   document.getElementById('guessModal').classList.add('open');
