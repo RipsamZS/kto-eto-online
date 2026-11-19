@@ -459,9 +459,67 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
 const STORAGE_MY_PACKS='guessWhoPacks';
 const STORAGE_DOWNLOADED='guessWhoDownloadedPacks';
 
+const animalFixedImageFiles={
+  'Орёл':'Golden Eagle.jpg','Коала':'Portrait of a Koala.jpg','Рысь':'Eurasian Lynx.jpg',
+  'Ёж':'European Hedgehog.jpg','Акула':'Great white shark, Carcharodon carcharias.jpg',
+  'Медуза':'Moon jellyfishes.jpg','Осьминог':'Common Octopus.jpg','Павлин':'007 Indian peafowl.jpg',
+  'Крыса':'Brown Rat (Rattus norvegicus).jpg','Коза':'Domestic goat 2020 G2.jpg',
+  'Заяц':'European hare Lepus europaeus.jpg','Тигр':'BengalTiger.jpg',
+  'Дельфин':'Bottlenose Dolphin.jpg','Лошадь':'Horse pic.jpg','Лама':'Llama picture.jpg',
+  'Мышь':'HouseMouse.jpg','Кит':'Humpback-whale.jpg'
+};
+const animalFixedImageUrl=name=>animalFixedImageFiles[name]
+  ?'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(animalFixedImageFiles[name])+'?width=1100':'';
+const animalImageCacheKey='kazoAnimalImageCacheV1';
+let animalImageCache={};
+try{animalImageCache=JSON.parse(localStorage.getItem(animalImageCacheKey)||'{}')||{}}catch{}
+const animalImageRequests=new Map();
+async function fetchWikipediaAnimalImage(name){
+  try{
+    const response=await fetch('https://ru.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(name),{headers:{Accept:'application/json'}});
+    if(!response.ok)return '';
+    const data=await response.json();
+    return data.thumbnail?.source||data.originalimage?.source||'';
+  }catch{return ''}
+}
+async function getAnimalImage(name){
+  const fixed=animalFixedImageUrl(name);
+  if(fixed)return fixed;
+  if(animalImageCache[name])return animalImageCache[name];
+  if(animalImageRequests.has(name))return animalImageRequests.get(name);
+  const request=(async()=>{
+    const url=await fetchWikipediaAnimalImage(name);
+    if(url){animalImageCache[name]=url;try{localStorage.setItem(animalImageCacheKey,JSON.stringify(animalImageCache))}catch{}}
+    animalImageRequests.delete(name);
+    return url;
+  })();
+  animalImageRequests.set(name,request);
+  return request;
+}
+function appendCharacterVisual(card,character,useAnimalLookup=false){
+  const face=document.createElement('span');
+  face.className='face';face.textContent=character.emoji||'❔';
+  const attach=(url,allowRetry)=>{
+    if(!url||!card.isConnected)return;
+    const img=document.createElement('img');
+    img.className='character-image';img.alt=character.name;img.loading='lazy';img.decoding='async';
+    img.onerror=async()=>{
+      if(allowRetry&&useAnimalLookup){
+        const alternate=await fetchWikipediaAnimalImage(character.name);
+        if(alternate&&alternate!==url&&img.isConnected){img.onerror=()=>{if(img.isConnected)img.replaceWith(face)};img.src=alternate;return;}
+      }
+      if(img.isConnected)img.replaceWith(face);
+    };
+    img.src=url;
+    if(face.isConnected)face.replaceWith(img);else card.appendChild(img);
+  };
+  card.appendChild(face);
+  if(character.image)attach(character.image,true);
+  else if(useAnimalLookup)getAnimalImage(character.name).then(url=>{if(url&&face.isConnected)attach(url,false)});
+}
 const makeCharacters=(names,emoji)=>names.map((name,i)=>({
   id:`${name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi,'-')}-${i}`,
-  name,emoji,image:''
+  name,emoji,image:emoji==='🐾'?animalFixedImageUrl(name):''
 }));
 
 const builtInPacks=[
@@ -510,6 +568,23 @@ let gameCrossed=new Set();
 let selectedLocalPack=null;
 let activeRoomSettings=null;
 let autoAddTestBot=false;
+
+function syncDownloadedBuiltinImages(){
+  let changed=false;
+  const sourcePacks=new Map(builtInPacks.map(pack=>[String(pack.id),pack]));
+  downloadedPacks.forEach(pack=>{
+    const source=sourcePacks.get(String(pack.id));
+    if(!source||!Array.isArray(pack.characters))return;
+    const sourceCharacters=new Map(source.characters.map(character=>[String(character.id),character]));
+    const sourceByName=new Map(source.characters.map(character=>[character.name,character]));
+    pack.characters.forEach(character=>{
+      const latest=sourceCharacters.get(String(character.id))||sourceByName.get(character.name);
+      if(latest?.image&&character.image!==latest.image){character.image=latest.image;changed=true;}
+    });
+  });
+  if(changed)persistPacks();
+}
+syncDownloadedBuiltinImages();
 
 function loadStorage(key,fallback){
   try{const value=JSON.parse(localStorage.getItem(key)||'null');return value??fallback}
@@ -879,15 +954,7 @@ function renderEditor(){
   editorCharacters.forEach((character,index)=>{
     const card=document.createElement('div');
     card.className='character-card';
-    if(character.image){
-      const img=document.createElement('img');
-      img.className='character-image';img.src=character.image;img.alt=character.name;
-      img.loading='lazy';img.decoding='async';
-      card.appendChild(img);
-    }else{
-      const face=document.createElement('span');
-      face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
-    }
+    appendCharacterVisual(card,character,false);
     const name=document.createElement('div');name.textContent=character.name;
     const remove=document.createElement('button');
     remove.className='secondary danger';remove.style.marginTop='8px';remove.textContent='Удалить';
@@ -1114,13 +1181,7 @@ function renderGame(){
   currentCharacters.forEach(character=>{
     const card=document.createElement('button');card.className='character-card';
     if(gameCrossed.has(character.id))card.classList.add('crossed');
-    if(character.image){
-      const img=document.createElement('img');img.className='character-image';img.src=character.image;img.alt=character.name;
-      img.loading='lazy';img.decoding='async';
-      card.appendChild(img);
-    }else{
-      const face=document.createElement('span');face.className='face';face.textContent=character.emoji||'❔';card.appendChild(face);
-    }
+    appendCharacterVisual(card,character,selectedLocalPack?.id==='animals'||selectedRoomPack?.id==='animals');
     const name=document.createElement('div');name.textContent=character.name;card.appendChild(name);
     card.onclick=()=>toggleCrossed(character.id);
     card.oncontextmenu=event=>{event.preventDefault();requestGuess(character)};
