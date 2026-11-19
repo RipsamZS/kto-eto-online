@@ -1045,21 +1045,21 @@ const imageSearchAliases={
   'аллей':'Allay'
 };
 const animalImageSearchAliases={
-  'лев':'lion','тигр':'Bengal tiger','слон':'African elephant','жираф':'giraffe','зебра':'plains zebra',
-  'панда':'giant panda','коала':'koala bear animal','кенгуру':'red kangaroo','волк':'gray wolf',
-  'лиса':'red fox','медведь':'brown bear','заяц':'European hare','белка':'red squirrel',
-  'ёж':'European hedgehog','олень':'red deer','лось':'moose','лошадь':'horse',
-  'корова':'cow','овца':'sheep','коза':'domestic goat animal','свинья':'pig','собака':'dog',
-  'кошка':'domestic cat','хомяк':'hamster','мышь':'house mouse animal','крыса':'brown rat',
+  'лев':'African lion wildlife','тигр':'Bengal tiger wildlife','слон':'African elephant','жираф':'giraffe','зебра':'plains zebra',
+  'панда':'giant panda wildlife','коала':'Phascolarctos cinereus koala wildlife','кенгуру':'red kangaroo','волк':'gray wolf',
+  'лиса':'red fox','медведь':'brown bear','заяц':'European brown hare Lepus europaeus','белка':'red squirrel',
+  'ёж':'European hedgehog Erinaceus europaeus','олень':'red deer','лось':'moose','лошадь':'horse',
+  'корова':'cow','овца':'sheep','коза':'domestic goat Capra aegagrus hircus','свинья':'pig','собака':'dog',
+  'кошка':'domestic cat','хомяк':'hamster','мышь':'house mouse animal','крыса':'brown rat Rattus norvegicus',
   'бобр':'beaver','выдра':'otter','енот':'raccoon','барсук':'European badger',
   'верблюд':'camel','лама':'llama','альпака':'alpaca','носорог':'rhinoceros',
   'бегемот':'hippopotamus','крокодил':'crocodile','аллигатор':'alligator',
-  'черепаха':'tortoise','змея':'snake','ящерица':'lizard','лягушка':'frog',
-  'сурикат':'meerkat animal','акула':'great white shark','дельфин':'bottlenose dolphin',
-  'кит':'humpback whale','осьминог':'common octopus','краб':'crab',
-  'медуза':'moon jellyfish','пингвин':'emperor penguin','фламинго':'greater flamingo',
-  'орёл':'bald eagle bird','сова':'owl','попугай':'parrot',
-  'ворона':'crow','воробей':'house sparrow','павлин':'Indian peafowl','лебедь':'mute swan',
+  'черепаха':'tortoise','змея':'snake','ящерица':'lizard','лягушка':'common frog amphibian',
+  'сурикат':'meerkat animal','акула':'great white shark Carcharodon carcharias','дельфин':'bottlenose dolphin',
+  'кит':'humpback whale','осьминог':'common octopus Octopus vulgaris','краб':'crab',
+  'медуза':'moon jellyfish Aurelia aurita','пингвин':'emperor penguin','фламинго':'greater flamingo',
+  'орёл':'golden eagle Aquila chrysaetos bird','сова':'owl','попугай':'parrot',
+  'ворона':'crow','воробей':'house sparrow','павлин':'Indian peafowl Pavo cristatus','лебедь':'mute swan',
   'утка':'mallard duck','петух':'rooster','бабочка':'monarch butterfly'
 };
 function getImageSearchTerms(name,pack){
@@ -1126,7 +1126,7 @@ async function findCommonsCardImage(img,terms,key){
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v11:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v12:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
   const terms=getImageSearchTerms(name,pack);
