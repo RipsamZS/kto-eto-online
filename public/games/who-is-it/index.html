@@ -163,6 +163,106 @@ body[data-game="who-is-it"] .notice{border:1px solid #c6cbb9;border-left:5px sol
 body[data-game="who-is-it"] .badge{background:#e3eadc;color:#42604a}
 body[data-game="who-is-it"] .topbar a{color:#416b58}
 body[data-game="who-is-it"] .muted{color:#6c776c}
+
+/* KAZO DETECTIVE ARCHIVE — reconstruction from user's original screenshots */
+:root{--bg:#0d1712;--panel:#18251d;--panel2:#202f25;--line:#344437;--text:#e9e8d8;--muted:#98a18c;--accent:#b8c98d;--accent2:#78936b;--danger:#b86e58;--success:#a8c58b;--border:#354537}
+body[data-game="who-is-it"]{background:radial-gradient(ellipse at 50% 0%,#24372a 0%,#111d16 48%,#0b130f 100%);color:#e8e7d8;font-family:Georgia,"Times New Roman",serif}
+body[data-game="who-is-it"] .app{max-width:1180px;padding:24px 20px 42px}
+body[data-game="who-is-it"] .topbar{height:54px;border-bottom:1px solid #344336;margin-bottom:22px;padding:0 4px}
+body[data-game="who-is-it"] .brand{font-family:Georgia,serif;font-weight:900;letter-spacing:.12em;color:#dfe4c9!important;font-size:15px}
+body[data-game="who-is-it"] .brand:before{content:"▣";display:inline-grid;place-items:center;border:1px solid #728367;width:30px;height:30px;margin-right:10px;transform:rotate(45deg);color:#bdca9b}
+body[data-game="who-is-it"] .brand span{color:#c7d78e}
+body[data-game="who-is-it"] .screen{color:#e8e7d8}
+body[data-game="who-is-it"] h1,body[data-game="who-is-it"] h2,body[data-game="who-is-it"] h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.035em;color:#e9e9dc}
+body[data-game="who-is-it"] .case-kicker{display:flex;justify-content:space-between;gap:12px;color:#98a58b;font:700 9px/1.4 monospace;letter-spacing:.16em;margin:10px 0 14px}
+body[data-game="who-is-it"] .online-dot:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#b6d18a;box-shadow:0 0 10px #b6d18a;margin-right:8px}
+body[data-game="who-is-it"] .case-hero{display:grid;grid-template-columns:1.2fr 1fr;min-height:430px;border:1px solid #a9ae8d;background:#ded9c4;color:#253026;box-shadow:0 10px 0 #070d09}
+body[data-game="who-is-it"] .case-hero-copy{padding:48px 48px 30px;position:relative}
+body[data-game="who-is-it"] .case-hero-copy>small:first-child{font:700 9px monospace;letter-spacing:.17em;color:#879276}
+body[data-game="who-is-it"] .case-hero h1{font-family:Impact,"Arial Narrow",sans-serif;font-size:clamp(48px,6vw,78px);line-height:.82;letter-spacing:-.035em;color:#202b22;margin:22px 0 16px;overflow-wrap:anywhere}
+body[data-game="who-is-it"] .case-hero h1 em{font-style:normal;color:#778c63}
+body[data-game="who-is-it"] .case-hero-copy p{max-width:410px;color:#697264;font:14px/1.8 system-ui;margin:0 0 24px}
+body[data-game="who-is-it"] .case-open{width:min(100%,220px);padding:15px 16px;background:#b9cb91;color:#1e2a20;text-align:left;font:800 9px monospace;letter-spacing:.1em;box-shadow:4px 4px 0 #58694c;display:flex;justify-content:space-between}
+body[data-game="who-is-it"] .case-foot{display:block;margin-top:30px;color:#7d8872;font:8px monospace;letter-spacing:.18em}
+body[data-game="who-is-it"] .case-hero-art{position:relative;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 50%,#344b3a,#52664e 65%,#66765a);min-height:400px}
+body[data-game="who-is-it"] .unknown-file{width:150px;height:190px;border:5px solid #c7d5a4;border-radius:44% 44% 18px 18px;background:linear-gradient(145deg,#24392d,#0d1c14);box-shadow:0 0 0 8px #1b2d22;color:#dce6b7;font:bold 130px/180px Georgia;text-align:center;z-index:2}
+body[data-game="who-is-it"] .orbit{position:absolute;width:78%;height:42%;border:1px solid #a7b29777;border-radius:50%;transform:rotate(-24deg)}
+body[data-game="who-is-it"] .orbit-b{transform:rotate(28deg);width:85%;height:55%}
+body[data-game="who-is-it"] .top-secret{position:absolute;right:12%;top:20%;z-index:3;border:2px solid #b56c58;color:#b56c58;padding:9px 12px;font:bold 12px monospace;transform:rotate(12deg)}
+body[data-game="who-is-it"] .case-hero-art>small{position:absolute;left:10%;bottom:10%;font:bold 9px/1.4 monospace;letter-spacing:.18em}
+body[data-game="who-is-it"] .case-est{position:absolute;right:9%;bottom:8%;font:8px monospace;letter-spacing:.15em;color:#c3cfad}
+body[data-game="who-is-it"] .case-access-title{margin:30px 0 12px;color:#a6b28e;font:700 9px monospace;letter-spacing:.18em}
+body[data-game="who-is-it"] .case-access{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:620px}
+body[data-game="who-is-it"] .case-access-card{display:flex;align-items:center;gap:14px;text-align:left;padding:16px;background:#18251d;border:1px solid #354638;color:#e7e7d7;min-height:82px}
+body[data-game="who-is-it"] .case-access-card b{display:block;font-size:14px}
+body[data-game="who-is-it"] .case-access-card small{display:block;color:#98a18c;font:10px/1.5 system-ui;margin-top:4px}
+body[data-game="who-is-it"] .case-access-card i{margin-left:auto;color:#c1d394;font-style:normal}
+body[data-game="who-is-it"] .access-icon{width:38px;height:38px;border:1px solid #78866b;display:grid;place-items:center;color:#d1dba9;font-size:22px}
+body[data-game="who-is-it"] .case-exit-note{margin:34px auto 0;width:max-content;padding:13px 20px;border:1px solid #64765b;background:#233328;color:#d7ddc5;font:10px system-ui}
+body[data-game="who-is-it"] .page-head{border-bottom:1px solid #354638;padding-bottom:16px;margin-bottom:18px}
+body[data-game="who-is-it"] .page-head h2{font-size:38px}
+body[data-game="who-is-it"] .secondary{border:1px solid #65765d;border-radius:2px;background:#233328;color:#dce1ce;box-shadow:none;padding:11px 16px;font:700 10px system-ui}
+body[data-game="who-is-it"] .primary{border:1px solid #91a779;border-radius:2px;background:#b8ca91;color:#1d2a20;box-shadow:3px 3px 0 #506344;font:800 10px monospace;letter-spacing:.08em}
+body[data-game="who-is-it"] .panel,body[data-game="who-is-it"] .game-info{border:1px solid #354638;border-radius:0;background:#19271f;color:#e7e7d7;box-shadow:none}
+body[data-game="who-is-it"] .muted{color:#9aa58e}
+body[data-game="who-is-it"] input,body[data-game="who-is-it"] select,body[data-game="who-is-it"] textarea{border:1px solid #39493c;border-radius:0;background:#111c15;color:#e7e7d7}
+body[data-game="who-is-it"] .notice{border:1px solid #485a45;border-left:3px solid #b6ca8d;border-radius:0;background:#26372a;color:#e1e6d0}
+body[data-game="who-is-it"] .case-page-head{margin-bottom:18px}
+body[data-game="who-is-it"] .case-room-layout{display:grid;grid-template-columns:232px minmax(0,1fr);gap:18px;align-items:start}
+body[data-game="who-is-it"] .case-room-aside{position:sticky;top:18px}
+body[data-game="who-is-it"] .case-file-cover{position:relative;min-height:300px;padding:24px 20px;background:#ded9c4;color:#263229;box-shadow:5px 6px 0 #070d09}
+body[data-game="who-is-it"] .case-file-cover>small{font:9px monospace;letter-spacing:.16em}
+body[data-game="who-is-it"] .cover-question{margin:30px auto 10px;width:88px;height:88px;border:2px solid #81916d;border-radius:50%;display:grid;place-items:center;color:#748963;font:bold 62px Georgia}
+body[data-game="who-is-it"] .confidential{position:absolute;right:12px;top:62px;border:2px solid #b46a57;color:#b46a57;padding:6px;font:bold 9px monospace;transform:rotate(12deg)}
+body[data-game="who-is-it"] .case-file-cover h3{text-align:center;color:#1e2b22;font:bold 26px/.9 Impact,"Arial Narrow",sans-serif;margin:12px 0}
+body[data-game="who-is-it"] .case-file-cover p{font:10px/1.5 system-ui;color:#737968;text-align:center}
+body[data-game="who-is-it"] .case-steps{display:grid;gap:17px;padding:22px 0;font:10px monospace;color:#71806e}
+body[data-game="who-is-it"] .case-steps b{color:#d9e1c8;border-left:3px solid #b6ca8d;padding:5px 10px}
+body[data-game="who-is-it"] .case-form-section{padding:22px 20px;border:1px solid #354638;border-bottom:0;background:#18251d}
+body[data-game="who-is-it"] .case-form-section:last-of-type{border-bottom:1px solid #354638}
+body[data-game="who-is-it"] .case-section-title{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+body[data-game="who-is-it"] .case-section-title>b{display:grid;place-items:center;width:29px;height:29px;border:1px solid #8b9a70;color:#c5d69b;font:10px monospace}
+body[data-game="who-is-it"] .case-section-title strong{display:block;font-size:15px}
+body[data-game="who-is-it"] .case-section-title small{display:block;color:#8d9a84;font:10px system-ui;margin-top:4px}
+body[data-game="who-is-it"] .case-form-section .field label{color:#a5b28d;font:700 9px monospace;letter-spacing:.13em}
+body[data-game="who-is-it"] .case-form-section input,body[data-game="who-is-it"] .case-form-section select{min-height:42px;padding:10px 12px}
+body[data-game="who-is-it"] .case-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+body[data-game="who-is-it"] .case-access-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+body[data-game="who-is-it"] .case-access-options label{display:flex;align-items:center;gap:8px;padding:14px;border:1px solid #3c4b3d;background:#111c15;cursor:pointer}
+body[data-game="who-is-it"] .case-access-options label input{accent-color:#b9cc91}
+body[data-game="who-is-it"] .case-access-options b{display:block;color:#dce3cb;font-size:12px}
+body[data-game="who-is-it"] .case-access-options small{display:block;color:#94a18b;font:10px system-ui;margin-top:4px}
+body[data-game="who-is-it"] .case-hidden-access{position:absolute!important;width:1px;height:1px;opacity:0;pointer-events:none}
+body[data-game="who-is-it"] .case-create{width:100%;display:flex;justify-content:space-between;padding:20px;background:#b8ca91;color:#1c2a20;font:800 10px monospace;letter-spacing:.12em;text-align:left}
+body[data-game="who-is-it"] #publicRoomsList{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+body[data-game="who-is-it"] #publicRoomsList>*{border:1px solid #394b3d;background:#1b2a20;padding:14px;color:#e4e7d6}
+body[data-game="who-is-it"] .game-layout{display:grid;gap:14px}
+body[data-game="who-is-it"] .game-info{display:flex;justify-content:space-between;align-items:center;padding:16px}
+body[data-game="who-is-it"] .character-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:16px;border:1px solid #8a8b70;background:repeating-linear-gradient(35deg,#1a3023,#1a3023 20px,#20372a 21px,#20372a 22px)}
+body[data-game="who-is-it"] .character-card{position:relative;overflow:hidden;border:2px solid #9a9a79;border-radius:9px;background:#101b14;color:#f1f0df;box-shadow:0 4px 0 #080e0a}
+body[data-game="who-is-it"] .character-card:after{content:"⌕";position:absolute;right:8px;top:8px;width:28px;height:28px;border:1px solid #a8b49b;border-radius:50%;display:grid;place-items:center;background:#0c1712e8;color:#d7e2c4;font:25px Georgia}
+body[data-game="who-is-it"] .character-card img{width:100%;height:190px;object-fit:cover;display:block}
+body[data-game="who-is-it"] .character-card strong,body[data-game="who-is-it"] .character-card .name{display:block;padding:8px;text-align:center;color:#f0efdf;font:bold 13px Georgia}
+body[data-game="who-is-it"] .game-layout .panel{padding:16px}
+body[data-game="who-is-it"] .game-layout .panel strong{color:#e6e9d8}
+body[data-game="who-is-it"] .badge{background:#293a2b;color:#d6e0c2;border:1px solid #52634a}
+body[data-game="who-is-it"] .tabs .tab{background:#1a291f;color:#aab59c;border:1px solid #394a3b;border-radius:0}
+body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
+@media(max-width:760px){
+ body[data-game="who-is-it"] .app{padding:14px 10px 30px}
+ body[data-game="who-is-it"] .case-hero{grid-template-columns:1fr}
+ body[data-game="who-is-it"] .case-hero-copy{padding:30px 24px}
+ body[data-game="who-is-it"] .case-hero-art{min-height:280px}
+ body[data-game="who-is-it"] .case-room-layout{grid-template-columns:1fr}
+ body[data-game="who-is-it"] .case-room-aside{position:static}
+ body[data-game="who-is-it"] .case-file-cover{min-height:210px}
+ body[data-game="who-is-it"] .case-steps{display:flex;gap:14px;flex-wrap:wrap}
+ body[data-game="who-is-it"] .character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body[data-game="who-is-it"] #publicRoomsList{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body[data-game="who-is-it"] .case-access{grid-template-columns:1fr}
+ body[data-game="who-is-it"] .case-form-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body data-game="who-is-it">
@@ -173,22 +273,29 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
 
   <!-- ГЛАВНОЕ МЕНЮ -->
   <section id="homeScreen" class="screen active">
-    <div class="hero">
-      <h1>Кто <span>это?</span></h1>
-      <p>Задавай вопросы, исключай персонажей и угадывай первым!</p>
+    <div class="case-kicker"><span>THE UNKNOWN FILES · CASE NO. 001</span><span class="online-dot">DETECTIVE NETWORK ONLINE</span></div>
+    <div class="case-hero">
+      <div class="case-hero-copy">
+        <small>ДЕЛО № 001 / ЛИЧНОСТЬ НЕ УСТАНОВЛЕНА</small>
+        <h1>ЗАСЕКРЕЧЕН<br>НЫЕ <em>ФАЙЛЫ</em></h1>
+        <p>Перед тобой неизвестные объекты и загадочные досье. Задавай вопросы, собирай улики и выясни, что скрывается в засекреченном файле.</p>
+        <button class="case-open" onclick="openPlayMenu()">ОТКРЫТЬ НОВОЕ ДЕЛО <span>↗</span></button>
+        <small class="case-foot">KAZO / DETECTIVE CLUB</small>
+      </div>
+      <div class="case-hero-art">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="top-secret">TOP<br>SECRET</div>
+        <div class="unknown-file">?</div>
+        <small>SUBJECT<br>UNKNOWN</small>
+        <span class="case-est">EST. 2026</span>
+      </div>
     </div>
-    <div class="menu-grid">
-      <button class="menu-card" onclick="openPlayMenu()">
-        <span class="emoji">🎮</span>
-        <strong>Играть</strong>
-        <small>Выбери режим игры</small>
-      </button>
-      <button class="menu-card" onclick="openPacksMenu()">
-        <span class="emoji">🗂️</span>
-        <strong>Паки</strong>
-        <small>Скачивай, создавай и выбирай наборы</small>
-      </button>
+    <div class="case-access-title">01 ДОСТУП К ДЕЛАМ</div>
+    <div class="case-access">
+      <button class="case-access-card" onclick="openPlayMenu()"><span class="access-icon">⌕</span><span><b>Найти соперника</b><small>Открытые комнаты игроков</small></span><i>↗</i></button>
+      <button class="case-access-card" onclick="openPacksMenu()"><span class="access-icon">▤</span><span><b>Архив объектов</b><small>Коллекции людей, предметов, мест и многого другого</small></span><i>↗</i></button>
     </div>
+    <div class="case-exit-note">Ты вышел из комнаты.</div>
   </section>
 
   <section id="playScreen" class="screen">
@@ -311,48 +418,30 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
   </section>
 
   <section id="roomSettingsScreen" class="screen">
-    <div class="page-head">
-      <h2>Настройки комнаты</h2>
-      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
-    </div>
-    <div class="panel stack">
-      <div class="field">
-        <label for="roomName">Название комнаты</label>
-        <input id="roomName" maxlength="40" placeholder="Например, Наша игра">
+    <div class="page-head case-page-head"><h2>Оформление дела</h2><button class="secondary" onclick="showScreen('playScreen')">← Назад</button></div>
+    <div class="case-room-layout">
+      <aside class="case-room-aside">
+        <div class="case-file-cover"><small>KAZO / CASE FILE</small><div class="cover-question">?</div><span class="confidential">CONFIDENTIAL</span><h3>ДЕЛО<br>ОТКРЫТО</h3><p>Собери комнату для дуэли детективов. После создания передай сопернику код доступа.</p></div>
+        <div class="case-steps"><b>01　Параметры</b><span>02　Персонажи</span><span>03　Приглашение</span></div>
+      </aside>
+      <div class="case-room-form">
+        <section class="case-form-section"><div class="case-section-title"><b>01</b><span><strong>Идентификация комнаты</strong><small>Как будет выглядеть твоё игровое дело</small></span></div>
+          <div class="field"><label for="roomName">НАЗВАНИЕ ДЕЛА</label><input id="roomName" maxlength="40" placeholder="Например, Наша игра"></div>
+          <div class="field"><label for="roomCode">КОД ДОСТУПА</label><input id="roomCode" maxlength="16" placeholder="Например, FRIENDS7" autocomplete="off"><span class="muted small">От 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.</span></div>
+        </section>
+        <section class="case-form-section"><div class="case-section-title"><b>02</b><span><strong>Материалы расследования</strong><small>Выбери набор и размер игрового стола</small></span></div>
+          <div class="field"><label>АРХИВ ПЕРСОНАЖЕЙ</label><div id="selectedRoomPack" class="notice">Пак не выбран</div><button class="secondary full" onclick="openRoomPackPicker()">▤　Выбрать коллекцию</button></div>
+          <div class="case-form-grid">
+            <div class="field"><label for="roomCardCount">КАРТОЧЕК НА СТОЛЕ</label><select id="roomCardCount"><option value="20">20 карточек</option><option value="30">30 карточек</option><option value="40">40 карточек</option><option value="50">50 карточек</option><option value="60">60 карточек</option></select></div>
+            <div class="field"><label for="roomTimer">ВРЕМЯ НА ВОПРОС</label><select id="roomTimer"><option value="15">15 секунд</option><option value="30">30 секунд</option><option value="45">45 секунд</option><option value="60" selected>60 секунд</option><option value="90">90 секунд</option><option value="0">Без ограничения</option></select></div>
+          </div>
+        </section>
+        <section class="case-form-section"><div class="case-section-title"><b>03</b><span><strong>Режим доступа</strong><small>Кто сможет найти твою комнату</small></span></div>
+          <div class="case-access-options"><label><input type="radio" name="caseAccess" value="private" checked onchange="document.getElementById('roomAccess').value='private'"><span><b>▣　По приглашению</b><small>Только по коду</small></span></label><label><input type="radio" name="caseAccess" value="public" onchange="document.getElementById('roomAccess').value='public'"><span><b>◎　Открытая</b><small>В общем списке</small></span></label></div>
+          <select id="roomAccess" class="case-hidden-access"><option value="private">Закрытая</option><option value="public">Открытая</option></select>
+        </section>
+        <button class="case-create" onclick="createConfiguredRoom()">СОЗДАТЬ ИГРОВОЕ ДЕЛО <span>↗</span></button>
       </div>
-      <div class="field">
-        <label for="roomCode">Код комнаты — придумай сам</label>
-        <input id="roomCode" maxlength="16" placeholder="Например, FRIENDS7" autocomplete="off">
-        <span class="muted small">От 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.</span>
-      </div>
-      <div class="field">
-        <label>Пак персонажей</label>
-        <div id="selectedRoomPack" class="notice">Пак не выбран</div>
-        <button class="secondary" onclick="openRoomPackPicker()">Выбрать пак</button>
-      </div>
-      <div class="field">
-        <label for="roomCardCount">Количество карточек</label>
-        <select id="roomCardCount">
-          <option value="20">20 карточек</option><option value="30">30 карточек</option>
-          <option value="40">40 карточек</option><option value="50">50 карточек</option>
-          <option value="60">60 карточек</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="roomTimer">Время на вопрос</label>
-        <select id="roomTimer">
-          <option value="15">15 секунд</option><option value="30">30 секунд</option>
-          <option value="45">45 секунд</option><option value="60" selected>60 секунд</option>
-          <option value="90">90 секунд</option><option value="0">Без ограничения</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="roomAccess">Тип комнаты</label>
-        <select id="roomAccess">
-          <option value="private">Закрытая</option><option value="public">Открытая</option>
-        </select>
-      </div>
-      <button class="primary full" onclick="createConfiguredRoom()">Создать комнату</button>
     </div>
   </section>
 
