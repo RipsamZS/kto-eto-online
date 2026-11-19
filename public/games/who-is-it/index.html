@@ -1044,10 +1044,29 @@ const imageSearchAliases={
   'страйдер':'Strider',
   'аллей':'Allay'
 };
+const animalImageSearchAliases={
+  'лев':'lion','тигр':'tiger','слон':'elephant','жираф':'giraffe','зебра':'zebra',
+  'панда':'giant panda','коала':'koala','кенгуру':'kangaroo','волк':'gray wolf',
+  'лиса':'red fox','медведь':'brown bear','заяц':'hare','белка':'squirrel',
+  'ёж':'hedgehog','олень':'red deer','лось':'moose','лошадь':'horse',
+  'корова':'cow','овца':'sheep','коза':'goat','свинья':'pig','собака':'dog',
+  'кошка':'domestic cat','хомяк':'hamster','мышь':'mouse','крыса':'rat',
+  'бобр':'beaver','выдра':'otter','енот':'raccoon','барсук':'badger',
+  'верблюд':'camel','лама':'llama','альпака':'alpaca','носорог':'rhinoceros',
+  'бегемот':'hippopotamus','крокодил':'crocodile','аллигатор':'alligator',
+  'черепаха':'tortoise','змея':'snake','ящерица':'lizard','лягушка':'frog',
+  'жаба':'toad','акула':'shark','дельфин':'dolphin','кит':'whale',
+  'осьминог':'octopus','краб':'crab','медуза':'jellyfish','пингвин':'penguin',
+  'фламинго':'flamingo','орёл':'eagle','сова':'owl','попугай':'parrot',
+  'ворона':'crow','воробей':'sparrow','павлин':'peacock','лебедь':'swan',
+  'утка':'duck','петух':'rooster','бабочка':'butterfly'
+};
 function getImageSearchTerms(name,pack){
   const key=normalizeImageTitle(name);
+  const normalizedPack=normalizeImageTitle(pack);
+  if(normalizedPack.includes('minecraft'))return 'Minecraft '+(imageSearchAliases[key]||name);
+  if(normalizedPack.includes('животн'))return animalImageSearchAliases[key]||name;
   const alias=imageSearchAliases[key]||name;
-  if(normalizeImageTitle(pack).includes('minecraft'))return 'Minecraft '+alias;
   if(key==='сфинкс')return 'Great Sphinx of Giza';
   return alias;
 }
@@ -1106,7 +1125,7 @@ async function findCommonsCardImage(img,terms,key){
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v9:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v10:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
   const terms=getImageSearchTerms(name,pack);
