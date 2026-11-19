@@ -1,6 +1,6 @@
 # Структура проекта Kazo
 
-Эта ветка содержит первый этап модульного разделения. Рабочий Worker и production deployment не менялись.
+Эта ветка содержит модульное разделение и очистку неиспользуемых паков. Рабочий Worker и production deployment не менялись.
 
 ## Worker
 
@@ -18,15 +18,12 @@
 - `public/games/who-is-it/data/packs.js` — общие ключи хранения и инициализация массива встроенных паков.
 - `public/games/who-is-it/data/packs/<pack>.js` — один встроенный пак на файл.
 
-## Встроенные паки
+## Встроенные паки, оставленные в игре
 
 - `animals.js` — животные
 - `plants.js` — растения
-- `professions.js` — профессии
 - `landmarks.js` — достопримечательности
-- `transport.js` — транспорт
 - `space.js` — космос
-- `food.js` — еда
 - `fantasy.js` — фэнтези
 - `minecraft.js` — Minecraft
 
