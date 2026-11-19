@@ -1,10 +1,5 @@
 
 const builtInPacks = window.KAZO_BUILTIN_PACKS;
-/* -------------------------------------------------------
-   ДАННЫЕ ИГРЫ И ПАКОВ
-------------------------------------------------------- */
-
-/* Данные паков вынесены в отдельный файл */
 
 let myPacks=loadStorage(STORAGE_MY_PACKS,[]);
 let downloadedPacks=loadStorage(STORAGE_DOWNLOADED,[]);
