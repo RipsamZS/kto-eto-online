@@ -297,31 +297,6 @@ body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
     </div>
   </section>
 
-  <section id="playScreen" class="screen">
-    <div class="page-head">
-      <h2>Выбери режим</h2>
-      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
-    </div>
-    <div class="menu-grid">
-      <button class="menu-card" onclick="showBotNotice()">
-        <span class="emoji">🤖</span><strong>Играть с ботом</strong>
-        <small>Создай тренировочную комнату с пассивным соперником</small>
-      </button>
-      <button class="menu-card" onclick="openJoinPicker('private')">
-        <span class="emoji">🔒</span><strong>Закрытая игра</strong>
-        <small>Войти в комнату по коду</small>
-      </button>
-      <button class="menu-card" onclick="openPublicRooms()">
-        <span class="emoji">🌍</span><strong>Публичная игра</strong>
-        <small>Найти открытую комнату</small>
-      </button>
-      <button class="menu-card" onclick="openRoomSettings('public')">
-        <span class="emoji">➕</span><strong>Создать комнату</strong>
-        <small>Настроить собственную игру</small>
-      </button>
-    </div>
-  </section>
-
   <!-- МЕНЮ ПАКОВ -->
   <section id="packsScreen" class="screen">
     <div class="page-head">
@@ -417,7 +392,7 @@ body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
   </section>
 
   <section id="roomSettingsScreen" class="screen">
-    <div class="page-head case-page-head"><h2>Оформление дела</h2><button class="secondary" onclick="showScreen('playScreen')">← Назад</button></div>
+    <div class="page-head case-page-head"><h2>Оформление дела</h2><button class="secondary" onclick="showScreen('homeScreen')">← Назад</button></div>
     <div class="case-room-layout">
       <aside class="case-room-aside">
         <div class="case-file-cover"><small>KAZO / CASE FILE</small><div class="cover-question">?</div><span class="confidential">CONFIDENTIAL</span><h3>ДЕЛО<br>ОТКРЫТО</h3><p>Собери комнату для дуэли детективов. После создания передай сопернику код доступа.</p></div>
@@ -447,7 +422,7 @@ body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
   <section id="joinScreen" class="screen">
     <div class="page-head">
       <h2>Войти в комнату</h2>
-      <button class="secondary" onclick="showScreen('playScreen')">Назад</button>
+      <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
     </div>
     <div class="panel stack">
       <div class="field">
@@ -463,7 +438,7 @@ body[data-game="who-is-it"] .tabs .tab.active{background:#b8ca91;color:#1c2a20}
       <h2>Публичные комнаты</h2>
       <div class="row" style="flex:0 0 auto">
         <button class="secondary" onclick="openPublicRooms()">Обновить</button>
-        <button class="secondary" onclick="showScreen('playScreen')">Назад</button>
+        <button class="secondary" onclick="showScreen('homeScreen')">Назад</button>
       </div>
     </div>
     <div id="publicRoomsList"></div>
@@ -645,13 +620,11 @@ function toast(message){
   clearTimeout(window.toastTimer);
   window.toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
-function showBotNotice(){openRoomSettings('private');autoAddTestBot=true;toast('Выбери пак персонажей и создай комнату — тестовый соперник добавится автоматически.')}
 
 /* -------------------------------------------------------
    ГЛАВНОЕ МЕНЮ И ПАКИ
 ------------------------------------------------------- */
 
-function openPlayMenu(){showScreen('playScreen')}
 function openPacksMenu(){showScreen('packsScreen')}
 
 function openPackManager(tab='downloaded'){
