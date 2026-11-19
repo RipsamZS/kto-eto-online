@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Кто это?</title>
+<title>Кто это? — Засекреченные файлы</title>
 <style>
 :root {
   --bg:#100d20;--panel:#1c1732;--panel2:#282044;
@@ -170,19 +170,45 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
 #playScreen .menu-card .emoji{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:14px;font-size:27px}
 #playScreen .menu-card strong,#playScreen .menu-card small{display:block}
 #playScreen .menu-card small{margin-top:4px}
+
+/* CLASSIFIED FILES — восстановленное оформление детективного архива */
+body[data-game="who-is-it"]{background:radial-gradient(ellipse at 12% 8%,#d4ddc8,transparent 36%),radial-gradient(ellipse at 88% 82%,#e7d4c2,transparent 34%),#e7e5d7!important;color:#26342e!important}
+body[data-game="who-is-it"] .topbar{display:flex;align-items:center;border-bottom:2px solid #9eaa96!important;position:relative}
+body[data-game="who-is-it"] .brand{display:flex;align-items:center;gap:7px;color:#294c3c!important;font-family:Georgia,serif;font-weight:900;letter-spacing:.08em!important;font-size:17px!important}
+body[data-game="who-is-it"] .brand span{color:#a64f48!important}
+body[data-game="who-is-it"] .case-brand-tag{display:inline-block;margin-left:9px;padding:5px 8px;border:1px solid #a64f48;background:#f4e6dc;color:#91443e;font:800 9px/1.2 system-ui,sans-serif;letter-spacing:.12em;transform:rotate(-2deg)}
+body[data-game="who-is-it"] .hero{position:relative;margin:24px auto 28px;padding:28px 20px 24px;max-width:850px;border:1px solid #c6cbb9;border-left:7px solid #416b58;border-radius:4px 14px 4px 14px;background:linear-gradient(145deg,#fffdf4,#e8ecdf);box-shadow:0 8px 0 #d0d4c5,0 18px 34px #344c3914}
+body[data-game="who-is-it"] .case-stamp{display:inline-block;margin:0 auto 12px;padding:6px 12px;border:2px solid #a64f48;color:#a64f48;font:900 10px/1.2 ui-monospace,monospace;letter-spacing:.15em;transform:rotate(-2deg)}
+body[data-game="who-is-it"] .hero h1{font-family:Georgia,serif!important;font-size:clamp(30px,6vw,54px)!important;line-height:1.05;letter-spacing:-1.5px!important;text-transform:uppercase}
+body[data-game="who-is-it"] .hero h1 span{color:#416b58!important}
+body[data-game="who-is-it"] .hero p{color:#687467!important;font-family:Georgia,serif;font-size:16px}
+body[data-game="who-is-it"] #homeScreen .menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:min(760px,100%);margin:0 auto}
+body[data-game="who-is-it"] .menu-card{position:relative;display:flex;align-items:center;gap:15px;min-height:105px;padding:18px 20px;text-align:left;border:1px solid #c6cbb9!important;border-left:6px solid #416b58!important;border-radius:5px 14px 5px 14px!important;background:linear-gradient(145deg,#fffdf4,#e8ecdf)!important;box-shadow:0 6px 0 #d0d4c5,0 12px 24px #344c3914!important;color:#26342e!important}
+body[data-game="who-is-it"] .menu-card:hover{transform:translateY(-3px) rotate(-.3deg);box-shadow:0 9px 0 #d0d4c5,0 18px 28px #344c3920!important}
+body[data-game="who-is-it"] .menu-card .emoji{flex:0 0 54px;width:54px;height:54px;border-radius:50%;background:#e4e9d9;border:1px solid #c7d0bc}
+body[data-game="who-is-it"] .menu-card strong{font-family:Georgia,serif;font-size:18px;color:#294c3c}
+body[data-game="who-is-it"] .menu-card small{color:#6c776c!important}
+body[data-game="who-is-it"] .panel,body[data-game="who-is-it"] .modal{border:1px solid #c8cdbd!important;border-radius:8px 16px 8px 16px!important;background:linear-gradient(145deg,#fffdf5,#f0efdf)!important;box-shadow:0 12px 30px #30433614!important;color:#26342e!important}
+body[data-game="who-is-it"] .pack-card,body[data-game="who-is-it"] .character-card,body[data-game="who-is-it"] .game-info{border-color:#c6cbb9!important;border-radius:8px!important;background:#f8f6e9!important;color:#26342e!important}
+body[data-game="who-is-it"] .primary{border:1px solid #294c3c!important;border-radius:7px!important;background:linear-gradient(180deg,#527d66,#345a47)!important;box-shadow:0 4px 0 #294c3c!important;color:#fffdf1!important}
+body[data-game="who-is-it"] .secondary{border:1px solid #c4cbb9!important;border-radius:7px!important;background:#e9eddf!important;box-shadow:0 3px 0 #d2d8c8!important;color:#365541!important}
+body[data-game="who-is-it"] input,body[data-game="who-is-it"] select,body[data-game="who-is-it"] textarea{border:1px solid #c6cbb9!important;border-radius:7px!important;background:#fffdf5!important;color:#26342e!important}
+@media(max-width:560px){body[data-game="who-is-it"] #homeScreen .menu-grid{grid-template-columns:1fr}body[data-game="who-is-it"] .case-brand-tag{font-size:8px;margin-left:3px}body[data-game="who-is-it"] .hero{padding:22px 14px}}
+
 </style>
 </head>
 <body data-game="who-is-it">
 <div class="app">
   <div class="topbar">
-    <a class="brand" href="/" style="color:inherit;text-decoration:none" aria-label="На главную">КТО <span>ЭТО?</span></a>
+    <a class="brand" href="/" style="color:inherit;text-decoration:none" aria-label="На главную">КТО <span>ЭТО?</span><small class="case-brand-tag">ЗАСЕКРЕЧЕННЫЕ ФАЙЛЫ</small></a>
   </div>
 
   <!-- ГЛАВНОЕ МЕНЮ -->
   <section id="homeScreen" class="screen active">
     <div class="hero">
-      <h1>Кто <span>это?</span></h1>
-      <p>Задавай вопросы, исключай персонажей и угадывай первым!</p>
+      <div class="case-stamp">АРХИВ № 001 · ДОСТУП ОГРАНИЧЕН</div>
+      <h1>Засекреченные <span>файлы</span></h1>
+      <p>Открывай досье, изучай персонажей и раскрой личность первым.</p>
     </div>
     <div class="menu-grid">
       <button class="menu-card" onclick="openPlayMenu()">
