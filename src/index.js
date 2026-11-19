@@ -538,13 +538,12 @@ export class GameRoom {
     }
   }
 
-  json(data, status = 200, extraHeaders = {}) {
+  json(data, status = 200) {
     return new Response(JSON.stringify(data), {
       status,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Cache-Control": "no-store",
-        ...extraHeaders
+        "Cache-Control": "no-store"
       }
     });
   }
@@ -565,45 +564,8 @@ export class GameRoom {
       );
     }
 
-    if (path.startsWith("/api/images/") && request.method === "GET") {
-      const imageId = path.slice("/api/images/".length);
-      if (!/^[a-f0-9]{32}$/.test(imageId)) return new Response("Not found", { status: 404 });
-      const image = await this.ctx.storage.get("pack-image:" + imageId);
-      if (!image) return new Response("Not found", { status: 404 });
-      const contentType = await this.ctx.storage.get("pack-image-type:" + imageId) || "image/webp";
-      return new Response(image, {
-        headers: {
-          "Content-Type": contentType,
-          "Cache-Control": "public, max-age=31536000, immutable",
-          "X-Content-Type-Options": "nosniff"
-        }
-      });
-    }
-
     if (path === "/api/packs" && request.method === "GET") {
       const packs = await this.ctx.storage.get("publishedPacks") || [];
-      let migrated = false;
-
-      // Старые изображения, сохранённые прямо в JSON, переносим в отдельные объекты.
-      for (const pack of packs) {
-        for (const character of (pack.characters || [])) {
-          const image = character?.image;
-          if (typeof image !== "string" || !image.startsWith("data:image/")) continue;
-          const match = image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
-          if (!match) {
-            character.image = "";
-            migrated = true;
-            continue;
-          }
-          const imageId = crypto.randomUUID().replace(/-/g, "");
-          const bytes = Uint8Array.from(atob(match[2]), char => char.charCodeAt(0));
-          await this.ctx.storage.put("pack-image:" + imageId, bytes);
-          await this.ctx.storage.put("pack-image-type:" + imageId, match[1]);
-          character.image = "/api/images/" + imageId;
-          migrated = true;
-        }
-      }
-      if (migrated) await this.ctx.storage.put("publishedPacks", packs);
 
       return this.json(
         packs.map(pack => ({
@@ -612,9 +574,7 @@ export class GameRoom {
           author: pack.author,
           characters: pack.characters,
           createdAt: pack.createdAt
-        })),
-        200,
-        { "Cache-Control": "public, max-age=30, stale-while-revalidate=120" }
+        }))
       );
     }
 
@@ -661,7 +621,7 @@ export class GameRoom {
         }
 
         if (image && (
-          (!image.startsWith("data:image/") && !/^\/api\/images\/[a-f0-9]{32}$/.test(image)) ||
+          !image.startsWith("data:image/") ||
           image.length > 500000
         )) {
           return this.json({
@@ -695,21 +655,6 @@ export class GameRoom {
       }
 
       const packs = await this.ctx.storage.get("publishedPacks") || [];
-
-      // Бинарные изображения храним отдельно от списка паков.
-      for (const character of cleanCharacters) {
-        if (typeof character.image !== "string" || !character.image.startsWith("data:image/")) continue;
-        const match = character.image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
-        if (!match) {
-          character.image = "";
-          continue;
-        }
-        const imageId = crypto.randomUUID().replace(/-/g, "");
-        const bytes = Uint8Array.from(atob(match[2]), char => char.charCodeAt(0));
-        await this.ctx.storage.put("pack-image:" + imageId, bytes);
-        await this.ctx.storage.put("pack-image-type:" + imageId, match[1]);
-        character.image = "/api/images/" + imageId;
-      }
 
       const entry = {
         id: "published_" + crypto.randomUUID(),
@@ -1489,8 +1434,7 @@ export default {
     if (
       url.pathname === "/api/public-rooms" ||
       url.pathname === "/api/packs" ||
-      url.pathname.startsWith("/api/packs/") ||
-      url.pathname.startsWith("/api/images/")
+      url.pathname.startsWith("/api/packs/")
     ) {
       const directory = env.GAME_ROOM.get(
         env.GAME_ROOM.idFromName("PUBLIC_DIRECTORY")
