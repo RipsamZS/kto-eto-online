@@ -1123,10 +1123,32 @@ async function findCommonsCardImage(img,terms,key){
   }
   return false;
 }
+async function findOpenverseCardImage(img,terms,key){
+  const queries=[terms,terms.split(' ').slice(0,3).join(' ')];
+  const tokens=normalizeImageTitle(terms).split(' ').filter(token=>token.length>2);
+  for(const query of [...new Set(queries)]){
+    try{
+      const url='https://api.openverse.org/v1/images/?q='+encodeURIComponent(query)+'&page_size=30&license=cc0,by,by-sa';
+      const response=await fetch(url,{mode:'cors',headers:{Accept:'application/json'}});
+      if(!response.ok)continue;
+      const data=await response.json();
+      const results=(data.results||[]).filter(item=>item.thumbnail||item.url).map(item=>{
+        const searchable=normalizeImageTitle([item.title||'',...(item.tags||[]).map(tag=>tag.name||'')].join(' '));
+        const matched=tokens.filter(token=>searchable.includes(token)).length;
+        return {item,score:tokens.length?matched/tokens.length:0};
+      }).filter(result=>result.score>=(tokens.length>1?.4:.2));
+      results.sort((a,b)=>b.score-a.score);
+      if(!results.length)continue;
+      const best=results[0].item;
+      return cacheAndApplyCardImage(img,best.thumbnail||best.url,key);
+    }catch(error){console.warn('Openverse image fallback failed:',terms,error)}
+  }
+  return false;
+}
 async function findFileCardImage(img){
   const name=img.dataset.imageName||'';
   const pack=currentImagePackContext||'default';
-  const key='kazo-classified-image-v12:'+pack+':'+normalizeImageTitle(name);
+  const key='kazo-classified-image-v13:'+pack+':'+normalizeImageTitle(name);
   let cached=fileImageCache.get(key);if(!cached){try{cached=localStorage.getItem(key)||''}catch(e){}}
   if(cached){fileImageCache.set(key,cached);applyFileCardImage(img,cached);return}
   const terms=getImageSearchTerms(name,pack);
@@ -1147,10 +1169,12 @@ async function findFileCardImage(img){
       cacheAndApplyCardImage(img,pages[0].thumbnail.source,key);
       return;
     }
-    await findCommonsCardImage(img,terms,key);
+    const foundOnCommons=await findCommonsCardImage(img,terms,key);
+    if(!foundOnCommons)await findOpenverseCardImage(img,terms,key);
   }catch(error){
     console.warn('Precise card image lookup failed:',name,error);
-    await findCommonsCardImage(img,terms,key);
+    const foundOnCommons=await findCommonsCardImage(img,terms,key);
+    if(!foundOnCommons)await findOpenverseCardImage(img,terms,key);
   }
 }
 function applyFileCardImage(img,src,onError=null){
