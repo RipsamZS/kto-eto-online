@@ -285,6 +285,49 @@ body[data-game="who-is-it"] #roomSettingsScreen .case-access-options small{displ
 body[data-game="who-is-it"] #roomSettingsScreen .case-create{background:#b8ca91!important;color:#1c2a20!important;border:1px solid #d0dda9!important;box-shadow:3px 3px 0 #506344!important}
 @media(max-width:760px){body[data-game="who-is-it"] #roomSettingsScreen .case-access-options{grid-template-columns:1fr!important}}
 
+
+/* GLOBAL DARK ARCHIVE THEME — all screens */
+html,body,body[data-game="who-is-it"]{min-height:100%;background:#0b1510!important;color:#e8eadb!important}
+body[data-game="who-is-it"]{background-image:radial-gradient(ellipse at 50% 0%,#1b3023 0%,#101d15 46%,#080f0b 100%)!important}
+body[data-game="who-is-it"] .screen,
+body[data-game="who-is-it"] .screen *{color:inherit}
+body[data-game="who-is-it"] .panel,
+body[data-game="who-is-it"] .pack-card,
+body[data-game="who-is-it"] .character-card,
+body[data-game="who-is-it"] .game-info,
+body[data-game="who-is-it"] .modal,
+body[data-game="who-is-it"] .empty,
+body[data-game="who-is-it"] .upload-banner,
+body[data-game="who-is-it"] .case-form-section,
+body[data-game="who-is-it"] .case-room-form,
+body[data-game="who-is-it"] .case-room-aside,
+body[data-game="who-is-it"] .room-card{
+ background:#17251c!important;color:#e8eadb!important;border-color:#3b5140!important;box-shadow:0 8px 24px #0005!important
+}
+body[data-game="who-is-it"] .case-file-cover,
+body[data-game="who-is-it"] .case-hero{background:#27372b!important;color:#f0efdf!important}
+body[data-game="who-is-it"] .case-file-cover *,
+body[data-game="who-is-it"] .case-hero *{color:inherit}
+body[data-game="who-is-it"] .case-file-cover p,
+body[data-game="who-is-it"] .case-hero-copy p{color:#c2cbb7!important}
+body[data-game="who-is-it"] .case-hero h1{color:#f0efdf!important}
+body[data-game="who-is-it"] .field label,
+body[data-game="who-is-it"] .muted,
+body[data-game="who-is-it"] .small,
+body[data-game="who-is-it"] .case-section-title small{color:#b4c0ad!important}
+body[data-game="who-is-it"] input,
+body[data-game="who-is-it"] select,
+body[data-game="who-is-it"] textarea{background:#0e1912!important;color:#f0efdf!important;border-color:#465b48!important}
+body[data-game="who-is-it"] select option{background:#17251c!important;color:#f0efdf!important}
+body[data-game="who-is-it"] .case-access-options label{background:#17251c!important;color:#e8eadb!important;border-color:#465b48!important}
+body[data-game="who-is-it"] .case-access-options label *{color:inherit}
+body[data-game="who-is-it"] .case-access-options label small{color:#b4c0ad!important}
+body[data-game="who-is-it"] .notice{background:#26382a!important;color:#e8eadb!important;border-color:#53684e!important}
+body[data-game="who-is-it"] .secondary{background:#26382a!important;color:#e8eadb!important;border-color:#52674d!important}
+body[data-game="who-is-it"] .primary,body[data-game="who-is-it"] .case-create{background:#b8ca91!important;color:#172318!important}
+body[data-game="who-is-it"] .page-head h2,
+body[data-game="who-is-it"] .case-section-title strong,
+body[data-game="who-is-it"] .case-steps{color:#e8eadb!important}
 </style>
 </head>
 <body data-game="who-is-it">
@@ -423,7 +466,7 @@ body[data-game="who-is-it"] #roomSettingsScreen .case-create{background:#b8ca91!
       <div class="case-room-form">
         <section class="case-form-section"><div class="case-section-title"><b>01</b><span><strong>Идентификация комнаты</strong><small>Как будет выглядеть твоё игровое дело</small></span></div>
           <div class="field"><label for="roomName">НАЗВАНИЕ ДЕЛА</label><input id="roomName" maxlength="40" placeholder="Например, Наша игра"></div>
-          <div class="field"><label for="roomCode">КОД ДОСТУПА</label><input id="roomCode" maxlength="16" placeholder="Например, FRIENDS7" autocomplete="off"><span class="muted small">От 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.</span></div>
+          <input id="roomCode" type="hidden" value="">
         </section>
         <section class="case-form-section"><div class="case-section-title"><b>02</b><span><strong>Материалы расследования</strong><small>Выбери набор и размер игрового стола</small></span></div>
           <div class="field"><label>АРХИВ ПЕРСОНАЖЕЙ</label><div id="selectedRoomPack" class="notice">Пак не выбран</div><button class="secondary full" onclick="openRoomPackPicker()">▤　Выбрать коллекцию</button></div>
@@ -1097,10 +1140,18 @@ function openPackSelectionModal(onChoose){
    СОЗДАНИЕ И ПОДКЛЮЧЕНИЕ К КОМНАТАМ
 ------------------------------------------------------- */
 
+function makeRoomToken(length=6){
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes=new Uint8Array(length);
+  if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);
+  else for(let i=0;i<length;i++)bytes[i]=Math.floor(Math.random()*256);
+  return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('');
+}
+function makeDefaultRoomName(){return 'Комната '+String(Math.floor(100000+Math.random()*900000));}
 function openRoomSettings(access='private'){
   autoAddTestBot=false;roomAccessDefault=access;selectedRoomPack=null;
-  document.getElementById('roomName').value='';
-  document.getElementById('roomCode').value='';
+  document.getElementById('roomName').value=makeDefaultRoomName();
+  document.getElementById('roomCode').value=makeRoomToken(); 
   document.getElementById('selectedRoomPack').textContent='Пак не выбран';
   document.getElementById('roomAccess').value=access;
   const accessRadio=document.querySelector('input[name="caseAccess"][value="'+access+'"]');if(accessRadio)accessRadio.checked=true;
@@ -1114,10 +1165,8 @@ async function createConfiguredRoom(){
   const cardCount=Number(document.getElementById('roomCardCount').value);
   if(selectedRoomPack.characters.length<cardCount){toast(`В этом паке недостаточно карточек. Нужно минимум ${cardCount}.`);return}
   if(!window.onlineGame?.createRoom){toast('Онлайн-игра пока недоступна.');return}
-  const roomName=document.getElementById('roomName').value.trim();
-  const roomCode=document.getElementById('roomCode').value.trim().toUpperCase();
-  if(!roomName){toast('Введи название комнаты.');return}
-  if(!/^[A-Z0-9_-]{3,16}$/.test(roomCode)){toast('Придумай код длиной от 3 до 16 символов: латинские буквы, цифры, дефис или подчёркивание.');return}
+  const roomName=document.getElementById('roomName').value.trim()||makeDefaultRoomName();
+  const roomCode=makeRoomToken();
   const settings={
     roomName,
     roomCode,
