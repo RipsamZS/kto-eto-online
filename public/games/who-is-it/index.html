@@ -170,6 +170,14 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
 #playScreen .menu-card .emoji{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;margin:0;border-radius:14px;font-size:27px}
 #playScreen .menu-card strong,#playScreen .menu-card small{display:block}
 #playScreen .menu-card small{margin-top:4px}
+
+.secret-character-display{display:flex;align-items:center;gap:18px;padding:16px 20px;margin:0 0 14px;border:1px solid var(--border,rgba(255,255,255,.14));border-radius:20px;background:linear-gradient(135deg,rgba(75,105,160,.22),rgba(30,38,58,.72));min-height:132px;overflow:hidden}
+.secret-character-display.empty{opacity:.78}.secret-character-art{width:104px;height:104px;flex:0 0 104px;border-radius:16px;display:grid;place-items:center;overflow:hidden;background:rgba(255,255,255,.08);font-size:52px}
+.secret-character-art img{width:100%;height:100%;object-fit:cover}.secret-character-copy{display:flex;flex-direction:column;gap:5px;min-width:0}
+.secret-character-kicker{font-size:11px;letter-spacing:.12em;font-weight:800;opacity:.72}.secret-character-name{font-size:clamp(20px,3vw,28px);font-weight:900;line-height:1.15;overflow-wrap:anywhere}.secret-character-note{font-size:13px;opacity:.72}
+.online-finish-modal{text-align:center;max-width:440px}.online-finish-symbol{font-size:54px;line-height:1.2;margin:8px 0}.online-finish-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.online-finish-actions button{flex:1;min-width:130px}
+@media(max-width:520px){.secret-character-display{gap:12px;padding:12px;min-height:104px}.secret-character-art{width:82px;height:82px;flex-basis:82px;font-size:40px}}
+
 </style>
 </head>
 <body data-game="who-is-it">
@@ -413,6 +421,14 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
         </div>
         <div class="muted small">Нажми на карточку, чтобы зачеркнуть её. Нажми ещё раз, чтобы вернуть. На компьютере правый клик или долгое нажатие на телефоне — попытка угадать персонажа.</div>
       </div>
+      <div id="secretCharacterDisplay" class="secret-character-display empty" aria-live="polite">
+        <div id="secretCharacterArt" class="secret-character-art">❔</div>
+        <div class="secret-character-copy">
+          <span class="secret-character-kicker">ТВОЙ ПЕРСОНАЖ</span>
+          <strong id="secretCharacterDisplayName" class="secret-character-name">Ещё не выбран</strong>
+          <span id="secretCharacterDisplayNote" class="secret-character-note">Выбери персонажа, которого должен угадать соперник</span>
+        </div>
+      </div>
       <div id="characterBoard" class="character-grid"></div>
       <div class="panel stack">
         <div class="field">
@@ -445,6 +461,18 @@ body[data-game="who-is-it"] .muted{color:#6c776c}
     <div class="modal-actions">
       <button class="secondary" onclick="closeGuess()">Отмена</button>
       <button class="primary" onclick="confirmGuess()">Да, угадать</button>
+    </div>
+  </div>
+</div>
+
+<div id="onlineFinishedModal" class="modal-backdrop">
+  <div class="modal online-finish-modal">
+    <div class="online-finish-symbol">🏆</div>
+    <h2 id="onlineFinishTitle">Игра окончена!</h2>
+    <p id="onlineFinishMessage" class="muted">Персонаж угадан.</p>
+    <div class="online-finish-actions">
+      <button id="onlineReplayButton" class="primary">Сыграть ещё раз</button>
+      <button id="onlineExitButton" class="secondary">Выйти из комнаты</button>
     </div>
   </div>
 </div>
@@ -1135,10 +1163,21 @@ function toggleCrossed(id){
   if(gameCrossed.has(id))gameCrossed.delete(id);else gameCrossed.add(id);
   renderGame();
 }
+function renderSecretCharacterDisplay(){
+  const root=document.getElementById('secretCharacterDisplay'),art=document.getElementById('secretCharacterArt');
+  const name=document.getElementById('secretCharacterDisplayName'),note=document.getElementById('secretCharacterDisplayNote');
+  if(!root||!art||!name||!note)return;
+  art.replaceChildren();
+  if(!secretCharacter){root.classList.add('empty');art.textContent='❔';name.textContent='Ещё не выбран';note.textContent='Выбери персонажа, которого должен угадать соперник';return;}
+  root.classList.remove('empty');name.textContent=secretCharacter.name||'Персонаж';note.textContent='Этот персонаж должен угадать соперник';
+  if(secretCharacter.image){const img=document.createElement('img');img.src=secretCharacter.image;img.alt=secretCharacter.name||'Персонаж';img.loading='eager';img.decoding='async';art.appendChild(img);}
+  else art.textContent=secretCharacter.emoji||'❔';
+}
 function updateCharacterButton(){
   const button=document.getElementById('chooseSecretButton');
   const label=document.getElementById('secretCharacter');
   label.textContent=secretCharacter?`${secretCharacter.emoji||'❔'} ${secretCharacter.name}`:'Ещё не выбран';
+  renderSecretCharacterDisplay();
   if(currentGameMode==='online'){
     const canChoose=!!window.onlineGame?.canChooseCharacter?.();
     button.disabled=!canChoose||!!secretCharacter;
@@ -1296,10 +1335,25 @@ window.addEventListener('online-guess-made',event=>{
   const data=event.detail||{};toast(`Соперник пытается угадать: ${data.name||'персонаж'}`);
 });
 window.addEventListener('online-ended',event=>{
-  const data=event.detail||{};
-  document.getElementById('turnStatus').textContent=data.winner?'Игра завершена':'Игра окончена';
-  toast(data.message||'Игра завершена.');
+  const data=event.detail||{},myId=window.onlineGame?.getPlayerId?.(),won=!!myId&&data.winnerId===myId;
+  document.getElementById('turnStatus').textContent=won?'Победа!':'Игра окончена';
+  document.getElementById('onlineFinishTitle').textContent=won?'Ты победил!':(data.winnerName?data.winnerName+' победил!':'Игра окончена');
+  document.getElementById('onlineFinishMessage').textContent=data.message||'Персонаж угадан.';
+  document.getElementById('onlineFinishedModal').classList.add('open');
 });
+window.addEventListener('online-replay',()=>{
+  document.getElementById('onlineFinishedModal').classList.remove('open');
+  secretCharacter=null;pickerSelection=null;pendingGuess=null;updateCharacterButton();
+  document.getElementById('turnStatus').textContent='Новый раунд. Выбери персонажа.';
+  if(window.onlineGame?.canChooseCharacter?.())openPicker();
+});
+document.getElementById('onlineReplayButton').addEventListener('click',async()=>{
+  const button=document.getElementById('onlineReplayButton');button.disabled=true;
+  try{const result=await window.onlineGame?.replayGame?.();if(!result?.ok)throw new Error(result?.message||'Не удалось начать новый раунд.');}
+  catch(error){toast(error.message||'Не удалось начать новый раунд.');}
+  finally{button.disabled=false;}
+});
+document.getElementById('onlineExitButton').addEventListener('click',()=>returnToMenu());
 window.addEventListener('online-opponent-left',()=>{
   secretCharacter=null;pickerSelection=null;updateCharacterButton();closePicker();
   document.getElementById('turnStatus').textContent='Соперник вышел. Ожидаем нового игрока...';
