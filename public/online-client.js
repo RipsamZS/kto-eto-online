@@ -329,6 +329,17 @@
         break;
       }
 
+      case "online-replay": {
+        API.currentTurn = null;
+        API.opponentReady = false;
+        API.readySent = false;
+        clearTimer();
+        setStatus("Новый раунд. Выберите персонажей.");
+        dispatch("online-replay", data);
+        dispatch("online-state-change");
+        break;
+      }
+
       case "player-left": {
         API.opponentConnected = false;
         API.opponentReady = false;
@@ -657,6 +668,10 @@
     }
 
     return result;
+  }
+
+  async function replayGame() {
+    return send("replay-game", {});
   }
 
   async function askQuestion(question) {
@@ -1175,6 +1190,7 @@
     startGame,
     joinRoom,
     playerReady,
+    replayGame,
     askQuestion,
     answerQuestion,
     makeGuess,
