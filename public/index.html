@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0e15">
-<meta name="description" content="KAZO — игровая площадка. 18 игр для компании, друзей и двоих.">
+<meta name="description" content="KAZO — игровая площадка. 9 игр для компании, друзей и двоих.">
 <title>KAZO — Игровая площадка</title>
 <style>
 :root{color-scheme:dark;--bg:#0b0e15;--surface:#121722;--surface2:#171f2c;--line:#293344;--text:#f3f5fa;--muted:#9aa6b8;--accent:#b59aff;--lime:#d9f27b;--pink:#ff9fbd;--cyan:#84d9e8}
@@ -73,10 +73,10 @@ footer a{color:#bca9ef}
 <div class="eyebrow">Твоя игровая площадка</div>
 <h1>Выбирай игру.<br><span class="accent">Собирай компанию.</span></h1>
 <p>Слова, логика, командные баталии и быстрые дуэли. Выбирай карточку и переходи прямо к игре.</p>
-<div class="stats"><span class="stat"><strong>18</strong> игр в каталоге</span><span class="stat"><strong>1–∞</strong> игроков — зависит от игры</span><span class="stat">Без установки</span></div>
+<div class="stats"><span class="stat"><strong>9</strong> игр в каталоге</span><span class="stat"><strong>1–∞</strong> игроков — зависит от игры</span><span class="stat">Без установки</span></div>
 </section>
 <section aria-label="Каталог игр">
-<div class="toolbar"><div class="section-title">Все игры <span class="count" id="visibleCount">18 из 18</span></div><label class="search"><input id="gameSearch" type="search" placeholder="Найти игру…" autocomplete="off" aria-label="Найти игру"></label></div>
+<div class="toolbar"><div class="section-title">Все игры <span class="count" id="visibleCount">9 из 9</span></div><label class="search"><input id="gameSearch" type="search" placeholder="Найти игру…" autocomplete="off" aria-label="Найти игру"></label></div>
 <div class="filters" role="group" aria-label="Фильтр игр">
 <button class="filter" type="button" data-filter="all" aria-pressed="true">Все игры</button>
 <button class="filter" type="button" data-filter="words" aria-pressed="false">Слова</button>
@@ -86,23 +86,14 @@ footer a{color:#bca9ef}
 </div>
 <nav class="grid" id="gameGrid" aria-label="Каталог игр">
 <a class="game" href="/games/alias/" data-categories="words party" style="--glow:#d9f27b"><span class="game-top"><span class="game-icon">💬</span><span class="game-arrow">↗</span></span><strong>Alias</strong><small>Объясняй слова команде, не называя их</small><span class="game-tag">Слова · Команды</span></a>
-<a class="game" href="/games/associations/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🧠</span><span class="game-arrow">↗</span></span><strong>Ассоциации</strong><small>Связывай идеи и угадывай ход мысли других игроков</small><span class="game-tag">Слова · Компания</span></a>
 <a class="game" href="/games/battleship/" data-categories="duel logic" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🚢</span><span class="game-arrow">↗</span></span><strong>Морской бой</strong><small>Расставляй корабли и находи флот соперника</small><span class="game-tag">Дуэль · Тактика</span></a>
-<a class="game" href="/games/charades/" data-categories="party" style="--glow:#ffb86b"><span class="game-top"><span class="game-icon">🎭</span><span class="game-arrow">↗</span></span><strong>Крокодил</strong><small>Показывай загаданное без слов — пусть команда угадает</small><span class="game-tag">Компания</span></a>
-<a class="game" href="/games/codebreaker/" data-categories="logic duel" style="--glow:#b59aff"><span class="game-top"><span class="game-icon">🔐</span><span class="game-arrow">↗</span></span><strong>Секретный код</strong><small>Подбирай комбинацию и расшифровывай подсказки</small><span class="game-tag">Логика · Дуэль</span></a>
 <a class="game" href="/games/codenames/" data-categories="words party logic" style="--glow:#a9a0ff"><span class="game-top"><span class="game-icon">🗝️</span><span class="game-arrow">↗</span></span><strong>Кодовые имена</strong><small>Находи слова своей команды по подсказкам капитана</small><span class="game-tag">Команды · Слова</span></a>
 <a class="game" href="/games/dots-duel/" data-categories="duel logic" style="--glow:#8bd7b1"><span class="game-top"><span class="game-icon">🔷</span><span class="game-arrow">↗</span></span><strong>Точки и квадраты</strong><small>Соединяй точки, замыкай клетки и набирай очки</small><span class="game-tag">Дуэль · Логика</span></a>
 <a class="game" href="/games/imaginarium/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🎨</span><span class="game-arrow">↗</span></span><strong>Имаджинариум</strong><small>Придумывай ассоциации к картам и угадывай чужие</small><span class="game-tag">Компания · Фантазия</span></a>
 <a class="game" href="/games/mafia/" data-categories="party logic" style="--glow:#e6a4a4"><span class="game-top"><span class="game-icon">🌙</span><span class="game-arrow">↗</span></span><strong>Мафия</strong><small>Обсуждай версии, анализируй роли и принимай решения</small><span class="game-tag">Компания</span></a>
-<a class="game" href="/games/memory-duel/" data-categories="duel logic" style="--glow:#f4cf78"><span class="game-top"><span class="game-icon">🧩</span><span class="game-arrow">↗</span></span><strong>Память на двоих</strong><small>Запоминай расположение пар и опережай соперника</small><span class="game-tag">Дуэль · Память</span></a>
-<a class="game" href="/games/number-duel/" data-categories="duel logic" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🔢</span><span class="game-arrow">↗</span></span><strong>Угадай число</strong><small>Логика и точные догадки в игре один на один</small><span class="game-tag">Дуэль · Числа</span></a>
-<a class="game" href="/games/quiz/" data-categories="party logic" style="--glow:#f4cf78"><span class="game-top"><span class="game-icon">❔</span><span class="game-arrow">↗</span></span><strong>Викторина</strong><small>Проверяй знания и соревнуйся в правильных ответах</small><span class="game-tag">Вопросы · Компания</span></a>
 <a class="game" href="/games/spy/" data-categories="party logic" style="--glow:#b59aff"><span class="game-top"><span class="game-icon">🧭</span><span class="game-arrow">↗</span></span><strong>Шпион</strong><small>Выясни, кто не знает общего места и контекста</small><span class="game-tag">Компания</span></a>
-<a class="game" href="/games/territory/" data-categories="duel logic" style="--glow:#8bd7b1"><span class="game-top"><span class="game-icon">🟩</span><span class="game-arrow">↗</span></span><strong>Захват клеток</strong><small>Захватывай территорию и продумывай каждый ход</small><span class="game-tag">Тактика · Дуэль</span></a>
-<a class="game" href="/games/truth/" data-categories="party logic" style="--glow:#ffb86b"><span class="game-top"><span class="game-icon">⚖️</span><span class="game-arrow">↗</span></span><strong>Правда или ложь</strong><small>Отличай правдивые утверждения от выдуманных</small><span class="game-tag">Компания · Вопросы</span></a>
 <a class="game" href="/games/who-am-i/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🎟️</span><span class="game-arrow">↗</span></span><strong>Кто я?</strong><small>Задавай вопросы и угадывай, кто ты такой</small><span class="game-tag">Слова · Компания</span></a>
 <a class="game" href="/games/who-is-it/" data-categories="logic duel" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🧑‍🎤</span><span class="game-arrow">↗</span></span><strong>Кто это?</strong><small>Задавай вопросы и сужай круг возможных персонажей</small><span class="game-tag">Угадайка</span></a>
-<a class="game" href="/games/word-duel/" data-categories="words duel" style="--glow:#d9f27b"><span class="game-top"><span class="game-icon">🔤</span><span class="game-arrow">↗</span></span><strong>Словесная дуэль</strong><small>Соревнуйся в словах, скорости и сообразительности</small><span class="game-tag">Слова · Дуэль</span></a>
 </nav>
 <div class="empty" id="emptyState">Ничего не нашлось. Попробуй другое название или фильтр.</div>
 </section>
