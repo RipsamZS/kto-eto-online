@@ -22,21 +22,33 @@ public class MainActivity extends android.app.Activity {
     };
     private WebView webView;
 
-    private void enterImmersiveMode() {
-        getWindow().getDecorView().setSystemUiVisibility(
-            android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
-            | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            | android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            | android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            | android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        );
+    private boolean isGamePage() {
+        return webView != null && webView.getUrl() != null
+            && Uri.parse(webView.getUrl()).getPath() != null
+            && Uri.parse(webView.getUrl()).getPath().startsWith("/games/");
+    }
+
+    private void applySystemBarsMode() {
+        if (isGamePage()) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            );
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(0);
+            getWindow().setStatusBarColor(Color.rgb(12, 15, 20));
+            getWindow().setNavigationBarColor(Color.rgb(12, 15, 20));
+        }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) enterImmersiveMode();
+        if (hasFocus) applySystemBarsMode();
     }
 
     private boolean isAppUrl(Uri uri) {
@@ -62,8 +74,6 @@ public class MainActivity extends android.app.Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        enterImmersiveMode();
-
         webView = new WebView(this);
         setContentView(webView);
 
@@ -81,6 +91,12 @@ public class MainActivity extends android.app.Activity {
 
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                applySystemBarsMode();
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
