@@ -300,7 +300,7 @@ function genericGame(a){
    actionPanel='<div class="mafia-finish"><span>ИТОГ ПАРТИИ</span><h2>'+won+'</h2><p>Все роли раскрыты.</p></div>';
   }
   body='<div class="mafia-status-row"><span class="mafia-phase-pill">'+(phase==="night"?"НОЧЬ":phase==="discussion"?"ОБСУЖДЕНИЕ":phase==="voting"?"ГОЛОСОВАНИЕ":"ФИНАЛ")+'</span><span>В игре: '+aliveCount+' / '+ids.length+'</span></div><div class="mafia-role-card"><div><small>ТВОЯ РОЛЬ</small><strong>'+esc(role)+'</strong><p>'+esc(roleInfo[role]||"Следи за ходом партии.")+'</p></div><span class="mafia-role-mark">✦</span></div><section class="mafia-action-card"><div class="mafia-section-heading"><b>'+(phase==="night"?"Ночное действие":phase==="discussion"?"События и обсуждение":phase==="voting"?"Голосование":"Результат")+'</b><span>РАУНД '+String(state.round||1)+'</span></div>'+actionPanel+'</section><section class="mafia-roster-card"><div class="mafia-section-heading"><b>Игроки</b><span>'+aliveCount+' В ИГРЕ</span></div><div class="mafia-player-list">'+playerCards+'</div></section>';
- } }else if(gameId==="battleship"){
+ }else if(gameId==="battleship"){
   eyebrow="NAVAL COMMAND / TACTICAL RADAR";headline=phase==="finished"?"Операция завершена":"Морской бой";subline="Сканируй координаты вражеского сектора. Попадания отмечаются на радаре.";
   const shots=new Set(state.myShots||[]),hits=new Set(state.myHits||[]),incoming=new Set(state.incoming||[]);
   const cells=Array.from({length:100},(_,i)=>'<button class="radar-cell '+(shots.has(i)?(hits.has(i)?"hit":"miss"):"")+'" data-shot="'+i+'" '+(state.activeId!==meId||shots.has(i)||phase==="finished"?"disabled":"")+' aria-label="Координата '+String.fromCharCode(65+Math.floor(i/10))+(i%10+1)+'">'+(hits.has(i)?"✦":shots.has(i)?"·":"")+'</button>').join("");
