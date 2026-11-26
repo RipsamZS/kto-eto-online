@@ -139,3 +139,23 @@ input:focus,select:focus{border-color:#8295b5}
 .mafia-person-card.is-revealed .mafia-person-card-face{background:radial-gradient(circle at 50% 30%,rgba(147,174,155,.18),transparent 58%),linear-gradient(145deg,#243b3a,#172a2a 75%)}
 @media(max-width:620px){.mafia-seat-grid,.mafia-person-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mafia-seat-card{min-height:166px}.mafia-seat-card-art{min-height:112px;padding:12px 8px}.mafia-seat-owner,.mafia-person-card-owner{min-height:58px;padding:8px}.mafia-seat-avatar,.mafia-person-card-avatar{width:34px;height:34px}.mafia-person-card{min-height:204px}.mafia-person-card-face{min-height:142px;padding:14px 9px}.mafia-person-card-face strong{font-size:15px}.mafia-cards-section{padding:12px}}
 @media(max-width:360px){.mafia-seat-grid,.mafia-person-cards{grid-template-columns:1fr}}
+
+/* Mafia pre-game player cards */
+body[data-game="mafia"] .mafia-lobby-table{display:block;width:100%;margin:0 0 16px;padding:16px;background:#101a29;border:1px solid #2e4058;border-radius:15px}
+body[data-game="mafia"] .mafia-lobby-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;color:#eaf0f8}
+body[data-game="mafia"] .mafia-lobby-top>div{display:grid;gap:4px;flex:1;min-width:0}
+body[data-game="mafia"] .mafia-lobby-top b{font-size:13px;letter-spacing:.1em}
+body[data-game="mafia"] .mafia-lobby-top small{font-size:10px;color:#91a2b9;letter-spacing:.08em}
+body[data-game="mafia"] .mafia-lobby-top>strong{font-size:14px;color:#d9e4f3}
+body[data-game="mafia"] .mafia-lobby-signal{width:9px;height:9px;border-radius:50%;background:#8ba6ca;box-shadow:0 0 14px #8ba6ca}
+body[data-game="mafia"] .mafia-lobby-player-card{min-height:220px}
+body[data-game="mafia"] .mafia-lobby-player-card .mafia-person-card-face{min-height:158px;padding:18px 12px}
+body[data-game="mafia"] .mafia-lobby-player-card .mafia-person-card-face strong{font-size:15px;letter-spacing:.06em}
+body[data-game="mafia"] .mafia-lobby-card-emblem{position:relative;display:grid;place-items:center;width:48px;height:48px;border:1px solid rgba(173,194,224,.35);border-radius:13px;color:#dce7f7;font-size:27px;background:rgba(11,19,31,.35)}
+body[data-game="mafia"] .mafia-lobby-card-index{position:relative;color:#7387a3;font-size:9px;letter-spacing:.15em}
+body[data-game="mafia"] .mafia-lobby-player-card.is-empty{opacity:.72;border-style:dashed}
+body[data-game="mafia"] .mafia-lobby-player-card.is-empty .mafia-person-card-face{background:linear-gradient(145deg,#172235,#111a28)}
+body[data-game="mafia"] .mafia-person-card-avatar.is-placeholder{border-style:dashed;color:#71839c}
+body[data-game="mafia"] .mafia-lobby-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:13px;padding-top:12px;border-top:1px solid #29394f;color:#8fa1ba;font-size:10px;letter-spacing:.08em}
+body[data-game="mafia"] .mafia-lobby-foot b{color:#cbd7e7;font-size:11px;letter-spacing:0}
+@media(max-width:620px){body[data-game="mafia"] .mafia-lobby-table{padding:11px}body[data-game="mafia"] .mafia-lobby-player-card{min-height:205px}}
