@@ -14,18 +14,17 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 public class MainActivity extends android.app.Activity {
-    private static final String HOME = "https://kaza.casual-online.workers.dev/";
+    private static final String HOME = "https://kazo-hub-beta.casual-online.workers.dev/";
     private WebView webView;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(android.graphics.Color.rgb(243, 240, 233));
+        getWindow().setStatusBarColor(android.graphics.Color.rgb(12, 15, 20));
         getWindow().setNavigationBarColor(android.graphics.Color.rgb(243, 240, 233));
         getWindow().getDecorView().setSystemUiVisibility(
-            android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR |
-            android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            0
         );
 
         webView = new WebView(this);
