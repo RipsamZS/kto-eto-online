@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#f3f0e9">
+<meta name="theme-color" content="#0a1020">
 <meta name="description" content="Игровая площадка: Кто это?, Alias, Code Names, Шпион, Имаджинариум и Кто я?">
 <link rel="icon" type="image/svg+xml" href="/assets/kazo-logo.webp.svg?v=3">
 <meta property="og:title" content="Kazo — казуальные игры">
@@ -61,6 +61,27 @@ body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(215,243,106,
 @media(max-width:480px){header{align-items:flex-start;gap:10px}.header-actions{gap:7px}.feedback-link,.account-edit{padding:9px 10px;font-size:11px}.wrap{width:min(100% - 28px,1120px);padding-top:20px}.grid{grid-template-columns:1fr;gap:11px}.game{min-height:160px;padding:19px}.game .emoji{width:48px;height:48px;margin-bottom:14px}.hero{padding:42px 2px 28px}.hero h1{font-size:48px;letter-spacing:-2.5px}.hero p{font-size:14px;margin-top:18px}.profile-gate{margin:30px auto;padding:25px 21px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&display=swap");
+/* KAZO dark navy restored theme */
+:root{color-scheme:dark;--bg:#0a1020;--panel:#121d34;--panel2:#1a2945;--accent:#86aaff;--accent2:#6289e8;--text:#edf3ff;--muted:#9aaccb;--border:#293b5c;--lime:#9bbcff;--coral:#ff8f9c}
+body{background:radial-gradient(ellipse at 8% 8%,rgba(75,112,190,.20),transparent 34%),radial-gradient(ellipse at 94% 34%,rgba(52,83,151,.22),transparent 36%),#0a1020;color:var(--text)}
+body:before{opacity:.12;background-image:radial-gradient(#7188b5 .65px,transparent .65px)}
+.brand,.brand-word{color:#edf3ff}.brand-symbol rect{fill:#31549a}
+.feedback-link{border-color:#38578d;background:#31549a;color:#fff}.account-edit{border-color:#314567;background:#15233d;color:#e8f0ff}
+.hero:before{border-color:#344a70;color:#a8c2ff;background:rgba(35,57,96,.32)}.hero h1 span{color:#9bbaff}.hero h1 span:after{background:#5478bd;opacity:.45}.hero p{color:var(--muted)}
+.game{color:var(--text);border-color:var(--border);background:linear-gradient(145deg,#162440,#111c32);box-shadow:0 5px 0 rgba(0,0,0,.18)}
+.game:before{background:var(--tile,#23385e);opacity:.72}.game:after{color:#7186aa}
+.game:nth-child(1){--tile:#294578}.game:nth-child(2){--tile:#3a416f}.game:nth-child(3){--tile:#244d62}.game:nth-child(4){--tile:#354a75}.game:nth-child(5){--tile:#4c3b67}.game:nth-child(6){--tile:#31566a}
+.game[href]:hover{border-color:#587ab5;box-shadow:0 14px 30px rgba(0,0,0,.30)}.game .emoji{border-color:#3a5077;background:rgba(31,49,80,.92)}.game small{color:#a6b6d2}
+.tag{background:#31549a;color:#f1f6ff}footer{color:#8294b5}
+.profile-gate{border-color:#314567;background:linear-gradient(145deg,#172744,#111d34);color:#edf3ff;box-shadow:0 24px 70px rgba(0,0,0,.38)}
+.profile-gate:before{color:#a8c2ff}.profile-gate p{color:#a6b6d2}.profile-gate label{color:#d3def2}
+.profile-gate input,.profile-gate select{border-color:#344b70;background:#0d1830;color:#edf3ff}.profile-gate input::placeholder{color:#7185a8}
+.profile-gate input:focus{border-color:#7fa4f0;box-shadow:0 0 0 3px rgba(103,145,220,.18)}
+.profile-gate button{background:#426bb5;color:#fff}.profile-avatar-preview{border-color:#49658f;background:#1d2e4c}
+.profile-error{color:#ff9caa}.profile-cancel{border-color:#40577c!important;background:transparent!important;color:#c0d0ec!important}
+body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(68,103,173,.23),transparent 34%),radial-gradient(ellipse at 92% 75%,rgba(69,91,150,.20),transparent 36%),#0a1020;color:#edf3ff}
+body.needs-profile:before{opacity:.10}body.editing-profile:after{background:rgba(2,7,18,.72)}
+@media(prefers-color-scheme:light){:root{color-scheme:dark}}
 </style>
 </head>
 <body class="needs-profile">
