@@ -703,6 +703,19 @@ export class GameRoom {
 
   async directoryFetch(request) {
     const url = new URL(request.url);
+
+    // Battleship is intentionally disabled: serve a completely blank black page
+    // for the game route and every asset/API path below it.
+    if (url.pathname === "/games/battleship" || url.pathname.startsWith("/games/battleship/")) {
+      return new Response("<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}</style></head><body></body></html>", {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "X-Content-Type-Options": "nosniff"
+        }
+      });
+    }
     const path = url.pathname;
 
     if (path === "/api/public-rooms" && request.method === "GET") {
