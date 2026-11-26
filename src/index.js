@@ -1527,6 +1527,14 @@ export default {
     if ((pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
       let page = await new Response(asset.value).text();
       page = page.replace('const words=window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[];if(words.length!==1500)throw new Error("Словарь не загрузился полностью.");','const words=(window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[]).slice(0,2500);if(words.length!==2500)throw new Error("Словарь не загрузился полностью.");');
+      page = page.replace(
+        'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";',
+        'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";if(!state||state.phase==="waiting"){$("playBtn").classList.remove("hidden");$("playBtn").disabled=!host||roster.length<2||!mine?.team;$("playBtn").textContent=host?"Начать игру":"Ожидаем запуска";return;}'
+      );
+      page = page.replace(
+        'if(!state||state.phase==="finished"){const r=await act("alias-ready");if(r?.ok)status(r.started?"Все готовы. Начинается новая игра!":r.ready?"Ты готов. Ждём остальных игроков.":"Готовность отменена.");return;}',
+        'if(!state||state.phase==="waiting"){const r=await window.onlineGame.startGame();if(!r?.ok)status(r?.message||"Не удалось начать игру.");else status("Игра началась.");return;}if(state.phase==="finished"){const r=await act("alias-ready");if(r?.ok)status(r.started?"Все готовы. Начинается новая игра!":r.ready?"Ты готов. Ждём остальных игроков.":"Готовность отменена.");return;}'
+      );
       page = page.replace('status("Загружено 1500 слов · "','status("Загружено 2500 слов · "');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
