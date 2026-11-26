@@ -159,3 +159,10 @@ body[data-game="mafia"] .mafia-person-card-avatar.is-placeholder{border-style:da
 body[data-game="mafia"] .mafia-lobby-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:13px;padding-top:12px;border-top:1px solid #29394f;color:#8fa1ba;font-size:10px;letter-spacing:.08em}
 body[data-game="mafia"] .mafia-lobby-foot b{color:#cbd7e7;font-size:11px;letter-spacing:0}
 @media(max-width:620px){body[data-game="mafia"] .mafia-lobby-table{padding:11px}body[data-game="mafia"] .mafia-lobby-player-card{min-height:205px}}
+
+/* Clickable pre-game Mafia seats */
+body[data-game="mafia"] .mafia-seat-claim{position:relative;z-index:1;min-height:34px;padding:7px 12px;border:1px solid #8299b8;border-radius:8px;background:#263a55;color:#f0f5fc;font-size:10px;font-weight:800;letter-spacing:.08em;cursor:pointer}
+body[data-game="mafia"] .mafia-seat-claim:hover{background:#334d70;border-color:#b3c7e2}
+body[data-game="mafia"] .mafia-seat-claim:disabled{opacity:.55;cursor:wait}
+body[data-game="mafia"] .mafia-seat-current{position:relative;z-index:1;color:#dbe8f8;font-size:10px;font-weight:800;letter-spacing:.12em}
+body[data-game="mafia"] .mafia-lobby-player-card.is-empty{opacity:1}
