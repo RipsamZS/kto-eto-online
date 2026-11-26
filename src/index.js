@@ -704,18 +704,6 @@ export class GameRoom {
   async directoryFetch(request) {
     const url = new URL(request.url);
 
-    // Battleship is intentionally disabled: serve a completely blank black page
-    // for the game route and every asset/API path below it.
-    if (url.pathname === "/games/battleship" || url.pathname.startsWith("/games/battleship/")) {
-      return new Response("<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}</style></head><body></body></html>", {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-store, no-cache, must-revalidate",
-          "X-Content-Type-Options": "nosniff"
-        }
-      });
-    }
     const path = url.pathname;
 
     if (path === "/api/public-rooms" && request.method === "GET") {
@@ -1691,11 +1679,10 @@ export default {
     headers.set("Content-Type", meta.contentType || types[ext] || "application/octet-stream");
     headers.set("Cache-Control", meta.cacheControl || (ext === "html" ? "no-store" : "public, max-age=3600"));
     headers.set("X-Content-Type-Options", "nosniff");
-    if (pathname.startsWith("/games/") && ext === "html" && pathname !== "/games/alias" && pathname !== "/games/alias/" && pathname !== "/games/alias/index.html") {
+    if (pathname.startsWith("/games/") && ext === "html" && pathname !== "/games/alias" && pathname !== "/games/alias/" && pathname !== "/games/alias/index.html" && !pathname.startsWith("/games/mafia") && !pathname.startsWith("/games/battleship")) {
       let gamePage = await new Response(asset.value).text();
       const fullscreenScript = '<style id="kazo-game-fullscreen">:fullscreen body{padding-top:0!important}:fullscreen .page{padding-top:0!important}</style><script>(function(){var busy=false;function goFullscreen(){if(document.fullscreenElement||busy)return;var root=document.documentElement;if(!root.requestFullscreen)return;busy=true;try{var result=root.requestFullscreen();if(result&&result.then)result.then(function(){busy=false;}).catch(function(){busy=false;});else busy=false;}catch(_){busy=false;}}document.addEventListener("pointerdown",goFullscreen,{capture:true,passive:true});document.addEventListener("touchstart",goFullscreen,{capture:true,passive:true});document.addEventListener("keydown",goFullscreen,true);})();</script>';
-      const sharedGameBackground = pathname.startsWith("/games/mafia") ? '<style id="kazo-shared-game-background-20261127">html,body{background:#0b1019!important;background-image:radial-gradient(ellipse at 12% 0%,rgba(105,91,214,.14),transparent 42%),radial-gradient(ellipse at 94% 12%,rgba(43,150,190,.09),transparent 34%),linear-gradient(180deg,#0b1019 0%,#101827 100%)!important;color-scheme:dark!important}</style>' : "";
-      gamePage = gamePage.replace('</head>', fullscreenScript+sharedGameBackground+'</head>');
+      gamePage = gamePage.replace('</head>', fullscreenScript+'</head>');
       return new Response(request.method === "HEAD" ? null : gamePage, { status: 200, headers });
     }
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
