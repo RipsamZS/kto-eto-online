@@ -1526,6 +1526,7 @@ export default {
     headers.set("X-Content-Type-Options", "nosniff");
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
       let page = await new Response(asset.value).text();
+      page = page.replace('</head>', '<style id="alias-fullscreen-style">html:fullscreen body{padding-top:0!important}html:fullscreen .page{padding-top:0!important}</style><script>(function(){function enterAliasFullscreen(event){var button=event.target&&event.target.closest?event.target.closest("#startAlias,#playBtn"):null;if(!button)return;var root=document.documentElement;if(!document.fullscreenElement&&root.requestFullscreen){try{var result=root.requestFullscreen();if(result&&result.catch)result.catch(function(){});}catch(_){}}}document.addEventListener("click",enterAliasFullscreen,true);})();</script></head>');
       page = page.replace('const words=window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[];if(words.length!==1500)throw new Error("Словарь не загрузился полностью.");','const words=(window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[]).slice(0,2500);if(words.length!==2500)throw new Error("Словарь не загрузился полностью.");');
       page = page.replace(
         'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";',
