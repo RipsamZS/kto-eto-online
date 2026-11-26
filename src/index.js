@@ -270,6 +270,32 @@ export class GameRoom {
         view.mySubmissionId = s.submissionIds?.[id] || null;
         view.myVote = s.votes?.[id] || null;
       }
+      if (this.gameId === "mafia") {
+        const role = s.roles?.[id] || "Мирный житель";
+        view.myRole = role;
+        view.isAlive = (s.alive || []).includes(id);
+        view.alive = [...(s.alive || [])];
+        view.mafiaTeammates = role === "Мафия"
+          ? (s.alive || []).filter(other => other !== id && s.roles?.[other] === "Мафия")
+          : [];
+        view.nightActionDone = !!s.nightActions?.[id];
+        view.myVote = s.votes?.[id] || null;
+        view.votes = s.phase === "voting" ? {...(s.votes || {})} : {};
+        view.investigation = s.investigations?.[id] || null;
+        delete view.roles;
+        delete view.nightActions;
+        delete view.investigations;
+      } else if (this.gameId === "battleship") {
+        view.myShip = [...(s.fleets?.[id] || [])];
+        view.myShots = [...(s.shotsByPlayer?.[id] || [])];
+        view.myHits = [...(s.hitsByPlayer?.[id] || [])];
+        view.incoming = [...(s.incomingByPlayer?.[id] || [])];
+        view.fleetSize = view.myShip.length;
+        delete view.fleets;
+        delete view.shotsByPlayer;
+        delete view.hitsByPlayer;
+        delete view.incomingByPlayer;
+      }
       this.send(socket, "party-state", view);
     }
   }
@@ -315,6 +341,54 @@ export class GameRoom {
       const hands={}; for(const id of ids)hands[id]=deck.splice(0,6);
       this.partyState={phase:"story",players:profiles,order:this.partyShuffle(ids),turnIndex:0,storyteller:null,hands,submissions:{},submissionIds:{},votes:{},scores:Object.fromEntries(ids.map(id=>[id,0])),deck,round:1,clue:"",storyCard:null};
       this.partyImaginariumBegin();
+    } else if (this.gameId === "mafia") {
+      if (ids.length < 4) return {ok:false,message:"Для Мафии нужно минимум 4 игрока."};
+      const shuffled = this.partyShuffle(ids);
+      const roles = {};
+      let cursor = 0;
+      const mafiaCount = ids.length >= 6 ? 2 : 1;
+      for (let i = 0; i < mafiaCount; i++) roles[shuffled[cursor++]] = "Мафия";
+      if (ids.length >= 5) roles[shuffled[cursor++]] = "Комиссар";
+      if (ids.length >= 6) roles[shuffled[cursor++]] = "Доктор";
+      while (cursor < shuffled.length) roles[shuffled[cursor++]] = "Мирный житель";
+      this.partyState = {
+        phase:"night", players:profiles, roles, alive:[...ids], votes:{}, nightActions:{},
+        investigations:{}, round:1, winner:null, eliminated:[], lastNight:null, lastVote:null
+      };
+    } else if (this.gameId === "battleship") {
+      if (ids.length !== 2) return {ok:false,message:"Для Морского боя нужны ровно 2 игрока."};
+      const placeFleet = () => {
+        const occupied = new Set();
+        const ships = [4,3,3,2,2,2,1,1,1,1];
+        for (const length of ships) {
+          let placed = false;
+          for (let attempt = 0; attempt < 1200 && !placed; attempt++) {
+            const horizontal = Math.random() < 0.5;
+            const row = Math.floor(Math.random() * (horizontal ? 10 : 11 - length));
+            const col = Math.floor(Math.random() * (horizontal ? 11 - length : 10));
+            const cells = Array.from({length}, (_,i) => (row + (horizontal ? 0 : i)) * 10 + col + (horizontal ? i : 0));
+            const clear = cells.every(index => {
+              const r = Math.floor(index / 10), c = index % 10;
+              for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+                const rr = r + dr, cc = c + dc;
+                if (rr >= 0 && rr < 10 && cc >= 0 && cc < 10 && occupied.has(rr * 10 + cc)) return false;
+              }
+              return true;
+            });
+            if (clear) { cells.forEach(index => occupied.add(index)); placed = true; }
+          }
+          if (!placed) throw new Error("Не удалось разместить флот.");
+        }
+        return [...occupied];
+      };
+      this.partyState = {
+        phase:"playing", players:profiles, order:[...ids], activeId:ids[0], turn:1,
+        fleets:{[ids[0]]:placeFleet(),[ids[1]]:placeFleet()},
+        shotsByPlayer:{[ids[0]]:[],[ids[1]]:[]},
+        hitsByPlayer:{[ids[0]]:[],[ids[1]]:[]},
+        incomingByPlayer:{[ids[0]]:[],[ids[1]]:[]},
+        winner:null, lastShot:null
+      };
     } else return {ok:false,message:"Эта игра пока не поддерживает общий запуск."};
     this.gamePhase="playing"; this.ended=false;
     this.partySendState();
@@ -479,6 +553,82 @@ export class GameRoom {
         s.round++;this.partyImaginariumBegin();
       } else return {ok:false,message:"Неизвестное действие."};
     }
+    if (this.gameId === "mafia") {
+      const alive = s.alive || [];
+      if (action === "mafia-night-action") {
+        if (s.phase !== "night" || !alive.includes(playerId)) return {ok:false,message:"Сейчас нельзя действовать ночью."};
+        const role = s.roles?.[playerId];
+        if (!["Мафия","Доктор","Комиссар"].includes(role)) return {ok:false,message:"У твоей роли нет ночного действия."};
+        if (s.nightActions[playerId]) return {ok:false,message:"Ты уже сделал ночной выбор."};
+        const target = String(payload.target || "");
+        if (!alive.includes(target) || (role === "Мафия" && s.roles[target] === "Мафия") || (role === "Комиссар" && target === playerId)) return {ok:false,message:"Выбери допустимого игрока."};
+        s.nightActions[playerId] = {target};
+        if (role === "Комиссар") s.investigations[playerId] = {target, isMafia:s.roles[target] === "Мафия", round:s.round};
+        const nightRoles = alive.filter(id => ["Мафия","Доктор","Комиссар"].includes(s.roles?.[id]));
+        if (nightRoles.every(id => !!s.nightActions[id])) {
+          const mafiaTargets = alive.filter(id => s.roles?.[id] === "Мафия").map(id => s.nightActions[id]?.target).filter(Boolean);
+          const tally = {};
+          mafiaTargets.forEach(id => tally[id] = (tally[id] || 0) + 1);
+          const ranked = Object.entries(tally).sort((a,b) => b[1] - a[1]);
+          const victim = ranked.length && (!ranked[1] || ranked[0][1] > ranked[1][1]) ? ranked[0][0] : null;
+          const doctor = alive.find(id => s.roles?.[id] === "Доктор");
+          const saved = doctor ? s.nightActions[doctor]?.target : null;
+          const eliminatedId = victim && victim !== saved ? victim : null;
+          if (eliminatedId) { s.alive = alive.filter(id => id !== eliminatedId); s.eliminated.push(eliminatedId); }
+          s.lastNight = {eliminatedId, saved:!!victim && victim === saved, round:s.round};
+          const mafiaAlive = s.alive.filter(id => s.roles?.[id] === "Мафия").length;
+          const townAlive = s.alive.length - mafiaAlive;
+          if (mafiaAlive === 0) { s.phase = "finished"; s.winner = "town"; this.ended = true; }
+          else if (mafiaAlive >= townAlive) { s.phase = "finished"; s.winner = "mafia"; this.ended = true; }
+          else { s.phase = "discussion"; s.votes = {}; s.nightActions = {}; }
+        }
+      } else if (action === "mafia-begin-vote") {
+        if (playerId !== this.hostPlayerId || s.phase !== "discussion") return {ok:false,message:"Голосование может начать ведущий после ночи."};
+        s.phase = "voting";
+        s.votes = {};
+      } else if (action === "mafia-vote") {
+        if (s.phase !== "voting" || !alive.includes(playerId) || s.votes[playerId]) return {ok:false,message:"Сейчас нельзя голосовать."};
+        const target = String(payload.target || "");
+        if (!alive.includes(target) || target === playerId) return {ok:false,message:"Выбери другого живого игрока."};
+        s.votes[playerId] = target;
+        if (Object.keys(s.votes).length === alive.length) {
+          const tally = {};
+          Object.values(s.votes).forEach(id => tally[id] = (tally[id] || 0) + 1);
+          const ranked = Object.entries(tally).sort((a,b) => b[1] - a[1]);
+          const eliminatedId = ranked.length && (!ranked[1] || ranked[0][1] > ranked[1][1]) ? ranked[0][0] : null;
+          if (eliminatedId) { s.alive = alive.filter(id => id !== eliminatedId); s.eliminated.push(eliminatedId); }
+          s.lastVote = {eliminatedId, tied:!eliminatedId, round:s.round};
+          const mafiaAlive = s.alive.filter(id => s.roles?.[id] === "Мафия").length;
+          const townAlive = s.alive.length - mafiaAlive;
+          if (mafiaAlive === 0) { s.phase = "finished"; s.winner = "town"; this.ended = true; }
+          else if (mafiaAlive >= townAlive) { s.phase = "finished"; s.winner = "mafia"; this.ended = true; }
+          else { s.phase = "night"; s.round++; s.votes = {}; s.nightActions = {}; }
+        }
+      } else return {ok:false,message:"Неизвестное действие."};
+    } else if (this.gameId === "battleship") {
+      if (action !== "battleship-shot" || s.phase !== "playing" || playerId !== s.activeId) return {ok:false,message:"Сейчас не твой ход."};
+      const index = Number(payload.index);
+      if (!Number.isInteger(index) || index < 0 || index >= 100) return {ok:false,message:"Выбери координату на поле 10×10."};
+      if (s.shotsByPlayer[playerId].includes(index)) return {ok:false,message:"Эту клетку ты уже проверял."};
+      const opponentId = s.order.find(id => id !== playerId);
+      if (!opponentId) return {ok:false,message:"Соперник не найден."};
+      s.shotsByPlayer[playerId].push(index);
+      const hit = s.fleets[opponentId].includes(index);
+      if (hit) {
+        s.hitsByPlayer[playerId].push(index);
+        s.incomingByPlayer[opponentId].push(index);
+        s.lastShot = {playerId,index,hit:true};
+        if (s.hitsByPlayer[playerId].length >= s.fleets[opponentId].length) {
+          s.phase = "finished";
+          s.winner = playerId;
+          this.ended = true;
+        }
+      } else {
+        s.lastShot = {playerId,index,hit:false};
+        s.activeId = opponentId;
+        s.turn++;
+      }
+    } else return {ok:false,message:"Неизвестное действие."};
     this.partySendState();
     return {ok:true};
   }
@@ -752,7 +902,7 @@ export class GameRoom {
         return this.json({ ok: false }, 400);
       }
 
-      if (!room?.roomId || !/^[A-Z0-9_-]{3,16}$/.test(room.roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium"].includes(room.gameId)) {
+      if (!room?.roomId || !/^[A-Z0-9_-]{3,16}$/.test(room.roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia","battleship"].includes(room.gameId)) {
         return this.json({ ok: false }, 400);
       }
 
@@ -1004,6 +1154,12 @@ export class GameRoom {
       if (this.gameId === "who-am-i") this.send(socket, "who-am-i-chat-history", {messages:this.chatMessages.slice(-100)});
 
       await this.updateDirectory();
+      if (
+        (this.gameId === "battleship" && this.players.size === 2) ||
+        (this.gameId === "mafia" && this.players.size >= this.maxPlayers && this.players.size >= 4)
+      ) {
+        this.partyStart();
+      }
       return;
     }
 
@@ -1244,7 +1400,7 @@ export class GameRoom {
     }
 
     if (event === "party-start") {
-      const minimum = this.gameId === "alias" ? 1 : (this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2));
+      const minimum = this.gameId === "alias" ? 1 : (this.gameId === "codenames" || this.gameId === "mafia" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2));
       if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size < minimum) {
         reply({ok:false,message:"Для запуска нужно минимум " + minimum + " игрока(ов)."}); return;
       }
@@ -1474,7 +1630,7 @@ export default {
       const roomId = String(url.searchParams.get("id") || "").trim().toUpperCase();
       const gameId = url.searchParams.get("game") || "who-is-it";
 
-      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium"].includes(gameId)) {
+      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia","battleship"].includes(gameId)) {
         return new Response("Неверный код комнаты", {
           status: 400
         });
