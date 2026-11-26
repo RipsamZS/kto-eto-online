@@ -282,6 +282,7 @@ export class GameRoom {
         view.myVote = s.votes?.[id] || null;
         view.votes = s.phase === "voting" ? {...(s.votes || {})} : {};
         view.investigation = s.investigations?.[id] || null;
+        view.revealedRoles = s.phase === "finished" ? {...(s.roles || {})} : {};
         delete view.roles;
         delete view.nightActions;
         delete view.investigations;
@@ -614,9 +615,9 @@ export class GameRoom {
       if (!opponentId) return {ok:false,message:"Соперник не найден."};
       s.shotsByPlayer[playerId].push(index);
       const hit = s.fleets[opponentId].includes(index);
+      s.incomingByPlayer[opponentId].push(index);
       if (hit) {
         s.hitsByPlayer[playerId].push(index);
-        s.incomingByPlayer[opponentId].push(index);
         s.lastShot = {playerId,index,hit:true};
         if (s.hitsByPlayer[playerId].length >= s.fleets[opponentId].length) {
           s.phase = "finished";
