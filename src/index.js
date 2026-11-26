@@ -1538,6 +1538,7 @@ export default {
       page = page.replace("const current=revealed&&state.phase===\"playing\"?'<div class=\"wordLine current\">'+esc(state.currentWord||\"\")+'</div>':\"\";", "const current=revealed&&state.phase===\"playing\"?'<div class=\"wordLine current\">'+esc(state.secretWord||state.currentWord||\"\")+'</div>':\"\";");
       page = page.replace('const r=await act("word-guessed");if(r?.ok){revealed=true;draw();}', 'const r=await act("alias-correct");if(r?.ok){revealed=true;draw();}');
       page = page.replace('const words=state.lastTurn?.words||[];', 'const words=state.turnWords?.length?state.turnWords:(state.lastTurn?.words||[]);');
+      page = page.replace('const r=await act("alias-review-submit",{statuses});if(r?.ok){reviewMarks=[];draw();}return;', 'const r=await act("alias-review",{guessed:reviewMarks.map((ok,i)=>ok?i:-1).filter(i=>i>=0)});if(r?.ok){reviewMarks=[];draw();}else status(r?.message||"Не удалось подтвердить слова.");return;');
       page = page.replace('</style></head><body>', '.wordLine.current{border:1px solid #ffffff24;border-radius:12px;background:linear-gradient(180deg,#ffffff08,#ffffff03);padding:10px 16px;box-shadow:inset 0 1px #ffffff08,0 4px 14px #0002}\n</style></head><body>');
       page = page.replace('status("Загружено 1500 слов · "','status("Загружено 2500 слов · "');
       page = page.replace(
