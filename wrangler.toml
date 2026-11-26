@@ -14,3 +14,7 @@ class_name = "GameRoom"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["GameRoom"]
+
+[[kv_namespaces]]
+binding = "KAZO_STATIC"
+id = "44ef437affe74b579bf9aad058ba3f0a"
