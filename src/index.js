@@ -289,10 +289,10 @@ export class GameRoom {
     const ids = [...this.players.keys()];
     const profiles = Object.fromEntries(ids.map(id => [id, this.playerProfiles.get(id) || {nickname:"Игрок",avatar:"🙂"}]));
     if (this.gameId === "alias") {
-      if (ids.length < 2) return {ok:false,message:"Для Alias нужно минимум 2 игрока."};
+      if (ids.length < 1) return {ok:false,message:"В комнате нет игроков."};
       const words = this.aliasWords?.length ? [...this.aliasWords] : ["Астроном","Велосипед","Крокодил","Библиотека","Парашют","Мороженое","Телескоп","Самолёт","Подводная лодка","Фонарик","Муравей","Чемодан","Клавиатура","Вулкан","Скейтборд","Пингвин","Аквариум","Робот","Космонавт","Пианино","Маяк","Черепаха","Компас","Карусель","Снеговик","Микроскоп","Гитара","Попкорн","Пылесос","Динозавр"];
       const teams = Object.fromEntries(ids.map((id,i)=>[id,this.aliasTeams?.[id] || (i%2===0?"A":"B")]));
-      if (!ids.some(id=>teams[id]==="A") || !ids.some(id=>teams[id]==="B")) return {ok:false,message:"В каждой команде должен быть хотя бы один игрок."};
+      // В одиночном режиме игрок автоматически играет за команду A.
       this.partyState={phase:"playing",players:profiles,teams,scores:{A:0,B:0},round:1,turnIndex:0,order:ids,currentWord:null,words:this.partyShuffle(words),wordIndex:0,turnWords:[],seconds:Math.max(15,Math.min(180,this.timerSeconds||60)),deadline:null};
       this.partyAliasNextWord();
     } else if (this.gameId === "codenames") {
@@ -1244,7 +1244,7 @@ export class GameRoom {
     }
 
     if (event === "party-start") {
-      const minimum = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
+      const minimum = this.gameId === "alias" ? 1 : (this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2));
       if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size < minimum) {
         reply({ok:false,message:"Для запуска нужно минимум " + minimum + " игрока(ов)."}); return;
       }
@@ -1529,7 +1529,7 @@ export default {
       page = page.replace('const words=window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[];if(words.length!==1500)throw new Error("Словарь не загрузился полностью.");','const words=(window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[]).slice(0,2500);if(words.length!==2500)throw new Error("Словарь не загрузился полностью.");');
       page = page.replace(
         'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";',
-        'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";if(!state||!["playing","review","finished"].includes(state.phase)){$("playBtn").classList.remove("hidden");$("playBtn").disabled=!host||roster.length<2||!mine?.team;$("playBtn").textContent=host?"Начать игру":"Ожидаем запуска";return;}'
+        'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";if(!state||!["playing","review","finished"].includes(state.phase)){$("playBtn").classList.remove("hidden");$("playBtn").disabled=!host||roster.length<1;$("playBtn").textContent=host?"Начать игру":"Ожидаем запуска";return;}'
       );
       page = page.replace(
         'if(!state||state.phase==="finished"){const r=await act("alias-ready");if(r?.ok)status(r.started?"Все готовы. Начинается новая игра!":r.ready?"Ты готов. Ждём остальных игроков.":"Готовность отменена.");return;}',
