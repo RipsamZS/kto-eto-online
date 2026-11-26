@@ -22,14 +22,11 @@ public class MainActivity extends android.app.Activity {
     };
     private WebView webView;
 
-    private boolean isGamePage() {
-        return webView != null && webView.getUrl() != null
-            && Uri.parse(webView.getUrl()).getPath() != null
-            && Uri.parse(webView.getUrl()).getPath().startsWith("/games/");
-    }
-
-    private void applySystemBarsMode() {
-        if (isGamePage()) {
+    private void applySystemBarsMode(String pageUrl) {
+        Uri pageUri = pageUrl == null ? null : Uri.parse(pageUrl);
+        String pagePath = pageUri == null ? null : pageUri.getPath();
+        boolean gamePage = pagePath != null && pagePath.startsWith("/games/");
+        if (gamePage) {
             getWindow().getDecorView().setSystemUiVisibility(
                 android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
                 | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -48,7 +45,7 @@ public class MainActivity extends android.app.Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) applySystemBarsMode();
+        if (hasFocus) applySystemBarsMode(webView == null ? null : webView.getUrl());
     }
 
     private boolean isAppUrl(Uri uri) {
@@ -94,7 +91,7 @@ public class MainActivity extends android.app.Activity {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                applySystemBarsMode();
+                applySystemBarsMode(url);
             }
 
             @Override
