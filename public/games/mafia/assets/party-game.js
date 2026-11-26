@@ -284,6 +284,7 @@ function genericGame(a){
   const targetMarkup=(purpose)=>{const targets=ids.filter(id=>aliveSet.has(id)&&(purpose==="vote"?id!==meId:(id!==meId||role==="Доктор"))&&!(purpose==="night"&&role==="Мафия"&&(state.mafiaTeammates||[]).includes(id)));return '<div class="mafia-targets">'+targets.map(id=>'<button type="button" class="mafia-target" '+(purpose==="vote"?'data-mafia-vote="'+esc(id)+'"':'data-mafia-night-target="'+esc(id)+'"')+' '+((purpose==="vote"?!!state.myVote:!!state.nightActionDone)?"disabled":"")+'><span>'+avatarHTML(players[id]?.avatar)+'</span><b>'+esc(players[id]?.nickname||"Игрок")+'</b><small>'+(purpose==="vote"?(state.myVote===id?"ТВОЙ ВЫБОР":"ГОЛОСОВАТЬ"):"ВЫБРАТЬ")+'</small></button>').join("")+'</div>';};
   const nightInfo=state.lastNight?(state.lastNight.saved?"Прошлой ночью доктор спас выбранного игрока.":state.lastNight.eliminatedId?"Прошлой ночью выбыл игрок: "+esc(players[state.lastNight.eliminatedId]?.nickname||"Игрок"):"Прошлая ночь прошла спокойно."):"";
   const voteInfo=state.lastVote?(state.lastVote.tied?"В прошлом голосовании ничья. Никто не выбыл.":state.lastVote.eliminatedId?"По итогам прошлого голосования выбыл: "+esc(players[state.lastVote.eliminatedId]?.nickname||"Игрок"):""):"";
+  const commissionInfo=role==="Комиссар"&&state.investigation?'<div class="mafia-event">Проверка: '+esc(players[state.investigation.target]?.nickname||"Игрок")+' — '+(state.investigation.isMafia?"мафия":"не мафия")+'</div>':"";
   let actionPanel="";
   if(phase==="night"){
    if(!isAlive) actionPanel='<div class="mafia-wait">Ты выбыл из игры. Дождись окончания партии.</div>';
@@ -291,7 +292,7 @@ function genericGame(a){
    else if(state.nightActionDone) actionPanel='<div class="mafia-wait">Действие принято. Ожидаем рассвета…</div>';
    else actionPanel='<div class="mafia-action-title">'+(role==="Мафия"?"Выбери цель":role==="Доктор"?"Кого защитить?":"Кого проверить?")+'</div>'+targetMarkup("night")+'<div class="mafia-hint">Выбор увидят только игроки, которым это необходимо.</div>';
   }else if(phase==="discussion"){
-   actionPanel=(nightInfo?'<div class="mafia-event">'+nightInfo+'</div>':"")+(isAlive&&hostPlayer?'<button type="button" class="primary mafia-main-action" id="mafiaVoteStart">Начать голосование</button>':isAlive?'<div class="mafia-wait">Обсудите события. Ведущий скоро откроет голосование.</div>':'<div class="mafia-wait">Ты выбыл из игры. Наблюдай за партией.</div>');
+   actionPanel=commissionInfo+(nightInfo?'<div class="mafia-event">'+nightInfo+'</div>':"")+(hostPlayer?'<button type="button" class="primary mafia-main-action" id="mafiaVoteStart">Начать голосование</button>':isAlive?'<div class="mafia-wait">Обсудите события. Ведущий скоро откроет голосование.</div>':'<div class="mafia-wait">Ты выбыл из игры. Наблюдай за партией.</div>');
   }else if(phase==="voting"){
    actionPanel=(isAlive?'<div class="mafia-action-title">Кого отправить на голосование?</div>'+targetMarkup("vote")+'<div class="mafia-wait">'+(state.myVote?"Твой голос принят. Ожидаем остальных игроков…":"Голосов получено: "+Object.keys(state.votes||{}).length+" / "+aliveCount)+'</div>':'<div class="mafia-wait">Ты выбыл из игры и больше не голосуешь.</div>');
   }else if(phase==="finished"){
