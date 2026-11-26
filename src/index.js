@@ -1536,6 +1536,10 @@ export default {
         'if(!state||state.phase==="waiting"){const r=await window.onlineGame.startGame();if(!r?.ok)status(r?.message||"Не удалось начать игру.");else status("Игра началась.");return;}if(state.phase==="finished"){const r=await act("alias-ready");if(r?.ok)status(r.started?"Все готовы. Начинается новая игра!":r.ready?"Ты готов. Ждём остальных игроков.":"Готовность отменена.");return;}'
       );
       page = page.replace('status("Загружено 1500 слов · "','status("Загружено 2500 слов · "');
+      page = page.replace(
+        'const mark=teamLocked?"":mine?.team===t?"−":"+";',
+        'const mark=teamLocked||mine?.team===t?"":"+";'
+      );
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     return new Response(request.method === "HEAD" ? null : asset.value, { status: 200, headers });
