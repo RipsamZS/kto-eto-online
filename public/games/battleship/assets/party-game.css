@@ -1161,3 +1161,35 @@ body[data-game="battleship"] .radar-board,body[data-game="battleship"] .own-grid
 body[data-game="battleship"] .radar-cell,body[data-game="battleship"] .own-cell{min-width:0;min-height:0;aspect-ratio:1;padding:0;display:grid;place-items:center;border:1px solid #344b61;border-radius:3px;background:#173148;color:#d7e9f7;font-size:clamp(8px,1.2vw,14px)}
 body[data-game="battleship"] .radar-cell.hit,body[data-game="battleship"] .own-cell.incoming{background:#7c3541;border-color:#f18c91;color:#fff}
 @media(max-width:760px){body[data-game="battleship"] .naval-layout{grid-template-columns:minmax(0,1fr)}}
+
+/* KAZO Mafia + Battleship live lobby boards and in-room settings */
+body[data-game="mafia"] .mafia-lobby-table,body[data-game="battleship"] .battleship-lobby{width:100%;max-width:980px;margin:18px auto 8px;padding:clamp(14px,2.5vw,24px);border:1px solid #3c4c5e;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,#263b4c 0%,#121c28 62%);box-shadow:0 18px 50px #0005;color:#e9f1f8;text-align:left}
+.mafia-lobby-top,.battleship-lobby-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid #ffffff18;color:#c8d8e8;font-size:12px;letter-spacing:.12em}
+.mafia-lobby-top>div,.battleship-lobby-heading>div{display:flex;align-items:center;gap:10px}
+.mafia-lobby-top small{display:block;margin-top:5px;color:#8fa3b8;font-size:10px;letter-spacing:.08em}
+.mafia-lobby-top>strong{font-size:15px;color:#d8e8f6}
+.mafia-lobby-seats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.mafia-lobby-seat{display:flex;min-width:0;min-height:94px;flex-direction:column;justify-content:center;gap:7px;padding:12px;border:1px dashed #536578;border-radius:12px;background:#0e1722a8;color:#8195aa}
+.mafia-lobby-seat>span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#26384a;color:#c7d8e8;font-size:11px;font-weight:800}
+.mafia-lobby-seat>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#aebdcb;font-size:13px}
+.mafia-lobby-seat>small{font-size:9px;letter-spacing:.1em}
+.mafia-lobby-seat.is-filled{border-style:solid;border-color:#597d86;background:linear-gradient(140deg,#1b3540,#152331)}
+.mafia-lobby-seat.is-filled>b{color:#f0f5f8}
+.mafia-lobby-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid #ffffff18;color:#8fa3b8;font-size:10px;letter-spacing:.09em}
+.mafia-lobby-foot>b{color:#d8e8f6}
+.battleship-lobby-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(14px,3vw,30px);align-items:start;margin-top:18px}
+.battleship-lobby-layout>div{min-width:0}
+body[data-game="battleship"] .battleship-lobby .radar-grid{display:grid;grid-template-columns:20px minmax(0,1fr);gap:4px}
+body[data-game="battleship"] .battleship-lobby .radar-coords{display:grid;grid-template-columns:20px repeat(10,minmax(0,1fr));gap:3px;text-align:center;color:#8fa6bc;font-size:10px;margin-bottom:4px}
+body[data-game="battleship"] .battleship-lobby .radar-rows{display:grid;grid-template-rows:repeat(10,minmax(0,1fr));gap:3px;align-items:center;text-align:center;color:#8fa6bc;font-size:10px}
+body[data-game="battleship"] .battleship-lobby .radar-board,body[data-game="battleship"] .battleship-lobby .own-grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;aspect-ratio:1}
+body[data-game="battleship"] .battleship-lobby .radar-cell,body[data-game="battleship"] .battleship-lobby .own-cell{display:block;min-width:0;min-height:0;aspect-ratio:1;padding:0;border:1px solid #35516a;border-radius:3px;background:#17334a}
+body[data-game="battleship"] .battleship-lobby .own-cell{background:#1c2d3b}
+.battleship-lobby-status{margin-top:16px;padding:12px;border-radius:10px;background:#0c1722;color:#c4d7e8;text-align:center;font-size:13px}
+.kazo-room-menu-panel{width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 100px);overflow:auto}
+.kazo-room-settings{display:grid;gap:10px;margin:14px 0;padding:14px;border:1px solid #ffffff18;border-radius:12px;background:#101923}
+.kazo-room-settings-title{color:#e5edf5;font-weight:800;letter-spacing:.05em}
+.kazo-room-settings label{display:grid;gap:5px;color:#aebdcb;font-size:12px}
+.kazo-room-settings input,.kazo-room-settings select{width:100%;min-width:0;padding:10px;border:1px solid #405367;border-radius:8px;background:#0a131d;color:#edf4fa}
+.kazo-room-settings .muted{min-height:16px;font-size:11px}
+@media(max-width:620px){.mafia-lobby-seats{grid-template-columns:repeat(2,minmax(0,1fr))}.battleship-lobby-layout{grid-template-columns:minmax(0,1fr)}.mafia-lobby-seat{min-height:82px}.kazo-room-menu-panel{right:12px;left:12px;width:auto}}
