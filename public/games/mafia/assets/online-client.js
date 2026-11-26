@@ -1172,7 +1172,7 @@
     createLobby,
     updateRoomSettings,
     sendGameAction,
-    changeSeat: seatIndex => send("change-seat", {seatIndex}),
+    changeSeat: seatIndex => send("select-seat", {seatIndex}),
     startGame,
     joinRoom,
     playerReady,
