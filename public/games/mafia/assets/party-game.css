@@ -109,3 +109,33 @@ input:focus,select:focus{border-color:#8295b5}
 .mafia-finish h2{font-size:25px;margin:8px 0}
 .mafia-finish p{color:#9aa9bc;margin:0}
 @media(max-width:620px){.page{width:min(100% - 20px,900px);padding-top:12px}.panel,.game-console,.game-title-panel,.redesign-players,.game-board-shell{padding:14px}.hero{margin-bottom:17px}.hero h1{font-size:21px}.grid{grid-template-columns:1fr}.mafia-player-list{grid-template-columns:1fr}.mafia-targets{grid-template-columns:repeat(2,minmax(0,1fr))}.mafia-role-card strong{font-size:20px}.actions{width:100%}.actions button{flex:1}.kazo-room-nav{justify-content:stretch}.kazo-room-nav>*{flex:1;text-align:center}}
+
+/* Individual player cards */
+.mafia-seat-grid,.mafia-person-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mafia-seat-card,.mafia-person-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #35465f;border-radius:13px;background:linear-gradient(155deg,#1b2940,#111b2a);box-shadow:0 8px 22px rgba(0,0,0,.16)}
+.mafia-seat-card{min-height:190px}
+.mafia-seat-card-art,.mafia-person-card-face{position:relative;display:flex;flex:1;min-height:126px;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px 12px;text-align:center;background:radial-gradient(circle at 50% 35%,rgba(123,145,180,.2),transparent 54%),linear-gradient(145deg,#263752,#172338 70%,#121c2b)}
+.mafia-seat-card-art:before,.mafia-person-card-face:before{position:absolute;inset:8px;border:1px solid rgba(169,190,220,.15);border-radius:8px;content:"";pointer-events:none}
+.mafia-seat-card-art>span,.mafia-person-card-kicker{font-size:9px;font-weight:800;letter-spacing:.14em;color:#9eafc7}
+.mafia-seat-card-art>b{font-size:30px;color:#d4deed;font-weight:500}
+.mafia-seat-card.is-empty{border-style:dashed;background:rgba(20,30,45,.56);box-shadow:none}
+.mafia-seat-card.is-empty .mafia-seat-card-art{background:linear-gradient(145deg,#172235,#111a28)}
+.mafia-seat-card.is-empty .mafia-seat-card-art>b{font-size:19px;color:#64758e}
+.mafia-seat-owner,.mafia-person-card-owner{display:flex;align-items:center;gap:10px;min-height:62px;padding:10px 12px;background:#0d1624;border-top:1px solid #34445b}
+.mafia-seat-avatar,.mafia-person-card-avatar{display:grid;place-items:center;flex:none;width:38px;height:38px;overflow:hidden;border:1px solid #52647e;border-radius:50%;background:#26364e;color:#b8c7dc;font-size:18px}
+.mafia-seat-avatar img,.mafia-seat-avatar svg,.mafia-person-card-avatar img,.mafia-person-card-avatar svg{width:100%;height:100%;object-fit:cover}
+.mafia-seat-avatar.is-placeholder{border-style:dashed;color:#70819a}
+.mafia-seat-name,.mafia-person-card-owner>span:last-child{display:grid;gap:4px;min-width:0}
+.mafia-seat-name b,.mafia-person-card-owner b{overflow:hidden;color:#eef3fa;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.mafia-seat-name small,.mafia-person-card-owner small{color:#8293aa;font-size:9px;letter-spacing:.09em}
+.mafia-cards-section{margin:12px 0;background:#121c2b;border:1px solid #29384c;border-radius:12px;padding:16px}
+.mafia-person-card{min-height:220px}
+.mafia-person-card-face{min-height:154px;gap:9px}
+.mafia-person-card-face strong{position:relative;max-width:100%;color:#f1f5fb;font-size:clamp(15px,2vw,21px);overflow-wrap:anywhere}
+.mafia-person-card-face>small{position:relative;max-width:100%;color:#9eacc0;font-size:10px;line-height:1.45}
+.mafia-person-card.is-mine{border-color:#8ea5c6;box-shadow:0 0 0 1px rgba(142,165,198,.14),0 10px 26px rgba(0,0,0,.2)}
+.mafia-person-card.is-mine .mafia-person-card-face{background:radial-gradient(circle at 50% 30%,rgba(143,165,198,.26),transparent 58%),linear-gradient(145deg,#2b3e5b,#18273c 75%)}
+.mafia-person-card.is-out{opacity:.55}
+.mafia-person-card.is-revealed .mafia-person-card-face{background:radial-gradient(circle at 50% 30%,rgba(147,174,155,.18),transparent 58%),linear-gradient(145deg,#243b3a,#172a2a 75%)}
+@media(max-width:620px){.mafia-seat-grid,.mafia-person-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mafia-seat-card{min-height:166px}.mafia-seat-card-art{min-height:112px;padding:12px 8px}.mafia-seat-owner,.mafia-person-card-owner{min-height:58px;padding:8px}.mafia-seat-avatar,.mafia-person-card-avatar{width:34px;height:34px}.mafia-person-card{min-height:204px}.mafia-person-card-face{min-height:142px;padding:14px 9px}.mafia-person-card-face strong{font-size:15px}.mafia-cards-section{padding:12px}}
+@media(max-width:360px){.mafia-seat-grid,.mafia-person-cards{grid-template-columns:1fr}}
