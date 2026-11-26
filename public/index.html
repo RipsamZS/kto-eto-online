@@ -1,126 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#f3f0e9">
-<meta name="description" content="Игровая площадка: Кто это?, Alias, Code Names, Шпион, Имаджинариум и Кто я?">
-<link rel="icon" type="image/svg+xml" href="/assets/kazo-logo.webp.svg?v=3">
-<meta property="og:title" content="Kazo — казуальные игры">
-<meta property="og:description" content="Игровая площадка Kazo">
-<meta property="og:image" content="https://kaza.casual-online.workers.dev/assets/kazo-logo.webp.svg?v=3">
-<meta name="twitter:card" content="summary">
-<title>Kazo — казуальные игры</title>
-<style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
-:root{color-scheme:light;--bg:#f3f0e9;--panel:#fffdf8;--panel2:#ebe5f6;--accent:#6546a5;--accent2:#4d328a;--text:#252231;--muted:#777282;--border:#e5dfd5;--lime:#d7f36a;--coral:#ff795e}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0e15">
+<meta name="description" content="KAZO — игровая площадка. 18 игр для компании, друзей и двоих.">
+<title>KAZO — Игровая площадка</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e15;--surface:#121722;--surface2:#171f2c;--line:#293344;--text:#f3f5fa;--muted:#9aa6b8;--accent:#b59aff;--lime:#d9f27b;--pink:#ff9fbd;--cyan:#84d9e8}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;min-height:100vh;color:var(--text);font-family:'DM Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:radial-gradient(ellipse at 8% 8%,rgba(215,243,106,.22),transparent 30%),radial-gradient(ellipse at 94% 34%,rgba(101,70,165,.10),transparent 34%),var(--bg)}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:radial-gradient(#8e867b .65px,transparent .65px);background-size:7px 7px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
-.wrap{position:relative;width:min(1120px,calc(100% - 40px));margin:auto;padding:30px 0 56px}
-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 12px}
-.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}.feedback-link{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #d8d0e4;border-radius:11px;background:#6546a5;color:#fff;text-decoration:none;font:700 12px "DM Sans",sans-serif;box-shadow:0 3px 0 rgba(37,34,49,.04);transition:transform .18s,background .18s}.feedback-link:hover{transform:translateY(-2px);background:#4d328a}.feedback-link span{font-size:15px;line-height:1}
-.logo{display:inline-flex;align-items:center;line-height:0;text-decoration:none}
-.logo-image{display:block;width:120px;height:auto;max-height:68px;object-fit:contain;object-position:left center;transition:transform .18s ease}
-.logo:hover .logo-image{transform:translateY(-1px)}.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#29243a;font-family:'Bricolage Grotesque','Space Grotesk',sans-serif;font-size:35px;font-weight:850;letter-spacing:-1.8px;line-height:1;transition:transform .18s ease}.brand:hover{transform:translateY(-2px)}.brand-symbol{display:block;width:36px;height:36px;flex:0 0 36px;filter:drop-shadow(0 3px 2px rgba(49,35,75,.12))}.brand-word{display:block;color:#29243a;font-weight:850;letter-spacing:-1.7px}.account-edit{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #d8d0e4;border-radius:11px;background:#fffdf8;color:#40345a;font:700 12px 'DM Sans',sans-serif;cursor:pointer;box-shadow:0 3px 0 rgba(37,34,49,.04);transition:transform .18s,border-color .18s,background .18s}.account-edit:hover{transform:translateY(-2px);border-color:#a995ca;background:#f4effb}.account-edit[hidden]{display:none}body.needs-profile .account-edit{display:none}body.editing-profile:after{content:"";position:fixed;inset:0;z-index:4;background:rgba(65,53,38,.20);backdrop-filter:blur(4px)}body.editing-profile .profile-gate{display:block;position:fixed;z-index:5;top:50%;left:50%;transform:translate(-50%,-50%);width:min(470px,calc(100% - 28px));max-height:calc(100vh - 36px);overflow:auto;margin:0}body.editing-profile .profile-gate:before{content:"НАСТРОЙКИ ПРОФИЛЯ"}body.editing-profile .profile-gate .profile-cancel{display:block}.optional-note{color:#948ba1;font-size:11px;font-weight:500}.profile-cancel{display:none;width:100%;margin-top:9px!important;padding:11px!important;border:1px solid #d8cde5!important;background:transparent!important;color:#645579!important}
-.hero{text-align:left;max-width:790px;margin:0 auto;padding:78px 10px 42px}
-.hero:before{content:"ИГРЫ ДЛЯ КОМПАНИИ";display:inline-flex;align-items:center;margin-bottom:18px;padding:7px 11px;border:1px solid #d9d2c6;border-radius:6px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1.6px}
-.hero h1{margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(46px,8vw,78px);line-height:.98;letter-spacing:-4px;font-weight:700}
-.hero h1 span{position:relative;display:inline-block;color:var(--accent)}
-.hero h1 span:after{content:"";position:absolute;left:2px;right:0;bottom:-5px;height:8px;border-radius:100%;background:var(--lime);z-index:-1;transform:rotate(-1.5deg)}
-.hero p{max-width:530px;margin:24px 0 0;color:var(--muted);font-size:16px;line-height:1.7}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:960px;margin:0 auto}
-.game{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;min-height:218px;padding:23px 22px 21px;text-align:left;text-decoration:none;color:var(--text);border:1px solid var(--border);border-radius:17px;background:var(--panel);box-shadow:0 4px 0 rgba(37,34,49,.035);overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
-.game:before{content:"";position:absolute;top:-31px;right:-22px;width:132px;height:132px;border-radius:42% 58% 56% 44%;background:var(--tile,#eee8f7);transform:rotate(18deg);transition:transform .25s ease}
-.game:after{content:attr(data-number);position:absolute;top:15px;left:17px;color:#a7a1ae;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px}
-.game:nth-child(1){--tile:#e9e1f6}.game:nth-child(2){--tile:#fce6d9}.game:nth-child(3){--tile:#e6edcf}.game:nth-child(4){--tile:#e2eaf3}.game:nth-child(5){--tile:#f8e6e9}.game:nth-child(6){--tile:#e8e4dc}
-.game[href]:hover{transform:translateY(-5px);border-color:#c9bddf;box-shadow:0 12px 26px rgba(45,35,66,.09)}
-.game[href]:hover:before{transform:rotate(30deg) scale(1.12)}
-.game .emoji{position:relative;z-index:1;display:grid;place-items:center;width:57px;height:57px;margin:0 0 22px;border:1px solid rgba(37,34,49,.07);border-radius:16px;background:rgba(255,255,255,.78);font-size:29px;box-shadow:0 5px 12px rgba(37,34,49,.06)}
-.game strong{position:relative;z-index:1;font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:-.6px}
-.game small{position:relative;z-index:1;max-width:245px;margin-top:7px;color:var(--muted);font-size:13px;line-height:1.5}
-.game.disabled{opacity:.43;filter:grayscale(.82) saturate(.45);cursor:not-allowed;pointer-events:none;box-shadow:none}.game.disabled:before{background:#aaa4b2}.game.disabled .emoji{filter:grayscale(1);background:#d9d6dc}.game.disabled .tag{background:#d0ccd5;color:#514b5b;letter-spacing:.2px}
-.tag{position:absolute;top:13px;right:13px;padding:5px 9px;border-radius:6px;background:var(--lime);color:#343044;font-size:10px;font-weight:800}
-footer{margin-top:32px;text-align:center;color:#96909d;font-size:12px;letter-spacing:.1px}
-body.needs-profile main,body.needs-profile footer{display:none}
-.profile-gate{display:none;position:relative;max-width:470px;margin:54px auto 30px;padding:34px;border:1px solid #eadcc9;border-radius:20px;background:#fffdf8;color:#302a3d;box-shadow:0 24px 70px rgba(90,67,38,.12)}
-.profile-gate:before{content:"ПЕРЕД СТАРТОМ";display:block;margin-bottom:14px;color:#8067a8;font-size:10px;font-weight:800;letter-spacing:1.7px;text-align:center}
-body.needs-profile{background:radial-gradient(ellipse at 8% 8%,rgba(215,243,106,.25),transparent 34%),radial-gradient(ellipse at 92% 75%,rgba(255,190,154,.24),transparent 36%),#fffaf1;color:#302a3d}body.needs-profile:before{opacity:.025}body.needs-profile .wrap>header{opacity:1}body.needs-profile .profile-gate{display:block}
-.profile-gate h1{margin:0;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:32px;letter-spacing:-1.2px}
-.profile-gate p{color:#746c80;text-align:center;line-height:1.55;font-size:14px}
-.profile-gate label{display:block;margin:17px 0 7px;color:#51485f;font-size:13px;font-weight:700}
-.profile-gate input,.profile-gate select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #e8ddcd;background:#fffefa;color:#302a3d;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
-.profile-gate input:focus{border-color:#bd8a56;box-shadow:0 0 0 3px rgba(189,138,86,.16)}
-.profile-gate button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#bd7845;color:white;font:inherit;font-weight:800;cursor:pointer;transition:background .15s,transform .15s}
-.profile-gate button:hover{background:#985b32;transform:translateY(-1px)}
-.profile-avatar{display:flex;align-items:center;gap:14px;margin-top:8px}
-.profile-avatar-preview{width:76px;height:76px;flex:0 0 76px;border-radius:50%;object-fit:cover;border:2px solid #d8cde5;background:#eee8f7}
-.profile-avatar input[type=file]{padding:9px;font-size:12px}
-.profile-error{min-height:18px;color:#ff9caa;font-size:13px;text-align:left!important;margin:8px 0 0!important}
-@media(max-width:720px){.grid{grid-template-columns:1fr}.hero{padding-top:58px}.hero h1{letter-spacing:-2.8px}}
-@media(max-width:480px){header{align-items:flex-start;gap:10px}.header-actions{gap:7px}.feedback-link,.account-edit{padding:9px 10px;font-size:11px}.wrap{width:min(100% - 28px,1120px);padding-top:20px}.grid{grid-template-columns:1fr;gap:11px}.game{min-height:160px;padding:19px}.game .emoji{width:48px;height:48px;margin-bottom:14px}.hero{padding:42px 2px 28px}.hero h1{font-size:48px;letter-spacing:-2.5px}.hero p{font-size:14px;margin-top:18px}.profile-gate{margin:30px auto;padding:25px 21px}}
+html{min-height:100%;background:var(--bg);scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 12% 0%,#292047 0,transparent 35%),radial-gradient(ellipse at 90% 8%,#12313b 0,transparent 30%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.shell{width:min(1180px,calc(100% - 40px));margin:0 auto}
+.topbar{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff13}
+.brand{display:flex;align-items:center;gap:11px;font-size:17px;font-weight:950;letter-spacing:.18em}
+.brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#d8c4ff,#8664cb);color:#15111e;font-size:22px;letter-spacing:0;box-shadow:0 8px 28px #a58aff35}
+.brand span:last-child{color:#f7f4ff}
+.top-link{color:var(--muted);font-size:13px;font-weight:650;padding:9px 13px;border:1px solid var(--line);border-radius:11px;transition:.18s}
+.top-link:hover{color:var(--text);border-color:#7c6aa9;background:#ffffff08}
+.hero{padding:54px 0 34px;max-width:790px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--lime);font-size:11px;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
+.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 15px #d9f27b}
+h1{font-size:clamp(38px,6vw,66px);line-height:1.02;letter-spacing:-.055em;margin:17px 0 15px;font-weight:900}
+h1 .accent{color:var(--accent)}
+.hero p{max-width:600px;margin:0;color:#aab4c3;font-size:16px;line-height:1.7}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.stat{padding:8px 12px;border:1px solid #ffffff14;border-radius:10px;background:#ffffff08;color:#c1cad6;font-size:12px}
+.stat strong{color:var(--text);font-size:14px;margin-right:4px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:15px 0 18px}
+.section-title{font-size:19px;font-weight:850;letter-spacing:-.025em}
+.count{color:var(--muted);font-size:12px;margin-left:8px;font-weight:600}
+.search{position:relative;width:min(320px,100%)}
+.search input{width:100%;height:44px;padding:0 14px 0 42px;border:1px solid var(--line);border-radius:13px;background:#111722;color:var(--text);outline:none}
+.search input:focus{border-color:#8d78c2;box-shadow:0 0 0 3px #a58aff18}
+.search input::placeholder{color:#748094}
+.search:before{content:"⌕";position:absolute;left:15px;top:5px;color:#9aa6b8;font-size:25px;line-height:1}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filter{border:1px solid var(--line);background:#111722;color:#aeb8c8;padding:8px 13px;border-radius:999px;font-size:12px;font-weight:750;cursor:pointer;transition:.18s}
+.filter:hover{border-color:#76659c;color:var(--text)}
+.filter[aria-pressed="true"]{background:#b59aff1c;border-color:#9d84d8;color:#e4d8ff}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding-bottom:52px}
+.game{--glow:#b59aff;position:relative;min-width:0;min-height:154px;display:flex;flex-direction:column;align-items:flex-start;padding:17px 18px 16px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,#171f2c,#111722 72%);overflow:hidden;transition:transform .18s,border-color .18s,background .18s}
+.game:before{content:"";position:absolute;width:120px;height:120px;right:-48px;top:-58px;border-radius:50%;background:var(--glow);opacity:.10;filter:blur(3px);transition:opacity .18s}
+.game:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--glow) 65%,#293344);background:linear-gradient(145deg,#1c2636,#131a27 72%)}
+.game:hover:before{opacity:.23}
+.game-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;margin-bottom:12px;position:relative}
+.game-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:color-mix(in srgb,var(--glow) 15%,#121722);border:1px solid color-mix(in srgb,var(--glow) 28%,transparent);font-size:23px}
+.game-arrow{color:#8491a5;font-size:19px;transition:transform .18s}
+.game:hover .game-arrow{transform:translate(3px,-2px);color:var(--text)}
+.game strong{font-size:16px;font-weight:850;letter-spacing:-.02em;position:relative}
+.game small{display:block;color:#9aa6b8;font-size:12px;line-height:1.5;margin-top:5px;max-width:95%;position:relative}
+.game-tag{position:absolute;right:15px;bottom:15px;color:#78869b;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.empty{display:none;padding:36px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;margin-bottom:48px}
+footer{border-top:1px solid #ffffff13;padding:22px 0 34px;color:#758195;font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{color:#bca9ef}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:43px}}
+@media(max-width:600px){.shell{width:calc(100% - 28px)}.topbar{height:66px}.hero{padding:36px 0 26px}h1{font-size:43px}.hero p{font-size:14px}.toolbar{align-items:flex-start;flex-direction:column;gap:12px}.search{width:100%}.grid{grid-template-columns:1fr;gap:10px}.game{min-height:135px;padding:15px 16px}.game-top{margin-bottom:9px}.game-icon{width:39px;height:39px}.game strong{font-size:15px}.game small{font-size:12px;max-width:100%;padding-right:10px}.game-tag{bottom:14px}footer{font-size:11px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&display=swap");
 </style>
 </head>
-<body class="needs-profile">
-<div class="wrap">
-<header><a class="brand" href="/" aria-label="Kazo — главная"><svg class="brand-symbol" viewBox="0 0 40 40" aria-hidden="true"><rect x="1" y="1" width="38" height="38" rx="12" fill="#6546a5"/><circle cx="14" cy="15" r="2.8" fill="#fff"/><circle cx="26" cy="15" r="2.8" fill="#fff"/><path d="M11.5 23c2.2 4 5 6 8.5 6s6.3-2 8.5-6" fill="none" stroke="#d7f36a" stroke-width="3" stroke-linecap="round"/></svg><span class="brand-word">Kazo</span></a><div class="header-actions"><a class="feedback-link" href="https://t.me/+FctvhuFGQBY0ZWNi" target="_blank" rel="noopener noreferrer" aria-label="Оставить отзыв в Telegram"><span aria-hidden="true">✉</span> Оставить отзыв</a><button class="account-edit" id="accountEdit" type="button"><span aria-hidden="true">✳</span> Редактировать аккаунт</button></div></header>
-<section id="profileGate" class="profile-gate" aria-labelledby="profileTitle">
-<h1 id="profileTitle">Добро пожаловать!</h1><p>Перед выбором игры придумай ник. Аватар можно загрузить по желанию — если пропустить этот шаг, будет стандартная иконка игрока.</p>
-<form id="profileForm"><label for="profileNickname">Твой никнейм</label><input id="profileNickname" maxlength="20" autocomplete="nickname" placeholder="Например, Игрок" required>
-<label for="profileAge">Возраст</label><input id="profileAge" type="number" min="13" max="99" inputmode="numeric" placeholder="Сколько тебе лет?" required>
-<label for="profileAvatarFile">Аватарка <span class="optional-note">(необязательно)</span></label><div class="profile-avatar"><img id="profileAvatarPreview" class="profile-avatar-preview" alt="Предпросмотр аватарки" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2248%22%20fill%3D%22%23e8e1f3%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2235%22%20r%3D%2215%22%20fill%3D%22%238879a6%22%2F%3E%3Cpath%20d%3D%22M18%2086c3-18%2015-28%2030-28s27%2010%2030%2028%22%20fill%3D%22%238879a6%22%2F%3E%3C%2Fsvg%3E"><input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
-<p id="profileError" class="profile-error" role="alert"></p>
-<button type="submit" id="profileSubmit">Продолжить к играм</button><button type="button" class="profile-cancel" id="profileCancel">Отмена</button></form></section>
+<body>
+<div class="shell">
+<header class="topbar">
+<a class="brand" href="/" aria-label="KAZO — главная"><span class="brand-mark">K</span><span>KAZO</span></a>
+<a class="top-link" href="https://t.me/+FctvhuFGQBY0ZWNi" target="_blank" rel="noopener">Оставить отзыв ↗</a>
+</header>
 <main>
 <section class="hero">
-<h1>Во что <span>сыграем?</span></h1>
-<p>Выбирай игру, собирай компанию и начинай веселье. Все игры будут жить на одной площадке.</p>
+<div class="eyebrow">Твоя игровая площадка</div>
+<h1>Выбирай игру.<br><span class="accent">Собирай компанию.</span></h1>
+<p>Слова, логика, командные баталии и быстрые дуэли. Выбирай карточку и переходи прямо к игре.</p>
+<div class="stats"><span class="stat"><strong>18</strong> игр в каталоге</span><span class="stat"><strong>1–∞</strong> игроков — зависит от игры</span><span class="stat">Без установки</span></div>
 </section>
-<nav class="grid" aria-label="Выбор игры">
-<div class="game disabled" role="group" aria-disabled="true" data-status="development">
-<span class="emoji">🕵️</span><strong>Кто это?</strong><small>Задавай вопросы, исключай персонажей и угадывай первым</small>
-<span class="tag">В разработке</span></div>
-<a class="game" href="/games/alias/">
-<span class="emoji">💬</span><strong>Alias</strong><small>Объясняй слова команде, не называя их</small>
-</a>
-<div class="game disabled" role="group" aria-disabled="true" data-status="development">
-<span class="emoji">🗝️</span><strong>Code Names</strong><small>Находи слова своей команды по подсказкам капитана</small>
-<span class="tag">В разработке</span></div>
-<div class="game disabled" role="group" aria-disabled="true" data-status="development">
-<span class="emoji">🕶️</span><strong>Шпион</strong><small>Вычисли шпиона, задавая правильные вопросы</small>
-<span class="tag">В разработке</span></div>
-<div class="game disabled" role="group" aria-disabled="true" data-status="development">
-<span class="emoji">🎨</span><strong>Имаджинариум</strong><small>Придумывай ассоциации и угадывай карты</small>
-<span class="tag">В разработке</span></div>
-<div class="game disabled" role="group" aria-disabled="true" data-status="development">
-<span class="emoji">🎭</span><strong>Кто я?</strong><small>Раздавай слова по кругу, задавай вопросы и угадывай своё слово</small>
-<span class="tag">В разработке</span></div>
+<section aria-label="Каталог игр">
+<div class="toolbar"><div class="section-title">Все игры <span class="count" id="visibleCount">18 из 18</span></div><label class="search"><input id="gameSearch" type="search" placeholder="Найти игру…" autocomplete="off" aria-label="Найти игру"></label></div>
+<div class="filters" role="group" aria-label="Фильтр игр">
+<button class="filter" type="button" data-filter="all" aria-pressed="true">Все игры</button>
+<button class="filter" type="button" data-filter="words" aria-pressed="false">Слова</button>
+<button class="filter" type="button" data-filter="party" aria-pressed="false">Для компании</button>
+<button class="filter" type="button" data-filter="duel" aria-pressed="false">Дуэли</button>
+<button class="filter" type="button" data-filter="logic" aria-pressed="false">Логика</button>
+</div>
+<nav class="grid" id="gameGrid" aria-label="Каталог игр">
+<a class="game" href="/games/alias/" data-categories="words party" style="--glow:#d9f27b"><span class="game-top"><span class="game-icon">💬</span><span class="game-arrow">↗</span></span><strong>Alias</strong><small>Объясняй слова команде, не называя их</small><span class="game-tag">Слова · Команды</span></a>
+<a class="game" href="/games/associations/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🧠</span><span class="game-arrow">↗</span></span><strong>Ассоциации</strong><small>Связывай идеи и угадывай ход мысли других игроков</small><span class="game-tag">Слова · Компания</span></a>
+<a class="game" href="/games/battleship/" data-categories="duel logic" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🚢</span><span class="game-arrow">↗</span></span><strong>Морской бой</strong><small>Расставляй корабли и находи флот соперника</small><span class="game-tag">Дуэль · Тактика</span></a>
+<a class="game" href="/games/charades/" data-categories="party" style="--glow:#ffb86b"><span class="game-top"><span class="game-icon">🎭</span><span class="game-arrow">↗</span></span><strong>Крокодил</strong><small>Показывай загаданное без слов — пусть команда угадает</small><span class="game-tag">Компания</span></a>
+<a class="game" href="/games/codebreaker/" data-categories="logic duel" style="--glow:#b59aff"><span class="game-top"><span class="game-icon">🔐</span><span class="game-arrow">↗</span></span><strong>Секретный код</strong><small>Подбирай комбинацию и расшифровывай подсказки</small><span class="game-tag">Логика · Дуэль</span></a>
+<a class="game" href="/games/codenames/" data-categories="words party logic" style="--glow:#a9a0ff"><span class="game-top"><span class="game-icon">🗝️</span><span class="game-arrow">↗</span></span><strong>Кодовые имена</strong><small>Находи слова своей команды по подсказкам капитана</small><span class="game-tag">Команды · Слова</span></a>
+<a class="game" href="/games/dots-duel/" data-categories="duel logic" style="--glow:#8bd7b1"><span class="game-top"><span class="game-icon">🔷</span><span class="game-arrow">↗</span></span><strong>Точки и квадраты</strong><small>Соединяй точки, замыкай клетки и набирай очки</small><span class="game-tag">Дуэль · Логика</span></a>
+<a class="game" href="/games/imaginarium/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🎨</span><span class="game-arrow">↗</span></span><strong>Имаджинариум</strong><small>Придумывай ассоциации к картам и угадывай чужие</small><span class="game-tag">Компания · Фантазия</span></a>
+<a class="game" href="/games/mafia/" data-categories="party logic" style="--glow:#e6a4a4"><span class="game-top"><span class="game-icon">🌙</span><span class="game-arrow">↗</span></span><strong>Мафия</strong><small>Обсуждай версии, анализируй роли и принимай решения</small><span class="game-tag">Компания</span></a>
+<a class="game" href="/games/memory-duel/" data-categories="duel logic" style="--glow:#f4cf78"><span class="game-top"><span class="game-icon">🧩</span><span class="game-arrow">↗</span></span><strong>Память на двоих</strong><small>Запоминай расположение пар и опережай соперника</small><span class="game-tag">Дуэль · Память</span></a>
+<a class="game" href="/games/number-duel/" data-categories="duel logic" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🔢</span><span class="game-arrow">↗</span></span><strong>Угадай число</strong><small>Логика и точные догадки в игре один на один</small><span class="game-tag">Дуэль · Числа</span></a>
+<a class="game" href="/games/quiz/" data-categories="party logic" style="--glow:#f4cf78"><span class="game-top"><span class="game-icon">❔</span><span class="game-arrow">↗</span></span><strong>Викторина</strong><small>Проверяй знания и соревнуйся в правильных ответах</small><span class="game-tag">Вопросы · Компания</span></a>
+<a class="game" href="/games/spy/" data-categories="party logic" style="--glow:#b59aff"><span class="game-top"><span class="game-icon">🧭</span><span class="game-arrow">↗</span></span><strong>Шпион</strong><small>Выясни, кто не знает общего места и контекста</small><span class="game-tag">Компания</span></a>
+<a class="game" href="/games/territory/" data-categories="duel logic" style="--glow:#8bd7b1"><span class="game-top"><span class="game-icon">🟩</span><span class="game-arrow">↗</span></span><strong>Захват клеток</strong><small>Захватывай территорию и продумывай каждый ход</small><span class="game-tag">Тактика · Дуэль</span></a>
+<a class="game" href="/games/truth/" data-categories="party logic" style="--glow:#ffb86b"><span class="game-top"><span class="game-icon">⚖️</span><span class="game-arrow">↗</span></span><strong>Правда или ложь</strong><small>Отличай правдивые утверждения от выдуманных</small><span class="game-tag">Компания · Вопросы</span></a>
+<a class="game" href="/games/who-am-i/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🎟️</span><span class="game-arrow">↗</span></span><strong>Кто я?</strong><small>Задавай вопросы и угадывай, кто ты такой</small><span class="game-tag">Слова · Компания</span></a>
+<a class="game" href="/games/who-is-it/" data-categories="logic duel" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🧑‍🎤</span><span class="game-arrow">↗</span></span><strong>Кто это?</strong><small>Задавай вопросы и сужай круг возможных персонажей</small><span class="game-tag">Угадайка</span></a>
+<a class="game" href="/games/word-duel/" data-categories="words duel" style="--glow:#d9f27b"><span class="game-top"><span class="game-icon">🔤</span><span class="game-arrow">↗</span></span><strong>Словесная дуэль</strong><small>Соревнуйся в словах, скорости и сообразительности</small><span class="game-tag">Слова · Дуэль</span></a>
 </nav>
+<div class="empty" id="emptyState">Ничего не нашлось. Попробуй другое название или фильтр.</div>
+</section>
 </main>
-<footer>Новые игры будут появляться здесь. Выбранная игра загружается отдельно.</footer>
+<footer><span>© KAZO · Игровая площадка</span><span>Выбери игру и начинай <a href="https://t.me/+FctvhuFGQBY0ZWNi" target="_blank" rel="noopener">Оставить отзыв ↗</a></span></footer>
 </div>
 <script>
 (()=>{
-  const KEY="kto-eto-profile-v1",form=document.getElementById("profileForm"),nick=document.getElementById("profileNickname"),age=document.getElementById("profileAge"),fileInput=document.getElementById("profileAvatarFile"),preview=document.getElementById("profileAvatarPreview"),error=document.getElementById("profileError");
-  let avatarData="",saved=null;const defaultAvatar="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2248%22%20fill%3D%22%23e8e1f3%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2235%22%20r%3D%2215%22%20fill%3D%22%238879a6%22%2F%3E%3Cpath%20d%3D%22M18%2086c3-18%2015-28%2030-28s27%2010%2030%2028%22%20fill%3D%22%238879a6%22%2F%3E%3C%2Fsvg%3E";
-  try{saved=JSON.parse(localStorage.getItem(KEY)||"null")}catch{}
-  // TEMP: регистрационная панель показывается при каждом новом открытии сайта для тестирования.
-  // Сохранённые данные подставляются в форму, но не пропускают пользователя сразу в меню.
-  document.body.classList.add("needs-profile");
-  if(saved){nick.value=saved.nickname||"";age.value=saved.age||"";if(saved.avatar){avatarData=saved.avatar;preview.src=avatarData;}else{avatarData=defaultAvatar;preview.src=defaultAvatar;}}
-  fileInput.addEventListener("change",()=>{
-    error.textContent="";const file=fileInput.files&&fileInput.files[0];if(!file)return;
-    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){error.textContent="Выбери изображение PNG, JPG, WEBP или GIF.";fileInput.value="";return;}
-    if(file.size>5*1024*1024){error.textContent="Изображение должно быть не больше 5 МБ.";fileInput.value="";return;}
-    const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const canvas=document.createElement("canvas"),side=256;canvas.width=side;canvas.height=side;const ctx=canvas.getContext("2d"),scale=Math.max(side/img.width,side/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(side-w)/2,(side-h)/2,w,h);avatarData=canvas.toDataURL("image/webp",0.82);preview.src=avatarData;};img.onerror=()=>error.textContent="Не удалось прочитать изображение.";img.src=reader.result;};reader.onerror=()=>error.textContent="Не удалось загрузить изображение.";reader.readAsDataURL(file);
+ const grid=document.getElementById('gameGrid'),cards=[...grid.querySelectorAll('.game')],search=document.getElementById('gameSearch'),buttons=[...document.querySelectorAll('.filter')],count=document.getElementById('visibleCount'),empty=document.getElementById('emptyState');
+ let active='all';
+ function update(){
+  const q=search.value.trim().toLocaleLowerCase('ru');let shown=0;
+  cards.forEach(card=>{
+   const category=(card.dataset.categories||'').split(' '),matchesCategory=active==='all'||category.includes(active),matchesText=card.textContent.toLocaleLowerCase('ru').includes(q),visible=matchesCategory&&matchesText;
+   card.hidden=!visible;if(visible)shown++;
   });
-  const accountEdit=document.getElementById("accountEdit"),cancelEdit=document.getElementById("profileCancel"),profileTitle=document.getElementById("profileTitle"),profileIntro=document.querySelector("#profileGate>p"),profileSubmit=document.getElementById("profileSubmit");
-  const originalIntro=profileIntro.textContent;
-  accountEdit.addEventListener("click",()=>{if(!saved)return;nick.value=saved.nickname||"";age.value=saved.age||"";avatarData=saved.avatar||defaultAvatar;preview.src=avatarData;error.textContent="";profileTitle.textContent="Твой аккаунт";profileIntro.textContent="Измени никнейм, возраст или аватар. Изменения сохранятся в профиле.";profileSubmit.textContent="Сохранить изменения";document.body.classList.add("editing-profile");});
-  cancelEdit.addEventListener("click",()=>{document.body.classList.remove("editing-profile");profileTitle.textContent="Добро пожаловать!";profileIntro.textContent=originalIntro;profileSubmit.textContent="Продолжить к играм";error.textContent="";});
-  form.addEventListener("submit",event=>{event.preventDefault();error.textContent="";const nickname=nick.value.trim().replace(/\s+/g," ").slice(0,20),playerAge=Number(age.value);if(!nickname){nick.focus();return;}if(!Number.isInteger(playerAge)||playerAge<13||playerAge>99){error.textContent="Укажи возраст от 13 до 99 лет.";age.focus();return;}try{saved={nickname,age:playerAge,avatar:avatarData||defaultAvatar};localStorage.setItem(KEY,JSON.stringify(saved));}catch{error.textContent="Не удалось сохранить профиль. Попробуй выбрать изображение поменьше.";return;}document.body.classList.remove("needs-profile","editing-profile");profileTitle.textContent="Добро пожаловать!";profileIntro.textContent=originalIntro;profileSubmit.textContent="Продолжить к играм";});
+  count.textContent=shown+' из '+cards.length;empty.style.display=shown?'none':'block';
+ }
+ buttons.forEach(button=>button.addEventListener('click',()=>{
+  active=button.dataset.filter;buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));update();
+ }));
+ search.addEventListener('input',update);
+ update();
 })();
 </script>
 </body>
