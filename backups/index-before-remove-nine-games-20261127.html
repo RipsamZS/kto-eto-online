@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0e15">
+<meta name="description" content="KAZO — игровая площадка. 18 игр для компании, друзей и двоих.">
+<title>KAZO — Игровая площадка</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e15;--surface:#121722;--surface2:#171f2c;--line:#293344;--text:#f3f5fa;--muted:#9aa6b8;--accent:#b59aff;--lime:#d9f27b;--pink:#ff9fbd;--cyan:#84d9e8}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--bg);scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 12% 0%,#292047 0,transparent 35%),radial-gradient(ellipse at 90% 8%,#12313b 0,transparent 30%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.shell{width:min(1180px,calc(100% - 40px));margin:0 auto}
+.topbar{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff13}
+.brand{display:flex;align-items:center;gap:11px;font-size:17px;font-weight:950;letter-spacing:.18em}
+.brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#d8c4ff,#8664cb);color:#15111e;font-size:22px;letter-spacing:0;box-shadow:0 8px 28px #a58aff35}
+.brand span:last-child{color:#f7f4ff}
+.top-link{color:var(--muted);font-size:13px;font-weight:650;padding:9px 13px;border:1px solid var(--line);border-radius:11px;transition:.18s}
+.top-link:hover{color:var(--text);border-color:#7c6aa9;background:#ffffff08}
+.hero{padding:54px 0 34px;max-width:790px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--lime);font-size:11px;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
+.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 15px #d9f27b}
+h1{font-size:clamp(38px,6vw,66px);line-height:1.02;letter-spacing:-.055em;margin:17px 0 15px;font-weight:900}
+h1 .accent{color:var(--accent)}
+.hero p{max-width:600px;margin:0;color:#aab4c3;font-size:16px;line-height:1.7}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.stat{padding:8px 12px;border:1px solid #ffffff14;border-radius:10px;background:#ffffff08;color:#c1cad6;font-size:12px}
+.stat strong{color:var(--text);font-size:14px;margin-right:4px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:15px 0 18px}
+.section-title{font-size:19px;font-weight:850;letter-spacing:-.025em}
+.count{color:var(--muted);font-size:12px;margin-left:8px;font-weight:600}
+.search{position:relative;width:min(320px,100%)}
+.search input{width:100%;height:44px;padding:0 14px 0 42px;border:1px solid var(--line);border-radius:13px;background:#111722;color:var(--text);outline:none}
+.search input:focus{border-color:#8d78c2;box-shadow:0 0 0 3px #a58aff18}
+.search input::placeholder{color:#748094}
+.search:before{content:"⌕";position:absolute;left:15px;top:5px;color:#9aa6b8;font-size:25px;line-height:1}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filter{border:1px solid var(--line);background:#111722;color:#aeb8c8;padding:8px 13px;border-radius:999px;font-size:12px;font-weight:750;cursor:pointer;transition:.18s}
+.filter:hover{border-color:#76659c;color:var(--text)}
+.filter[aria-pressed="true"]{background:#b59aff1c;border-color:#9d84d8;color:#e4d8ff}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding-bottom:52px}
+.game{--glow:#b59aff;position:relative;min-width:0;min-height:154px;display:flex;flex-direction:column;align-items:flex-start;padding:17px 18px 16px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,#171f2c,#111722 72%);overflow:hidden;transition:transform .18s,border-color .18s,background .18s}
+.game:before{content:"";position:absolute;width:120px;height:120px;right:-48px;top:-58px;border-radius:50%;background:var(--glow);opacity:.10;filter:blur(3px);transition:opacity .18s}
+.game:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--glow) 65%,#293344);background:linear-gradient(145deg,#1c2636,#131a27 72%)}
+.game:hover:before{opacity:.23}
+.game-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;margin-bottom:12px;position:relative}
+.game-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:color-mix(in srgb,var(--glow) 15%,#121722);border:1px solid color-mix(in srgb,var(--glow) 28%,transparent);font-size:23px}
+.game-arrow{color:#8491a5;font-size:19px;transition:transform .18s}
+.game:hover .game-arrow{transform:translate(3px,-2px);color:var(--text)}
+.game strong{font-size:16px;font-weight:850;letter-spacing:-.02em;position:relative}
+.game small{display:block;color:#9aa6b8;font-size:12px;line-height:1.5;margin-top:5px;max-width:95%;position:relative}
+.game-tag{position:absolute;right:15px;bottom:15px;color:#78869b;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.empty{display:none;padding:36px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;margin-bottom:48px}
+footer{border-top:1px solid #ffffff13;padding:22px 0 34px;color:#758195;font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{color:#bca9ef}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:43px}}
+@media(max-width:600px){.shell{width:calc(100% - 28px)}.topbar{height:66px}.hero{padding:36px 0 26px}h1{font-size:43px}.hero p{font-size:14px}.toolbar{align-items:flex-start;flex-direction:column;gap:12px}.search{width:100%}.grid{grid-template-columns:1fr;gap:10px}.game{min-height:135px;padding:15px 16px}.game-top{margin-bottom:9px}.game-icon{width:39px;height:39px}.game strong{font-size:15px}.game small{font-size:12px;max-width:100%;padding-right:10px}.game-tag{bottom:14px}footer{font-size:11px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="topbar">
+<a class="brand" href="/" aria-label="KAZO — главная"><span class="brand-mark">K</span><span>KAZO</span></a>
+<a class="top-link" href="https://t.me/+FctvhuFGQBY0ZWNi" target="_blank" rel="noopener">Оставить отзыв ↗</a>
+</header>
+<main>
+<section class="hero">
+<div class="eyebrow">Твоя игровая площадка</div>
+<h1>Выбирай игру.<br><span class="accent">Собирай компанию.</span></h1>
+<p>Слова, логика, командные баталии и быстрые дуэли. Выбирай карточку и переходи прямо к игре.</p>
+<div class="stats"><span class="stat"><strong>18</strong> игр в каталоге</span><span class="stat"><strong>1–∞</strong> игроков — зависит от игры</span><span class="stat">Без установки</span></div>
+</section>
+<section aria-label="Каталог игр">
+<div class="toolbar"><div class="section-title">Все игры <span class="count" id="visibleCount">18 из 18</span></div><label class="search"><input id="gameSearch" type="search" placeholder="Найти игру…" autocomplete="off" aria-label="Найти игру"></label></div>
+<div class="filters" role="group" aria-label="Фильтр игр">
+<button class="filter" type="button" data-filter="all" aria-pressed="true">Все игры</button>
+<button class="filter" type="button" data-filter="words" aria-pressed="false">Слова</button>
+<button class="filter" type="button" data-filter="party" aria-pressed="false">Для компании</button>
+<button class="filter" type="button" data-filter="duel" aria-pressed="false">Дуэли</button>
+<button class="filter" type="button" data-filter="logic" aria-pressed="false">Логика</button>
+</div>
+<nav class="grid" id="gameGrid" aria-label="Каталог игр">
+<a class="game" href="/games/alias/" data-categories="words party" style="--glow:#d9f27b"><span class="game-top"><span class="game-icon">💬</span><span class="game-arrow">↗</span></span><strong>Alias</strong><small>Объясняй слова команде, не называя их</small><span class="game-tag">Слова · Команды</span></a>
+<a class="game" href="/games/associations/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🧠</span><span class="game-arrow">↗</span></span><strong>Ассоциации</strong><small>Связывай идеи и угадывай ход мысли других игроков</small><span class="game-tag">Слова · Компания</span></a>
+<a class="game" href="/games/battleship/" data-categories="duel logic" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🚢</span><span class="game-arrow">↗</span></span><strong>Морской бой</strong><small>Расставляй корабли и находи флот соперника</small><span class="game-tag">Дуэль · Тактика</span></a>
+<a class="game" href="/games/charades/" data-categories="party" style="--glow:#ffb86b"><span class="game-top"><span class="game-icon">🎭</span><span class="game-arrow">↗</span></span><strong>Крокодил</strong><small>Показывай загаданное без слов — пусть команда угадает</small><span class="game-tag">Компания</span></a>
+<a class="game" href="/games/codebreaker/" data-categories="logic duel" style="--glow:#b59aff"><span class="game-top"><span class="game-icon">🔐</span><span class="game-arrow">↗</span></span><strong>Секретный код</strong><small>Подбирай комбинацию и расшифровывай подсказки</small><span class="game-tag">Логика · Дуэль</span></a>
+<a class="game" href="/games/codenames/" data-categories="words party logic" style="--glow:#a9a0ff"><span class="game-top"><span class="game-icon">🗝️</span><span class="game-arrow">↗</span></span><strong>Кодовые имена</strong><small>Находи слова своей команды по подсказкам капитана</small><span class="game-tag">Команды · Слова</span></a>
+<a class="game" href="/games/dots-duel/" data-categories="duel logic" style="--glow:#8bd7b1"><span class="game-top"><span class="game-icon">🔷</span><span class="game-arrow">↗</span></span><strong>Точки и квадраты</strong><small>Соединяй точки, замыкай клетки и набирай очки</small><span class="game-tag">Дуэль · Логика</span></a>
+<a class="game" href="/games/imaginarium/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🎨</span><span class="game-arrow">↗</span></span><strong>Имаджинариум</strong><small>Придумывай ассоциации к картам и угадывай чужие</small><span class="game-tag">Компания · Фантазия</span></a>
+<a class="game" href="/games/mafia/" data-categories="party logic" style="--glow:#e6a4a4"><span class="game-top"><span class="game-icon">🌙</span><span class="game-arrow">↗</span></span><strong>Мафия</strong><small>Обсуждай версии, анализируй роли и принимай решения</small><span class="game-tag">Компания</span></a>
+<a class="game" href="/games/memory-duel/" data-categories="duel logic" style="--glow:#f4cf78"><span class="game-top"><span class="game-icon">🧩</span><span class="game-arrow">↗</span></span><strong>Память на двоих</strong><small>Запоминай расположение пар и опережай соперника</small><span class="game-tag">Дуэль · Память</span></a>
+<a class="game" href="/games/number-duel/" data-categories="duel logic" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🔢</span><span class="game-arrow">↗</span></span><strong>Угадай число</strong><small>Логика и точные догадки в игре один на один</small><span class="game-tag">Дуэль · Числа</span></a>
+<a class="game" href="/games/quiz/" data-categories="party logic" style="--glow:#f4cf78"><span class="game-top"><span class="game-icon">❔</span><span class="game-arrow">↗</span></span><strong>Викторина</strong><small>Проверяй знания и соревнуйся в правильных ответах</small><span class="game-tag">Вопросы · Компания</span></a>
+<a class="game" href="/games/spy/" data-categories="party logic" style="--glow:#b59aff"><span class="game-top"><span class="game-icon">🧭</span><span class="game-arrow">↗</span></span><strong>Шпион</strong><small>Выясни, кто не знает общего места и контекста</small><span class="game-tag">Компания</span></a>
+<a class="game" href="/games/territory/" data-categories="duel logic" style="--glow:#8bd7b1"><span class="game-top"><span class="game-icon">🟩</span><span class="game-arrow">↗</span></span><strong>Захват клеток</strong><small>Захватывай территорию и продумывай каждый ход</small><span class="game-tag">Тактика · Дуэль</span></a>
+<a class="game" href="/games/truth/" data-categories="party logic" style="--glow:#ffb86b"><span class="game-top"><span class="game-icon">⚖️</span><span class="game-arrow">↗</span></span><strong>Правда или ложь</strong><small>Отличай правдивые утверждения от выдуманных</small><span class="game-tag">Компания · Вопросы</span></a>
+<a class="game" href="/games/who-am-i/" data-categories="words party" style="--glow:#ff9fbd"><span class="game-top"><span class="game-icon">🎟️</span><span class="game-arrow">↗</span></span><strong>Кто я?</strong><small>Задавай вопросы и угадывай, кто ты такой</small><span class="game-tag">Слова · Компания</span></a>
+<a class="game" href="/games/who-is-it/" data-categories="logic duel" style="--glow:#84d9e8"><span class="game-top"><span class="game-icon">🧑‍🎤</span><span class="game-arrow">↗</span></span><strong>Кто это?</strong><small>Задавай вопросы и сужай круг возможных персонажей</small><span class="game-tag">Угадайка</span></a>
+<a class="game" href="/games/word-duel/" data-categories="words duel" style="--glow:#d9f27b"><span class="game-top"><span class="game-icon">🔤</span><span class="game-arrow">↗</span></span><strong>Словесная дуэль</strong><small>Соревнуйся в словах, скорости и сообразительности</small><span class="game-tag">Слова · Дуэль</span></a>
+</nav>
+<div class="empty" id="emptyState">Ничего не нашлось. Попробуй другое название или фильтр.</div>
+</section>
+</main>
+<footer><span>© KAZO · Игровая площадка</span><span>Выбери игру и начинай <a href="https://t.me/+FctvhuFGQBY0ZWNi" target="_blank" rel="noopener">Оставить отзыв ↗</a></span></footer>
+</div>
+<script>
+(()=>{
+ const grid=document.getElementById('gameGrid'),cards=[...grid.querySelectorAll('.game')],search=document.getElementById('gameSearch'),buttons=[...document.querySelectorAll('.filter')],count=document.getElementById('visibleCount'),empty=document.getElementById('emptyState');
+ let active='all';
+ function update(){
+  const q=search.value.trim().toLocaleLowerCase('ru');let shown=0;
+  cards.forEach(card=>{
+   const category=(card.dataset.categories||'').split(' '),matchesCategory=active==='all'||category.includes(active),matchesText=card.textContent.toLocaleLowerCase('ru').includes(q),visible=matchesCategory&&matchesText;
+   card.hidden=!visible;if(visible)shown++;
+  });
+  count.textContent=shown+' из '+cards.length;empty.style.display=shown?'none':'block';
+ }
+ buttons.forEach(button=>button.addEventListener('click',()=>{
+  active=button.dataset.filter;buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));update();
+ }));
+ search.addEventListener('input',update);
+ update();
+})();
+</script>
+</body>
+</html>
