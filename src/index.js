@@ -16,6 +16,8 @@ export class GameRoom {
     this.chatMessages = [];
     this.gamePhase = "lobby";
     this.partyState = null;
+    this.spyCategory = "animals";
+    this.spyWords = null;
 
     this.currentTurn = null;
     this.pending = null;
@@ -251,8 +253,11 @@ export class GameRoom {
         view.myTeam = s.teams[id];
       } else if (this.gameId === "spy") {
         delete view.spyId;
-        view.location = s.spyId === id && s.phase !== "finished" ? null : s.location;
+        view.guessOptions = Array.isArray(s.guessOptions) ? s.guessOptions : [];
+        view.word = s.spyId === id ? null : s.word;
         view.isSpy = s.spyId === id;
+        view.isGuessingSpy = s.spyId === id && s.phase === "spy-guess";
+        view.isCurrentSpeaker = s.currentSpeaker === id;
         view.myVote = s.votes?.[id] || null;
       } else if (this.gameId === "imaginarium") {
         delete view.hands;
@@ -306,9 +311,13 @@ export class GameRoom {
       for(const id of ids)this.partyPrivate(id,{role:this.partyState.captains[teams[id]]===id?"captain":"operative",team:teams[id]});
     } else if (this.gameId === "spy") {
       if(ids.length<3)return {ok:false,message:"Для игры «Шпион» нужно минимум 3 игрока."};
-      const places=["Школа","Аэропорт","Космическая станция","Больница","Пляж","Ресторан","Музей","Поезд","Цирк","Отель","Пиратский корабль","Стадион","Библиотека","Полицейский участок","Горнолыжный курорт","Супермаркет"];
+      const fallback=["КОШКА","ПИЦЦА","ТЕЛЕФОН","ФУТБОЛ","ВУЛКАН","САМОЛЁТ","МЕДВЕДЬ","ШОКОЛАД","РОБОТ","ОКЕАН","УЧИТЕЛЬ","ВЕЛОСИПЕД","ПИНГВИН","АРБУЗ","КОСМОС","ГИТАРА","ЗАМОК","РАДУГА","ПИРАТ","КИНО","ЛАМПА","ДРАКОН","СНЕГ","ПЛАНЕТА","КАРАНДАШ","КОМПАС","МОРОЖЕНОЕ","ТРАМВАЙ","БАБОЧКА","ВОДОПАД","ФОТОАППАРАТ","КОРОНА","ПАЛАТКА","САКСОФОН","ЧЕРЕПАХА","МАЯК"];
+      const pool=Array.isArray(this.spyWords)&&this.spyWords.length>=500?this.spyWords:fallback;
+      const guessOptions=this.partyShuffle(pool).slice(0,36);
       const spyId=ids[Math.floor(Math.random()*ids.length)];
-      this.partyState={phase:"discussion",players:profiles,spyId,location:places[Math.floor(Math.random()*places.length)],votes:{},turnIndex:0,order:this.partyShuffle(ids),winner:null};
+      const order=this.partyShuffle(ids);
+      const word=guessOptions[Math.floor(Math.random()*guessOptions.length)];
+      this.partyState={phase:"discussion",players:profiles,spyId,category:this.spyCategory,word,guessOptions,votes:{},turnIndex:0,order,currentSpeaker:order[0],winner:null};
     } else if (this.gameId === "imaginarium") {
       if(ids.length<3)return {ok:false,message:"Для Имаджинариума нужно минимум 3 игрока."};
       const deck=this.partyShuffle(["🌙","🚀","🦋","🏰","🌊","🗝️","🎭","🌲","🔥","🪞","🐈","🎈","⏳","🌈","🕯️","🧩","🦉","🍄","🌋","🎻","🧸","⚡","🪐","🦚","🧭","💎","🌧️","🎠","📚","🪁"]);
@@ -393,6 +402,16 @@ export class GameRoom {
     if(this.gameId==="alias" && action==="alias-pack-default" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};this.aliasWords=null;this.aliasPackName="Стандартный набор";return {ok:true};}
     if(this.gameId==="alias" && action==="alias-pack-select" && !s){if(playerId!==this.hostPlayerId)return {ok:false,message:"Выбирать набор слов может только создатель комнаты."};const words=Array.isArray(payload.words)?[...new Set(payload.words.map(w=>String(w).trim().slice(0,60)).filter(w=>w.length>=2))].slice(0,500):[];if(words.length!==500)return {ok:false,message:"Словарь должен содержать ровно 500 уникальных слов."};this.aliasPackName=String(payload.name||"Общий словарь").slice(0,40);this.aliasWords=words;this.broadcast("party-message",{message:"Выбран пак: "+this.aliasPackName});return {ok:true};}
     if(this.gameId==="alias" && action==="alias-team" && !s){const team=payload.team==="A"?"A":payload.team==="B"?"B":null;if(!team)return {ok:false,message:"Выбери команду."};this.aliasTeams=this.aliasTeams||{};this.aliasTeams[playerId]=team;this.broadcastRoster();return {ok:true};}
+    if(this.gameId==="spy" && action==="spy-category-select" && !s){
+      if(playerId!==this.hostPlayerId || this.gamePhase!=="lobby")return {ok:false,message:"Категорию может менять только создатель комнаты до начала игры."};
+      const category=String(payload.category||"animals").slice(0,32);
+      const allowed=["animals","food","technology","places","nature","transport","professions","sports","objects","fantasy"];
+      const words=Array.isArray(payload.words)?[...new Set(payload.words.map(w=>String(w).trim().slice(0,80)).filter(Boolean))]:[];
+      if(!allowed.includes(category) || words.length<500)return {ok:false,message:"В словаре категории должно быть не менее 500 уникальных слов."};
+      this.spyCategory=category;this.spyWords=words;
+      this.broadcast("room-settings-updated",{spyCategory:category});
+      return {ok:true,category,wordCount:words.length};
+    }
     if(!s || s.phase==="finished")return {ok:false,message:"Партия не активна."};
     if(this.gameId==="alias"){
       if(playerId!==s.activePlayerId)return {ok:false,message:"Сейчас ход другого игрока."};
@@ -434,7 +453,10 @@ export class GameRoom {
       else return {ok:false,message:"Неизвестное действие."};
       if(s.phase==="finished")this.ended=true;
     } else if(this.gameId==="spy"){
-      if(action==="spy-vote"){
+      if(action==="spy-next-turn"){
+        if(s.phase!=="discussion" || playerId!==s.currentSpeaker)return {ok:false,message:"Передать ход может только текущий игрок."};
+        s.turnIndex=(s.turnIndex+1)%s.order.length;s.currentSpeaker=s.order[s.turnIndex];
+      } else if(action==="spy-vote"){
         if(s.phase!=="discussion")return {ok:false,message:"Голосование сейчас закрыто."};
         const target=String(payload.target||"");if(!ids.includes(target)||target===playerId)return {ok:false,message:"Выбери другого игрока."};
         s.votes[playerId]=target;
@@ -444,9 +466,9 @@ export class GameRoom {
           s.accused=top[0][0];s.phase=s.accused===s.spyId?"spy-guess":"finished";s.winner=s.accused===s.spyId?"players":"spy";
         }
       } else if(action==="spy-guess"){
-        if(playerId!==s.spyId||s.phase!=="spy-guess")return {ok:false,message:"Только шпион может назвать место."};
-        const guess=String(payload.location||"").trim().toLocaleLowerCase("ru");
-        s.winner=guess===s.location.toLocaleLowerCase("ru")?"spy":"players";s.phase="finished";this.ended=true;
+        if(playerId!==s.spyId||s.phase!=="spy-guess")return {ok:false,message:"Только шпион может выбрать секретное слово."};
+        const guess=String(payload.word||"").trim().toLocaleLowerCase("ru");
+        s.winner=guess===String(s.word||"").toLocaleLowerCase("ru")?"spy":"players";s.phase="finished";this.ended=true;
       } else return {ok:false,message:"Неизвестное действие."};
       if(s.phase==="finished")this.ended=true;
     } else if(this.gameId==="imaginarium"){
