@@ -916,7 +916,7 @@ export class GameRoom {
         return this.json({ ok: false }, 400);
       }
 
-      if (!room?.roomId || !/^[A-Z0-9_-]{3,16}$/.test(room.roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia","battleship"].includes(room.gameId)) {
+      if (!room?.roomId || !/^[A-Z0-9_-]{3,16}$/.test(room.roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia"].includes(room.gameId)) {
         return this.json({ ok: false }, 400);
       }
 
@@ -1168,10 +1168,7 @@ export class GameRoom {
       if (this.gameId === "who-am-i") this.send(socket, "who-am-i-chat-history", {messages:this.chatMessages.slice(-100)});
 
       await this.updateDirectory();
-      if (
-        (this.gameId === "battleship" && this.players.size === 2) ||
-        (this.gameId === "mafia" && this.players.size >= this.maxPlayers && this.players.size >= 4)
-      ) {
+      if (this.gameId === "mafia" && this.players.size >= this.maxPlayers && this.players.size >= 4) {
         this.partyStart();
       }
       return;
@@ -1644,7 +1641,7 @@ export default {
       const roomId = String(url.searchParams.get("id") || "").trim().toUpperCase();
       const gameId = url.searchParams.get("game") || "who-is-it";
 
-      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia","battleship"].includes(gameId)) {
+      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia"].includes(gameId)) {
         return new Response("Неверный код комнаты", {
           status: 400
         });
