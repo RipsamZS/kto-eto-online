@@ -94,15 +94,22 @@ function renderRoster(){
  }
  if(gameId==="mafia"||gameId==="battleship"){
   const minimum=gameId==="mafia"?4:2,limit=Number(settings.maxPlayers||(gameId==="mafia"?6:2));
-  if(ready)ready.textContent=gameId==="mafia"?"За столом: "+roster.length+" / "+limit+". Для старта нужно 4 игрока.":"За столом: "+roster.length+" / 2. Соперник подключится — матч начнётся.";
+  if(ready)ready.textContent=gameId==="mafia"?"За столом: "+roster.length+" / "+limit+". Свободное место можно занять кнопкой на карточке. Для старта нужно 4 игрока.":"За столом: "+roster.length+" / 2. Соперник подключится — матч начнётся.";
   if(start)start.hidden=true;
   if(gameId==="mafia"){
    const seats=document.getElementById("mafiaLobbySeats"),count=document.getElementById("mafiaLobbyCount");
    if(count)count.textContent=roster.length+" / "+limit;
    if(seats)seats.innerHTML=Array.from({length:limit},(_,i)=>{
-    const p=roster[i];
-    return '<article class="mafia-person-card mafia-lobby-player-card '+(p?"is-filled":"is-empty")+'"><div class="mafia-person-card-face"><span class="mafia-person-card-kicker">'+(p?"ЛИЧНАЯ КАРТА ИГРОКА":"СВОБОДНОЕ МЕСТО")+'</span><div class="mafia-lobby-card-emblem">'+(p?"✦":"＋")+'</div><strong>'+(p?"КАРТА ГОТОВА":"ОЖИДАЕМ ИГРОКА")+'</strong><small>'+(p?"Содержимое будет выдано после начала партии":"Это место займёт следующий участник")+'</small><span class="mafia-lobby-card-index">МЕСТО '+String(i+1).padStart(2,"0")+'</span></div><div class="mafia-person-card-owner"><span class="mafia-person-card-avatar '+(p?"":"is-placeholder")+'">'+(p?avatarHTML(p.avatar||""):"＋")+'</span><span><b>'+(p?esc(p.nickname):"Свободное место")+'</b><small>'+(p?(p.isHost?"СОЗДАТЕЛЬ КОМНАТЫ":"УЧАСТНИК"):"ОЖИДАЕМ ПОДКЛЮЧЕНИЯ")+'</small></span></div></article>';
+    const p=roster.find((player,index)=>Number.isInteger(player.seatIndex)?player.seatIndex===i:player.number-1===i);
+    const mine=!!p&&p.id===me();
+    const action=!p?'<button type="button" class="mafia-seat-claim" data-mafia-seat="'+i+'">ЗАНЯТЬ МЕСТО</button>':mine?'<span class="mafia-seat-current">ТВОЁ МЕСТО</span>':'';
+    return '<article class="mafia-person-card mafia-lobby-player-card '+(p?"is-filled":"is-empty")+(mine?" is-mine":"")+'"><div class="mafia-person-card-face"><span class="mafia-person-card-kicker">'+(p?"ЛИЧНАЯ КАРТА ИГРОКА":"СВОБОДНОЕ МЕСТО")+'</span><div class="mafia-lobby-card-emblem">'+(p?"✦":"＋")+'</div><strong>'+(p?"КАРТА ГОТОВА":"МЕСТО СВОБОДНО")+'</strong><small>'+(p?"Содержимое будет выдано после начала партии":"Нажми кнопку ниже, чтобы занять это место")+'</small><span class="mafia-lobby-card-index">МЕСТО '+String(i+1).padStart(2,"0")+'</span>'+action+'</div><div class="mafia-person-card-owner"><span class="mafia-person-card-avatar '+(p?"":"is-placeholder")+'">'+(p?avatarHTML(p.avatar||""):"＋")+'</span><span><b>'+(p?esc(p.nickname):"Свободное место")+'</b><small>'+(p?(p.isHost?"СОЗДАТЕЛЬ КОМНАТЫ":mine?"ТВОЙ ПРОФИЛЬ":"УЧАСТНИК"):"ОЖИДАЕМ ПОДКЛЮЧЕНИЯ")+'</small></span></div></article>';
    }).join("");
+   seats?.querySelectorAll("[data-mafia-seat]").forEach(button=>button.addEventListener("click",async()=>{
+    button.disabled=true;
+    const result=await window.onlineGame.changeSeat(Number(button.dataset.mafiaSeat));
+    if(!result.ok){say(result.message||"Не удалось занять место.");button.disabled=false;}
+   }));
   }
   if(gameId==="battleship"){const status=document.getElementById("battleshipLobbyStatus");if(status)status.textContent=roster.length>=2?"Флот готовится к бою…":"Подключено "+roster.length+" / 2 · ожидаем соперника";}
   if(host()&&roster.length>=minimum&&!state&&!autoStarting){autoStarting=true;window.onlineGame.startGame().then(result=>{autoStarting=false;if(!result.ok)say(result.message||"Не удалось автоматически начать матч.");}).catch(()=>{autoStarting=false;say("Не удалось начать матч. Проверь подключение.");});}
