@@ -1694,7 +1694,8 @@ export default {
     if (pathname.startsWith("/games/") && ext === "html" && pathname !== "/games/alias" && pathname !== "/games/alias/" && pathname !== "/games/alias/index.html") {
       let gamePage = await new Response(asset.value).text();
       const fullscreenScript = '<style id="kazo-game-fullscreen">:fullscreen body{padding-top:0!important}:fullscreen .page{padding-top:0!important}</style><script>(function(){var busy=false;function goFullscreen(){if(document.fullscreenElement||busy)return;var root=document.documentElement;if(!root.requestFullscreen)return;busy=true;try{var result=root.requestFullscreen();if(result&&result.then)result.then(function(){busy=false;}).catch(function(){busy=false;});else busy=false;}catch(_){busy=false;}}document.addEventListener("pointerdown",goFullscreen,{capture:true,passive:true});document.addEventListener("touchstart",goFullscreen,{capture:true,passive:true});document.addEventListener("keydown",goFullscreen,true);})();</script>';
-      gamePage = gamePage.replace('</head>', fullscreenScript+'</head>');
+      const sharedGameBackground = pathname.startsWith("/games/mafia") ? '<style id="kazo-shared-game-background-20261127">html,body{background:#0b1019!important;background-image:radial-gradient(ellipse at 12% 0%,rgba(105,91,214,.14),transparent 42%),radial-gradient(ellipse at 94% 12%,rgba(43,150,190,.09),transparent 34%),linear-gradient(180deg,#0b1019 0%,#101827 100%)!important;color-scheme:dark!important}</style>' : "";
+      gamePage = gamePage.replace('</head>', fullscreenScript+sharedGameBackground+'</head>');
       return new Response(request.method === "HEAD" ? null : gamePage, { status: 200, headers });
     }
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
