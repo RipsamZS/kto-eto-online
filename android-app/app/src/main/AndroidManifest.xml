@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="false"
-        android:label="Kaza"
+        android:label="Kazo"
         android:icon="@drawable/launcher_foreground"
         android:roundIcon="@drawable/launcher_foreground"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
