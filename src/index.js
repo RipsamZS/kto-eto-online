@@ -1499,6 +1499,30 @@ export default {
       return directory.fetch(request);
     }
 
-    return env.ASSETS.fetch(request);
+    // Static site files are stored in the KAZO_STATIC KV namespace.
+    let pathname;
+    try { pathname = decodeURIComponent(url.pathname); }
+    catch { return new Response("Bad request", { status: 400 }); }
+    if (pathname.includes("\\\\") || pathname.split("/").some(part => part === "..")) {
+      return new Response("Bad request", { status: 400 });
+    }
+    const candidates = [pathname];
+    if (pathname.endsWith("/")) candidates.push(pathname + "index.html");
+    else if (!pathname.split("/").pop().includes(".")) candidates.push(pathname + "/index.html", pathname + ".html");
+    let asset = null;
+    for (const key of candidates) {
+      const found = await env.KAZO_STATIC.getWithMetadata(key, { type: "arrayBuffer" });
+      if (found && found.value) { asset = found; break; }
+    }
+    if (!asset) return new Response("Not found", { status: 404 });
+    const meta = asset.metadata || {};
+    const foundKey = candidates.find(key => key === pathname && key.includes(".")) || candidates.find(key => key.endsWith(".html")) || (pathname.endsWith("/") ? "index.html" : pathname);
+    const ext = foundKey.split(".").pop().toLowerCase();
+    const types = { html:"text/html; charset=utf-8", js:"application/javascript; charset=utf-8", css:"text/css; charset=utf-8", json:"application/json; charset=utf-8", svg:"image/svg+xml", png:"image/png", jpg:"image/jpeg", jpeg:"image/jpeg", webp:"image/webp", gif:"image/gif", ico:"image/x-icon", woff:"font/woff", woff2:"font/woff2", mp3:"audio/mpeg", mp4:"video/mp4" };
+    const headers = new Headers();
+    headers.set("Content-Type", meta.contentType || types[ext] || "application/octet-stream");
+    headers.set("Cache-Control", meta.cacheControl || (ext === "html" ? "no-store" : "public, max-age=3600"));
+    headers.set("X-Content-Type-Options", "nosniff");
+    return new Response(request.method === "HEAD" ? null : asset.value, { status: 200, headers });
   }
 };
