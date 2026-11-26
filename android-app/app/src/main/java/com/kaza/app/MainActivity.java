@@ -3,6 +3,7 @@ package com.kaza.app;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.CookieManager;
@@ -15,17 +16,38 @@ import android.widget.Toast;
 
 public class MainActivity extends android.app.Activity {
     private static final String HOME = "https://kazo-hub-beta.casual-online.workers.dev/";
+    private static final String[] APP_HOSTS = {
+        "kazo-hub-beta.casual-online.workers.dev",
+        "kaza.casual-online.workers.dev"
+    };
     private WebView webView;
+
+    private boolean isAppUrl(Uri uri) {
+        if (uri == null || uri.getHost() == null) return false;
+        String scheme = uri.getScheme();
+        if (!"https".equalsIgnoreCase(scheme) && !"http".equalsIgnoreCase(scheme)) return false;
+        String host = uri.getHost();
+        for (String appHost : APP_HOSTS) {
+            if (appHost.equalsIgnoreCase(host)) return true;
+        }
+        return false;
+    }
+
+    private void openExternal(Uri uri) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } catch (ActivityNotFoundException ex) {
+            Toast.makeText(this, "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(android.graphics.Color.rgb(12, 15, 20));
-        getWindow().setNavigationBarColor(android.graphics.Color.rgb(243, 240, 233));
-        getWindow().getDecorView().setSystemUiVisibility(
-            0
-        );
+        getWindow().setStatusBarColor(Color.rgb(12, 15, 20));
+        getWindow().setNavigationBarColor(Color.rgb(12, 15, 20));
+        getWindow().getDecorView().setSystemUiVisibility(0);
 
         webView = new WebView(this);
         setContentView(webView);
@@ -36,7 +58,7 @@ public class MainActivity extends android.app.Activity {
         settings.setDatabaseEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setSupportMultipleWindows(false);
-        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setLoadsImagesAutomatically(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         CookieManager.getInstance().setAcceptCookie(true);
@@ -47,20 +69,26 @@ public class MainActivity extends android.app.Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                String host = uri.getHost();
-                if ("kaza.casual-online.workers.dev".equalsIgnoreCase(host)) return false;
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
-                } catch (ActivityNotFoundException ex) {
-                    Toast.makeText(MainActivity.this, "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show();
-                }
+                if (isAppUrl(uri)) return false;
+                openExternal(uri);
+                return true;
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Uri uri = Uri.parse(url);
+                if (isAppUrl(uri)) return false;
+                openExternal(uri);
                 return true;
             }
         });
 
-        if (savedInstanceState != null) webView.restoreState(savedInstanceState);
-        else webView.loadUrl(HOME);
-
+        if (savedInstanceState != null) {
+            if (webView.restoreState(savedInstanceState) == null) webView.loadUrl(HOME);
+        } else {
+            webView.loadUrl(HOME);
+        }
     }
 
     @Override
