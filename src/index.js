@@ -1074,7 +1074,7 @@ export class GameRoom {
       this.playerProfiles.set(playerId, {
         nickname: String(settings.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
         avatar: typeof settings.avatar === "string" && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(settings.avatar) && settings.avatar.length <= 700000 ? settings.avatar : "🙂",
-        seatIndex: null
+        seatIndex: this.gameId === "mafia" ? 0 : null
       });
 
       await this.updateDirectory();
@@ -1131,7 +1131,7 @@ export class GameRoom {
       this.playerProfiles.set(playerId, {
         nickname: String(profile.nickname || "Игрок").trim().slice(0, 20) || "Игрок",
         avatar: typeof profile.avatar === "string" && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(profile.avatar) && profile.avatar.length <= 700000 ? profile.avatar : "🙂",
-        seatIndex: null
+        seatIndex: this.gameId === "mafia" ? Array.from({length:this.maxPlayers},(_,i)=>i).find(i=>![...this.playerProfiles.values()].some(p=>p.seatIndex===i)) ?? null : null
       });
       reply({
         ok: true,
@@ -1186,7 +1186,7 @@ export class GameRoom {
       return;
     }
 
-    if (event === "select-seat" && this.gameId === "who-am-i") {
+    if (event === "select-seat" && (this.gameId === "who-am-i" || this.gameId === "mafia")) {
       if (this.gamePhase !== "lobby") {
         reply({ ok:false, message:"Место можно выбрать только до начала игры." });
         return;
