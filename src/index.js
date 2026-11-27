@@ -1086,7 +1086,8 @@ export class GameRoom {
       const allowedTimers = [0, 15, 30, 45, 60, 90, 120];
       const timerSeconds = Number(settings.timerSeconds ?? 0);
       const requestedCode = String(settings.roomCode || this.roomId || "").trim().toUpperCase();
-      if (!/^[A-Z0-9_-]{3,16}$/.test(requestedCode) || requestedCode !== this.roomId || ![2,3,4,5,6].includes(requestedMaxPlayers) || !allowedTimers.includes(timerSeconds)) {
+      const allowedRoomSizes = this.gameId === "mafia" ? [2,3,4,5,6,7,8,9,10,11,12] : [2,3,4,5,6];
+      if (!/^[A-Z0-9_-]{3,16}$/.test(requestedCode) || requestedCode !== this.roomId || !allowedRoomSizes.includes(requestedMaxPlayers) || !allowedTimers.includes(timerSeconds)) {
         reply({ ok: false, message: "Проверь код комнаты, количество игроков и время на вопрос." });
         return;
       }
