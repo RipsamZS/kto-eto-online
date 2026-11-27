@@ -295,3 +295,5 @@ body[data-game="mafia"] :is(h1,h2,h3,h4,p,span,b,strong,small,label,em):not(butt
 .mafia-role-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
 #mafiaRoleStatus{margin-top:12px;color:#b9c9dd}
 @media(max-width:520px){.mafia-role-dialog-card{padding:18px}.mafia-role-dialog-title{font-size:20px}}
+
+.mafia-role-current{margin:10px 0;padding:10px 12px;border-radius:9px;background:#17263a;color:#c4d2e5;font-size:12px;line-height:1.5}
