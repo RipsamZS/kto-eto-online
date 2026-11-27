@@ -290,8 +290,7 @@ export class GameRoom {
         delete view.roles;
         delete view.nightActions;
         delete view.investigations;
-      }
-    } else if (this.gameId === "battleship") {
+      } else if (this.gameId === "battleship") {
         const opponentId = s.order?.find(other => other !== id);
         view.myShip = [...(s.fleets?.[id] || [])];
         view.myReady = !!s.placementReady?.[id];
