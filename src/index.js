@@ -430,7 +430,7 @@ export class GameRoom {
     const s=this.partyState, ids=[...this.players.keys()];
     if (action === "test-bots-add") {
       if (playerId !== this.hostPlayerId || this.partyState || this.gamePhase !== "lobby") return {ok:false,message:"Добавлять тестовых ботов может только создатель до начала игры."};
-      const required = this.gameId === "codenames" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
+      const required = this.gameId === "codenames" || this.gameId === "bunker" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
       const requested = Math.max(1, Math.min(5, Number(payload.count) || required - this.players.size));
       const limit = this.gameId === "who-am-i" ? Math.min(6,this.maxPlayers) : this.maxPlayers;
       const amount = Math.min(requested, limit - this.players.size, 6 - this.players.size);
