@@ -16,6 +16,7 @@ export class GameRoom {
     this.chatMessages = [];
     this.gamePhase = "lobby";
     this.partyState = null;
+    this.mafiaRoleConfig = null;
 
     this.currentTurn = null;
     this.pending = null;
@@ -357,11 +358,12 @@ export class GameRoom {
       const shuffled = this.partyShuffle(ids);
       const roles = {};
       let cursor = 0;
-      const mafiaCount = ids.length >= 6 ? 2 : 1;
-      for (let i = 0; i < mafiaCount; i++) roles[shuffled[cursor++]] = "Мафия";
-      if (ids.length >= 5) roles[shuffled[cursor++]] = "Комиссар";
-      if (ids.length >= 6) roles[shuffled[cursor++]] = "Доктор";
-      while (cursor < shuffled.length) roles[shuffled[cursor++]] = "Мирный житель";
+      const config = this.mafiaRoleConfig || {mafia:ids.length >= 6 ? 2 : 1, commissioner:ids.length >= 5 ? 1 : 0, doctor:ids.length >= 6 ? 1 : 0, civilian:ids.length - (ids.length >= 6 ? 4 : (ids.length >= 5 ? 2 : 1))};
+      if (config.mafia + config.commissioner + config.doctor + config.civilian !== ids.length || config.mafia < 1) return {ok:false,message:"Сначала настрой роли под текущее количество игроков."};
+      for (let i = 0; i < config.mafia; i++) roles[shuffled[cursor++]] = "Мафия";
+      for (let i = 0; i < config.commissioner; i++) roles[shuffled[cursor++]] = "Комиссар";
+      for (let i = 0; i < config.doctor; i++) roles[shuffled[cursor++]] = "Доктор";
+      for (let i = 0; i < config.civilian; i++) roles[shuffled[cursor++]] = "Мирный житель";
       this.partyState = {
         phase:"night", players:profiles, roles, alive:[...ids], votes:{}, nightActions:{},
         investigations:{}, round:1, winner:null, eliminated:[], lastNight:null, lastVote:null
@@ -430,6 +432,16 @@ export class GameRoom {
 
   partyHandleAction(playerId, action, payload) {
     const s=this.partyState, ids=[...this.players.keys()];
+    if (action === "mafia-role-config") {
+      if (this.gameId !== "mafia" || playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.partyState) return {ok:false,message:"Настраивать роли может только ведущий до начала игры."};
+      const mafia = Math.max(0, Math.min(6, Math.floor(Number(payload.mafia) || 0)));
+      const commissioner = Math.max(0, Math.min(6, Math.floor(Number(payload.commissioner) || 0)));
+      const doctor = Math.max(0, Math.min(6, Math.floor(Number(payload.doctor) || 0)));
+      const civilian = Math.max(0, Math.min(6, Math.floor(Number(payload.civilian) || 0)));
+      if (mafia < 1 || mafia + commissioner + doctor + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Мафия — минимум одна."};
+      this.mafiaRoleConfig = {mafia, commissioner, doctor, civilian};
+      return {ok:true};
+    }
     if (action === "test-bots-add") {
       if (playerId !== this.hostPlayerId || this.partyState || this.gamePhase !== "lobby") return {ok:false,message:"Добавлять тестовых ботов может только создатель до начала игры."};
       const required = this.gameId === "codenames" || this.gameId === "bunker" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
