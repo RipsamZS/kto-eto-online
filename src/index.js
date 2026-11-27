@@ -1726,16 +1726,8 @@ export default {
     headers.set("Content-Type", meta.contentType || types[ext] || "application/octet-stream");
     headers.set("Cache-Control", meta.cacheControl || (ext === "html" ? "no-store" : "public, max-age=3600"));
     headers.set("X-Content-Type-Options", "nosniff");
-    if (pathname.startsWith("/games/") && ext === "html" && pathname !== "/games/alias" && pathname !== "/games/alias/" && pathname !== "/games/alias/index.html" && !pathname.startsWith("/games/mafia") && !pathname.startsWith("/games/battleship")) {
-      let gamePage = await new Response(asset.value).text();
-      const fullscreenScript = '<style id="kazo-game-fullscreen">:fullscreen body{padding-top:0!important}:fullscreen .page{padding-top:0!important}</style><script>(function(){var busy=false;function goFullscreen(){if(document.fullscreenElement||busy)return;var root=document.documentElement;if(!root.requestFullscreen)return;busy=true;try{var result=root.requestFullscreen();if(result&&result.then)result.then(function(){busy=false;}).catch(function(){busy=false;});else busy=false;}catch(_){busy=false;}}document.addEventListener("pointerdown",goFullscreen,{capture:true,passive:true});document.addEventListener("touchstart",goFullscreen,{capture:true,passive:true});document.addEventListener("keydown",goFullscreen,true);})();</script>';
-      gamePage = gamePage.replace('</head>', fullscreenScript+'</head>');
-      return new Response(request.method === "HEAD" ? null : gamePage, { status: 200, headers });
-    }
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
       let page = await new Response(asset.value).text();
-      const fullscreenScript = '<style id="kazo-game-fullscreen">:fullscreen body{padding-top:0!important}:fullscreen .page{padding-top:0!important}</style><script>(function(){var busy=false;function goFullscreen(){if(document.fullscreenElement||busy)return;var root=document.documentElement;if(!root.requestFullscreen)return;busy=true;try{var result=root.requestFullscreen();if(result&&result.then)result.then(function(){busy=false;}).catch(function(){busy=false;});else busy=false;}catch(_){busy=false;}}document.addEventListener("pointerdown",goFullscreen,{capture:true,passive:true});document.addEventListener("touchstart",goFullscreen,{capture:true,passive:true});document.addEventListener("keydown",goFullscreen,true);})();</script>';
-      page = page.replace('</head>', fullscreenScript+'</head>');
       page = page.replace('const words=window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[];if(words.length!==1500)throw new Error("Словарь не загрузился полностью.");','const words=(window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[]).slice(0,2500);if(words.length!==2500)throw new Error("Словарь не загрузился полностью.");');
       page = page.replace(
         'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";',
