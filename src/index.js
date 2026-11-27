@@ -270,6 +270,10 @@ export class GameRoom {
         view.mySubmissionId = s.submissionIds?.[id] || null;
         view.myVote = s.votes?.[id] || null;
       }
+      if (this.gameId === "bunker") {
+        view.myCards = {...(s.cards?.[id] || {})};
+        delete view.cards;
+      }
       if (this.gameId === "mafia") {
         const role = s.roles?.[id] || "Мирный житель";
         view.myRole = role;
@@ -286,7 +290,21 @@ export class GameRoom {
         delete view.roles;
         delete view.nightActions;
         delete view.investigations;
-      } else if (this.gameId === "battleship") {
+      } else if (this.gameId === "bunker") {
+      if (ids.length < 4) return {ok:false,message:"Для игры «Бункер» нужно минимум 4 игрока."};
+      const pick = list => list[Math.floor(Math.random()*list.length)];
+      const decks = {
+        profession:["Врач","Инженер","Учитель","Повар","Биолог","Строитель","Пилот","Фермер","Программист","Спасатель","Археолог","Электрик"],
+        health:["Отличное здоровье","Аллергия на пыльцу","Нужны очки для чтения","Хорошая выносливость","Непереносимость холода","Первая помощь"],
+        hobby:["Садоводство","Ремонт техники","Кулинария","Рисование","Рыбалка","Настольные игры","Походы","Музыка"],
+        baggage:["Набор инструментов","Аптечка","Семена растений","Книги и карты","Запас тёплой одежды","Фильтр для воды","Радиоприёмник"],
+        phobia:["Высота","Замкнутые пространства","Глубокая вода","Насекомые","Темнота","Нет выраженной фобии"],
+        fact:["Умеет чинить генератор","Знает основы ботаники","Говорит на двух языках","Может готовить из простых продуктов","Умеет ориентироваться по звёздам","Хорошо ладит с детьми"]
+      };
+      const cards = Object.fromEntries(ids.map(id=>[id,Object.fromEntries(Object.entries(decks).map(([key,list])=>[key,pick(list)]))]));
+      const disasters=["Глобальное отключение электричества","Сильное загрязнение окружающей среды","Длительная климатическая аномалия","Крупная природная катастрофа","Глобальный сбой связи и инфраструктуры"];
+      this.partyState={phase:"reveal",players:profiles,order:this.partyShuffle(ids),active:[...ids],cards,capacity:Math.max(2,Math.ceil(ids.length/2)),disaster:pick(disasters),revealed:{},votes:{},eliminated:[],round:1,lastEliminated:null,winner:null};
+    } else if (this.gameId === "battleship") {
         const opponentId = s.order?.find(other => other !== id);
         view.myShip = [...(s.fleets?.[id] || [])];
         view.myReady = !!s.placementReady?.[id];
@@ -586,6 +604,33 @@ export class GameRoom {
           else { s.phase = "night"; s.round++; s.votes = {}; s.nightActions = {}; }
         }
       } else return {ok:false,message:"Неизвестное действие."};
+    } else if (this.gameId === "bunker") {
+      const active=s.active||[];
+      if(action==="bunker-reveal"){
+        const category=String(payload.category||"");
+        const allowed=["profession","health","hobby","baggage","phobia","fact"];
+        if(s.phase!=="reveal"||!active.includes(playerId)||s.revealed[playerId])return {ok:false,message:"Сейчас нельзя открыть карточку."};
+        if(!allowed.includes(category))return {ok:false,message:"Выбери одну из своих карточек."};
+        s.revealed[playerId]={category,value:s.cards?.[playerId]?.[category]||""};
+        if(active.every(id=>!!s.revealed[id]))s.phase="discussion";
+      }else if(action==="bunker-open-vote"){
+        if(playerId!==this.hostPlayerId||s.phase!=="discussion")return {ok:false,message:"Голосование может открыть только ведущий после обсуждения."};
+        s.phase="voting";s.votes={};
+      }else if(action==="bunker-vote"){
+        if(s.phase!=="voting"||!active.includes(playerId)||s.votes[playerId])return {ok:false,message:"Сейчас нельзя голосовать."};
+        const target=String(payload.target||"");
+        if(!active.includes(target)||target===playerId)return {ok:false,message:"Выбери другого участника."};
+        s.votes[playerId]=target;
+        if(active.every(id=>!!s.votes[id])){
+          const tally={};Object.values(s.votes).forEach(id=>tally[id]=(tally[id]||0)+1);
+          const ranked=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+          const eliminatedId=ranked.length&&(!ranked[1]||ranked[0][1]>ranked[1][1])?ranked[0][0]:null;
+          s.lastEliminated=eliminatedId;
+          if(eliminatedId){s.active=active.filter(id=>id!==eliminatedId);s.eliminated.push(eliminatedId);}
+          if(s.active.length<=s.capacity){s.phase="finished";s.winner=[...s.active];this.ended=true;}
+          else{s.phase="reveal";s.round++;s.revealed={};s.votes={};}
+        }
+      }else return {ok:false,message:"Неизвестное действие."};
     } else if (this.gameId === "battleship") {
       if (action === "battleship-place-fleet") {
         if (s.phase !== "placement" || s.placementReady?.[playerId]) return {ok:false,message:"Расстановка уже подтверждена или недоступна."};
