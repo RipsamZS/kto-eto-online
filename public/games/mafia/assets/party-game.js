@@ -17,8 +17,7 @@ function minimumPlayers(){return gameId==="codenames"||gameId==="mafia"?4:(gameI
 function ensureKazoRoomNav(){
  if(document.getElementById("kazoRoomNav")||!window.onlineGame||!window.onlineGame.getRoomCode?.())return;
  const nav=document.createElement("div");nav.id="kazoRoomNav";nav.className="kazo-room-nav";
- nav.innerHTML='<a class="kazo-room-nav-btn" href="/">← В главное лобби</a><button class="kazo-room-nav-btn" id="kazoRoomMenuToggle" type="button">☰ Меню комнаты</button>';
- nav.querySelector("a").onclick=()=>{try{window.onlineGame.leaveRoom();}catch(e){}};
+ nav.innerHTML='<button class="kazo-room-nav-btn" id="kazoRoomMenuToggle" type="button">☰ Меню комнаты</button>';
  const panel=document.createElement("section");panel.id="kazoRoomMenuPanel";panel.className="kazo-room-menu-panel";panel.hidden=true;
  const maxOptions=gameId==="mafia"?'<option value="4">4 игрока</option><option value="5">5 игроков</option><option value="6">6 игроков</option>':'<option value="2">2 игрока</option>';
  const settingsPanel=host()?'<div class="kazo-room-settings"><div class="kazo-room-settings-title">Настройки матча</div><label>Название комнаты<input id="roomMenuName" maxlength="50"></label><label>Доступ<select id="roomMenuAccess"><option value="private">По коду</option><option value="public">Открытая</option></select></label><label>Игроков<select id="roomMenuMax">'+maxOptions+'</select></label><button type="button" class="kazo-room-nav-action" id="roomMenuSave">Сохранить настройки</button><div class="muted" id="roomMenuStatus"></div></div>':'<p class="muted">Настройки комнаты доступны её создателю.</p>';
