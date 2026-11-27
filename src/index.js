@@ -437,7 +437,7 @@ export class GameRoom {
     this.partySendState();
   }
 
-  partyHandleAction(playerId, action, payload) {
+  async partyHandleAction(playerId, action, payload) {
     const s=this.partyState, ids=[...this.players.keys()];
     if (action === "mafia-role-config") {
       if (this.gameId !== "mafia" || playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.partyState) return {ok:false,message:"Настраивать роли может только ведущий до начала игры."};
@@ -447,7 +447,7 @@ export class GameRoom {
       const civilian = Math.max(0, Math.min(6, Math.floor(Number(payload.civilian) || 0)));
       if (mafia < 1 || mafia >= this.players.size || mafia + commissioner + doctor + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Нужна минимум одна мафия и минимум один житель города."};
       this.mafiaRoleConfig = {mafia, commissioner, doctor, civilian};
-      this.ctx.storage.put("mafiaRoleConfig", this.mafiaRoleConfig).catch(() => {});
+      await this.ctx.storage.put("mafiaRoleConfig", this.mafiaRoleConfig);
       this.broadcast("mafia-role-config", {config:this.mafiaRoleConfig, playerCount:this.players.size});
       return {ok:true};
     }
@@ -1476,7 +1476,7 @@ export class GameRoom {
     if (event === "party-action") {
       const action=String(data.action||"");
       const payload=data.payload&&typeof data.payload==="object"?data.payload:{};
-      const result=this.partyHandleAction(playerId,action,payload);
+      const result=await this.partyHandleAction(playerId,action,payload);
       reply(result); return;
     }
     if (event === "player-ready") {
