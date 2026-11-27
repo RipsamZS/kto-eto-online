@@ -272,6 +272,7 @@ export class GameRoom {
       }
       if (this.gameId === "bunker") {
         view.myCards = {...(s.cards?.[id] || {})};
+        view.votes = s.phase === "finished" ? {...(s.votes || {})} : (s.votes?.[id] ? {[id]:s.votes[id]} : {});
         delete view.cards;
       }
       if (this.gameId === "mafia") {
