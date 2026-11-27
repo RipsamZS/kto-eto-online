@@ -243,3 +243,41 @@ body[data-game="mafia"] #mafiaLobbySeats>.mafia-lobby-player-card,
 body.mafia-lobby-field #mafiaLobbySeats>.mafia-lobby-player-card{display:flex!important;visibility:visible!important;opacity:1!important;min-height:210px!important}
 body[data-game="mafia"] .mafia-lobby-table{display:block!important;visibility:visible!important;opacity:1!important}
 @media(max-width:650px){body[data-game="mafia"] #mafiaLobbySeats,body.mafia-lobby-field #mafiaLobbySeats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}}
+
+
+/* Mafia: clean, text-minimal game surface */
+body[data-game="mafia"] .top,
+body[data-game="mafia"] .game-title-panel,
+body[data-game="mafia"] .setup-kicker,
+body[data-game="mafia"] .mafia-lobby-top,
+body[data-game="mafia"] .mafia-lobby-foot,
+body[data-game="mafia"] .room-roster-bar>h3,
+body[data-game="mafia"] #readyInfo,
+body[data-game="mafia"] .room-roster-bar>.muted,
+body[data-game="mafia"] .mafia-person-card-face>.mafia-person-card-kicker,
+body[data-game="mafia"] .mafia-person-card-face>small,
+body[data-game="mafia"] .mafia-person-card-slot,
+body[data-game="mafia"] .mafia-seat-card-art>small,
+body[data-game="mafia"] .mafia-seat-owner small,
+body[data-game="mafia"] .mafia-seat-card-kicker,
+body[data-game="mafia"] .mafia-seat-card-slot,
+body[data-game="mafia"] .mafia-action-card>p,
+body[data-game="mafia"] .mafia-action-card>h2,
+body[data-game="mafia"] .mafia-phase-label,
+body[data-game="mafia"] .redesign-heading,
+body[data-game="mafia"] .players-heading,
+body[data-game="mafia"] .room-toolbar>div:first-child,
+body[data-game="mafia"] .kazo-room-menu-title,
+body[data-game="mafia"] .kazo-room-menu-code,
+body[data-game="mafia"] .kazo-room-settings-title,
+body[data-game="mafia"] .kazo-room-settings label,
+body[data-game="mafia"] #roomMenuStatus,
+body[data-game="mafia"] .kazo-room-menu-panel>p {display:none!important}
+body[data-game="mafia"] .game-board-shell--mafia>.setup-kicker{display:none!important}
+body[data-game="mafia"] .room-roster-bar{border:0!important;padding:0!important;margin:8px 0 0!important}
+body[data-game="mafia"] .room-roster-bar .players{display:none!important}
+body[data-game="mafia"] .mafia-lobby-table{border:0!important;box-shadow:none!important;padding:0!important;background:transparent!important}
+body[data-game="mafia"] .mafia-person-card-owner small{display:none!important}
+body[data-game="mafia"] .mafia-person-card-face strong{margin:auto}
+body[data-game="mafia"] .kazo-room-menu-panel input,
+body[data-game="mafia"] .kazo-room-menu-panel select{margin:6px 0 10px}
