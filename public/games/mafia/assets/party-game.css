@@ -284,3 +284,14 @@ body[data-game="mafia"] .kazo-room-menu-panel select{margin:6px 0 10px}
 
 /* Strict text cleanup: keep text only on actual buttons */
 body[data-game="mafia"] :is(h1,h2,h3,h4,p,span,b,strong,small,label,em):not(button *):not(.mafia-person-card-avatar):not(.mafia-lobby-card-emblem){display:none!important}
+
+.mafia-role-dialog{position:fixed;inset:0;z-index:9999;background:rgba(3,7,13,.82);display:grid;place-items:center;padding:16px}
+.mafia-role-dialog[hidden]{display:none!important}
+.mafia-role-dialog-card{width:min(100%,620px);max-height:min(90vh,760px);overflow:auto;background:#111c2c;border:1px solid #354761;border-radius:18px;padding:24px;box-shadow:0 24px 90px rgba(0,0,0,.55)}
+.mafia-role-dialog-title{font-size:24px;font-weight:800;margin-bottom:8px}
+.mafia-role-dialog-subtitle,.mafia-role-total{color:#aab8cb;margin:8px 0 16px}
+.mafia-role-grid{display:grid;grid-template-columns:1fr minmax(90px,160px);gap:12px 16px;align-items:center}
+.mafia-role-grid>div{font-weight:700}
+.mafia-role-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+#mafiaRoleStatus{margin-top:12px;color:#b9c9dd}
+@media(max-width:520px){.mafia-role-dialog-card{padding:18px}.mafia-role-dialog-title{font-size:20px}}
