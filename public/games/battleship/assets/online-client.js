@@ -1199,35 +1199,30 @@
 
   // Автоматическое восстановление онлайн-комнаты после перезагрузки отключено.
 
-  // Restore the former tap-anywhere fullscreen behavior in room lobbies only.
+  // KAZO lobby tap-to-fullscreen: only while the room is waiting to start.
   (() => {
-    const visible = element => {
-      if (!element || !element.isConnected) return false;
-      const style = window.getComputedStyle(element);
-      return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
-    };
+    const visible = el => !!el && el.isConnected && getComputedStyle(el).display !== 'none' && getComputedStyle(el).visibility !== 'hidden' && el.getClientRects().length > 0;
     const isLobby = () => {
       if (window.onlineRoomActive !== true) return false;
-      const start = document.querySelector('#startGame, #startPartyGame, [data-action="start-game"], [data-role="start-game"]');
+      const start = document.querySelector('#startGame, #startPartyGame, #startPrestart, #start, [data-action="start-game"], [data-role="start-game"]');
       if (visible(start)) return true;
-      const lobby = document.querySelector('#roomLobby, #lobbyScreen, .room-lobby, .lobby-screen.active, .lobby.active, [data-screen="lobby"].active');
+      const startByText = [...document.querySelectorAll('button')].find(button => visible(button) && /начать игру/i.test(button.textContent || ''));
+      if (startByText) return true;
+      const lobby = document.querySelector('#roomLobby, #lobbyScreen, .room-roster-bar, .spy-table, .spy-board, .lobby-screen.active, .lobby.active, .room-lobby, [data-screen="lobby"].active');
       const game = document.querySelector('#gameScreen.active, .game-screen.active, [data-screen="game"].active');
       return visible(lobby) && !visible(game);
     };
-    const enterFullscreen = () => {
+    const enter = () => {
       if (!isLobby() || document.fullscreenElement || document.webkitFullscreenElement) return;
       const root = document.documentElement;
       try {
-        if (root.requestFullscreen) {
-          const result = root.requestFullscreen({ navigationUI: 'hide' });
-          if (result && typeof result.catch === 'function') result.catch(() => {});
-        } else if (root.webkitRequestFullscreen) {
-          root.webkitRequestFullscreen();
-        }
+        if (root.requestFullscreen) { const p = root.requestFullscreen({ navigationUI: 'hide' }); if (p && p.catch) p.catch(() => {}); }
+        else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
       } catch {}
     };
-    document.addEventListener('pointerdown', enterFullscreen, { capture: true, passive: true });
-    document.addEventListener('touchend', enterFullscreen, { capture: true, passive: true });
+    document.addEventListener('pointerdown', enter, { capture: true, passive: true });
+    document.addEventListener('touchend', enter, { capture: true, passive: true });
   })();
+
 
 })();
