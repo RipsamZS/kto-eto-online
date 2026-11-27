@@ -17,6 +17,9 @@ export class GameRoom {
     this.gamePhase = "lobby";
     this.partyState = null;
     this.mafiaRoleConfig = null;
+    this.ctx.blockConcurrencyWhile(async () => {
+      this.mafiaRoleConfig = await this.ctx.storage.get("mafiaRoleConfig") || null;
+    });
 
     this.currentTurn = null;
     this.pending = null;
@@ -114,6 +117,9 @@ export class GameRoom {
 
   broadcastRoster() {
     this.broadcast("room-roster", this.rosterData());
+    if (this.gameId === "mafia" && this.mafiaRoleConfig) {
+      this.broadcast("mafia-role-config", {config:this.mafiaRoleConfig, playerCount:this.players.size});
+    }
   }
 
   async clearTurnTimer() {
@@ -280,6 +286,7 @@ export class GameRoom {
       if (this.gameId === "mafia") {
         const role = s.roles?.[id] || "Мирный житель";
         view.myRole = role;
+        view.roleCounts = {...(s.roleCounts || {})};
         view.isAlive = (s.alive || []).includes(id);
         view.alive = [...(s.alive || [])];
         view.mafiaTeammates = role === "Мафия"
@@ -359,13 +366,13 @@ export class GameRoom {
       const roles = {};
       let cursor = 0;
       const config = this.mafiaRoleConfig || {mafia:ids.length >= 6 ? 2 : 1, commissioner:ids.length >= 5 ? 1 : 0, doctor:ids.length >= 6 ? 1 : 0, civilian:ids.length - (ids.length >= 6 ? 4 : (ids.length >= 5 ? 2 : 1))};
-      if (config.mafia + config.commissioner + config.doctor + config.civilian !== ids.length || config.mafia < 1) return {ok:false,message:"Сначала настрой роли под текущее количество игроков."};
+      if (config.mafia + config.commissioner + config.doctor + config.civilian !== ids.length || config.mafia < 1 || config.mafia >= ids.length) return {ok:false,message:"Сначала настрой роли под текущее количество игроков: нужна минимум одна мафия и минимум один житель города."};
       for (let i = 0; i < config.mafia; i++) roles[shuffled[cursor++]] = "Мафия";
       for (let i = 0; i < config.commissioner; i++) roles[shuffled[cursor++]] = "Комиссар";
       for (let i = 0; i < config.doctor; i++) roles[shuffled[cursor++]] = "Доктор";
       for (let i = 0; i < config.civilian; i++) roles[shuffled[cursor++]] = "Мирный житель";
       this.partyState = {
-        phase:"night", players:profiles, roles, alive:[...ids], votes:{}, nightActions:{},
+        phase:"night", players:profiles, roles, roleCounts:{...config}, alive:[...ids], votes:{}, nightActions:{},
         investigations:{}, round:1, winner:null, eliminated:[], lastNight:null, lastVote:null
       };
     } else if (this.gameId === "bunker") {
@@ -438,8 +445,10 @@ export class GameRoom {
       const commissioner = Math.max(0, Math.min(6, Math.floor(Number(payload.commissioner) || 0)));
       const doctor = Math.max(0, Math.min(6, Math.floor(Number(payload.doctor) || 0)));
       const civilian = Math.max(0, Math.min(6, Math.floor(Number(payload.civilian) || 0)));
-      if (mafia < 1 || mafia + commissioner + doctor + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Мафия — минимум одна."};
+      if (mafia < 1 || mafia >= this.players.size || mafia + commissioner + doctor + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Нужна минимум одна мафия и минимум один житель города."};
       this.mafiaRoleConfig = {mafia, commissioner, doctor, civilian};
+      this.ctx.storage.put("mafiaRoleConfig", this.mafiaRoleConfig).catch(() => {});
+      this.broadcast("mafia-role-config", {config:this.mafiaRoleConfig, playerCount:this.players.size});
       return {ok:true};
     }
     if (action === "test-bots-add") {
@@ -584,9 +593,9 @@ export class GameRoom {
           mafiaTargets.forEach(id => tally[id] = (tally[id] || 0) + 1);
           const ranked = Object.entries(tally).sort((a,b) => b[1] - a[1]);
           const victim = ranked.length && (!ranked[1] || ranked[0][1] > ranked[1][1]) ? ranked[0][0] : null;
-          const doctor = alive.find(id => s.roles?.[id] === "Доктор");
-          const saved = doctor ? s.nightActions[doctor]?.target : null;
-          const eliminatedId = victim && victim !== saved ? victim : null;
+          const doctors = alive.filter(id => s.roles?.[id] === "Доктор");
+          const saved = !!victim && doctors.some(id => s.nightActions[id]?.target === victim);
+          const eliminatedId = victim && !saved ? victim : null;
           if (eliminatedId) { s.alive = alive.filter(id => id !== eliminatedId); s.eliminated.push(eliminatedId); }
           s.lastNight = {eliminatedId, saved:!!victim && victim === saved, round:s.round};
           const mafiaAlive = s.alive.filter(id => s.roles?.[id] === "Мафия").length;
