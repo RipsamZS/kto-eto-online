@@ -269,6 +269,17 @@ function duelGame(a){
  document.getElementById("wordNext")?.addEventListener("click",()=>act("word-next"));
 }
 
+const BATTLESHIP_SHIPS=[4,3,3,2,2,2,1,1,1,1];
+function battleshipDraftState(){if(!window.battleshipDraft)window.battleshipDraft={cells:[],shipIndex:0,vertical:false};return window.battleshipDraft;}
+function battleshipPlaceDraft(index){
+ const d=battleshipDraftState(),length=BATTLESHIP_SHIPS[d.shipIndex];
+ if(length==null)return false;
+ const row=Math.floor(index/10),col=index%10,points=[];
+ for(let n=0;n<length;n++){const r=row+(d.vertical?n:0),c=col+(d.vertical?0:n);if(r>9||c>9)return false;points.push(r*10+c);}
+ const occupied=new Set(d.cells);
+ for(const point of points){if(occupied.has(point))return false;const r=Math.floor(point/10),c=point%10;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const rr=r+dr,cc=c+dc;if(rr>=0&&rr<10&&cc>=0&&cc<10&&occupied.has(rr*10+cc))return false;}}
+ d.cells.push(...points);d.shipIndex++;return true;
+}
 function genericGame(a){
  const players=state.players||{},ids=Object.keys(players),meId=me(),hostPlayer=host(),phase=state.phase||"playing";
  const list=ids.map(id=>'<div class="player"><span class="player-dot"></span>'+avatarHTML(players[id].avatar)+' '+esc(players[id].nickname)+(state.scores?.[id]!==undefined?'<b class="score-pill">'+state.scores[id]+'</b>':'')+'</div>').join("");
@@ -278,13 +289,33 @@ function genericGame(a){
   eyebrow="NIGHT PROTOCOL / SOCIAL DEDUCTION";headline=phase==="night"?"Ночь в городе":phase==="discussion"?"Город, время говорить":"Голосование открыто";subline="Слушай игроков, сопоставляй версии и принимай решение вместе с городом.";
   body='<div class="mafia-role-card"><span class="game-overline">ТВОЯ РОЛЬ</span><strong>'+esc(state.myRole||"Житель")+'</strong><span class="role-caption">'+(state.myRole==="Мафия"?"Действуй осторожно. Твоя легенда должна быть убедительной.":"Найди противоречия в рассказах игроков.")+'</span></div><div class="game-phase-track"><i class="'+(phase==="discussion"?"current":"done")+'">01 · ОБСУЖДЕНИЕ</i><i class="'+((phase==="voting"||(phase==="night"&&["Мафия","Доктор","Комиссар"].includes(state.myRole)))?"current":phase==="finished"?"done":"")+'">02 · ВЕРДИКТ</i></div>'+(phase==="discussion"?(hostPlayer?'<button class="primary game-cta" id="mafiaVoteStart">Начать голосование <span>→</span></button>':'<div class="game-wait">Ведущий готовит голосование…</div>'):'')+(phase==="night"&&!["Мафия","Доктор","Комиссар"].includes(state.myRole)?'<div class="game-wait">Город спит. Ожидаем рассвета…</div>':'')+((phase==="voting"||(phase==="night"&&["Мафия","Доктор","Комиссар"].includes(state.myRole)))?'<div class="target-grid">'+ids.filter(id=>id!==meId&&!(state.myRole==="Мафия"&&(state.mafiaTeammates||[]).includes(id))).map(id=>'<button class="target-card" '+(phase==="night"?"data-mafia-night-target":"data-mafia-vote")+'="'+id+'" '+((phase==="night"?state.nightActionDone:state.votes?.[meId])?"disabled":"")+'><span class="target-avatar">'+avatarHTML(players[id].avatar)+'</span><b>'+esc(players[id].nickname)+'</b><small>'+(state.votes?.[meId]===id?"ТВОЙ ГОЛОС":state.votes?.[id]?"ГОЛОС ОТДАН":"ВЫБРАТЬ ИГРОКА")+'</small></button>').join("")+'</div><div class="game-wait">'+(phase==="night"?(state.nightActionDone?"Действие принято. Ожидаем рассвета…":"Выбери цель для ночного действия."):"Голоса: "+Object.keys(state.votes||{}).length+" / "+ids.length)+'</div>':'')+(phase==="finished"?'<div class="game-result"><span>ИТОГ РАУНДА</span><h2>'+(state.winner==="mafia"?"Мафия победила":"Город победил")+'</h2><p>Мафия: '+esc((state.mafiaNames||[]).join(", "))+'</p></div>':'');
  }else if(gameId==="battleship"){
-  eyebrow="NAVAL COMMAND / TACTICAL RADAR";headline=phase==="finished"?"Операция завершена":"Морской бой";subline="Сканируй координаты вражеского сектора. Попадания отмечаются на радаре.";
   const shots=new Set(state.myShots||[]),hits=new Set(state.myHits||[]),incoming=new Set(state.incoming||[]);
-  const cells=Array.from({length:100},(_,i)=>'<button class="radar-cell '+(shots.has(i)?(hits.has(i)?"hit":"miss"):"")+'" data-shot="'+i+'" '+(state.activeId!==meId||shots.has(i)||phase==="finished"?"disabled":"")+' aria-label="Координата '+String.fromCharCode(65+(i%10))+(Math.floor(i/10)+1)+'">'+(hits.has(i)?"✦":shots.has(i)?"·":"")+'</button>').join("");
-  const own=Array.from({length:100},(_,i)=>'<span class="own-cell '+(state.myShip?.includes(i)?"ship":"")+' '+(incoming.has(i)?"incoming":"")+'">'+(incoming.has(i)?(state.myShip?.includes(i)?"✦":"×"):state.myShip?.includes(i)?"▰":"")+'</span>').join("");
   const axisLetters=["A","B","C","D","E","F","G","H","I","J"].map(x=>'<span>'+x+'</span>').join("");
   const axisNumbers=Array.from({length:10},(_,n)=>'<span>'+(n+1)+'</span>').join("");
-  body='<div class="radar-status"><span class="radar-pulse"></span><b>'+(state.activeId===meId?"ТВОЙ ХОД · ВЫБЕРИ ЦЕЛЬ":"ОЖИДАНИЕ СОПЕРНИКА")+'</b><span>10×10 · 10 КОРАБЛЕЙ</span></div><div class="naval-layout"><div class="radar-panel"><div class="radar-label">ВРАЖЕСКИЙ СЕКТОР</div><div class="radar-coords"><span></span>'+axisLetters+'</div><div class="radar-grid"><div class="radar-rows">'+axisNumbers+'</div><div class="generic-board radar-board">'+cells+'</div></div><div class="radar-legend"><span>✦ попадание</span><span>· мимо</span><span>пусто · не проверено</span></div></div><div class="own-radar"><div class="radar-label">ТВОЙ ФЛОТ</div><div class="radar-coords"><span></span>'+axisLetters+'</div><div class="radar-grid"><div class="radar-rows">'+axisNumbers+'</div><div class="generic-board own own-grid">'+own+'</div></div><p>Состояние своего сектора</p></div></div>'+(phase==="finished"?'<div class="game-result"><span>ПОБЕДИТЕЛЬ</span><h2>'+(state.winner===meId?"ТЫ ПОБЕДИЛ!":"ПОБЕДИЛ СОПЕРНИК")+'</h2></div>':'');
+  const opponentId=ids.find(id=>id!==meId),opponentName=state.players?.[opponentId]?.nickname||"Соперник";
+  const opponentGrid=phase==="playing"||phase==="finished"
+    ?Array.from({length:100},(_,i)=>'<button class="radar-cell '+(shots.has(i)?(hits.has(i)?"hit":"miss"):"")+'" data-shot="'+i+'" '+(state.activeId!==meId||shots.has(i)||phase==="finished"?"disabled":"")+' aria-label="Координата '+String.fromCharCode(65+(i%10))+(Math.floor(i/10)+1)+'">'+(hits.has(i)?"✦":shots.has(i)?"·":"")+'</button>').join("")
+    :Array.from({length:100},()=>'<span class="radar-cell is-hidden-cell"></span>').join("");
+  const draft=phase==="placement"&&!state.myReady?battleshipDraftState():null;
+  const placed=new Set(draft?draft.cells:(state.myShip||[]));
+  const own=Array.from({length:100},(_,i)=>{
+    const ship=placed.has(i),incomingHit=incoming.has(i)&&ship,incomingMiss=incoming.has(i)&&!ship;
+    return phase==="placement"&&!state.myReady
+      ?'<button type="button" class="own-cell '+(ship?"ship":"")+'" data-place-cell="'+i+'" aria-label="Разместить корабль на '+String.fromCharCode(65+(i%10))+(Math.floor(i/10)+1)+'">'+(ship?"▰":"")+'</button>'
+      :'<span class="own-cell '+(ship?"ship":"")+' '+(incoming.has(i)?"incoming":"")+'">'+(incomingHit?"✦":incomingMiss?"×":ship?"▰":"")+'</span>';
+  }).join("");
+  const board=(cells,ownBoard=false)=>'<div class="radar-coords"><span></span>'+axisLetters+'</div><div class="radar-grid"><div class="radar-rows">'+axisNumbers+'</div><div class="generic-board '+(ownBoard?"own own-grid":"radar-board")+'">'+cells+'</div></div>';
+  const topStatus=phase==="placement"?(state.opponentReady?"Соперник уже расставил корабли":"Соперник расставляет флот"):state.activeId===meId?"ТВОЙ ХОД · ВЫБЕРИ ЦЕЛЬ":"ХОД СОПЕРНИКА";
+  let placementControls="";
+  if(phase==="placement"){
+    if(state.myReady) placementControls='<div class="fleet-wait">Твой флот сохранён. '+(state.opponentReady?"Оба флота готовы — начинаем бой!":"Ожидаем, пока соперник закончит расстановку…")+'</div>';
+    else {
+      const nextLength=BATTLESHIP_SHIPS[draft.shipIndex];
+      placementControls='<div class="fleet-tools"><div><span class="game-overline">РАССТАНОВКА ФЛОТА</span><strong>'+(draft.shipIndex>=10?"Все корабли размещены":("Корабль "+(draft.shipIndex+1)+" из 10 · "+nextLength+" "+(nextLength===1?"клетка":"клетки")))+'</strong><small>Нажми на поле, чтобы поставить следующий корабль. Корабли не должны соприкасаться.</small></div><button type="button" class="secondary" id="fleetRotate">Повернуть: '+(draft.vertical?"вертикально":"горизонтально")+'</button><button type="button" class="secondary" id="fleetReset">Сбросить</button><button type="button" class="primary" id="fleetConfirm" '+(draft.shipIndex<10?"disabled":"")+'>Подтвердить расстановку</button></div>';
+    }
+  }
+  eyebrow="NAVAL COMMAND / FLEET CONTROL";headline=phase==="finished"?"Операция завершена":"Морской бой";subline=phase==="placement"?"Сначала размести свой флот на нижнем поле. Сверху — сектор соперника.": "Сверху — сектор соперника для выстрелов. Снизу — твой флот и результаты попаданий.";
+  body='<div class="radar-status"><span class="radar-pulse"></span><b>'+topStatus+'</b><span>10 × 10</span></div><div class="naval-layout"><section class="radar-panel"><div class="radar-label">ВЕРХНЕЕ ПОЛЕ · '+esc(opponentName.toUpperCase())+'</div>'+board(opponentGrid)+'<div class="radar-legend"><span>✦ попадание</span><span>· промах</span><span>корабли соперника скрыты</span></div></section><section class="own-radar"><div class="radar-label">НИЖНЕЕ ПОЛЕ · ТВОЙ ФЛОТ</div>'+board(own,true)+placementControls+(phase!=="placement"?'<p>Здесь видны твои корабли и выстрелы соперника</p>':'')+'</section></div>'+(phase==="finished"?'<div class="game-result"><span>ПОБЕДИТЕЛЬ</span><h2>'+(state.winner===meId?"ТЫ ПОБЕДИЛ!":"ПОБЕДИЛ СОПЕРНИК")+'</h2></div>':'');
  }else if(gameId==="quiz"||gameId==="truth"){
   const answered=state.answers?.[meId]!==undefined,answerCount=state.answerCount??Object.keys(state.answers||{}).length,opts=gameId==="quiz"?(state.question?.options||[]):["Правда","Ложь"];
   eyebrow=gameId==="quiz"?"KNOWLEDGE ARENA / LIVE ROUND":"FACT CHECK / TRUE OR FALSE";headline=gameId==="quiz"?"Проверь свою эрудицию":"Факт или вымысел?";subline="Выбери ответ до того, как остальные игроки завершат раунд.";
@@ -302,6 +333,11 @@ function genericGame(a){
  a.querySelectorAll("[data-mafia-vote]").forEach(b=>b.onclick=()=>act("mafia-vote",{target:b.dataset.mafiaVote}));
  a.querySelectorAll("[data-mafia-night-target]").forEach(b=>b.onclick=()=>act("mafia-night-action",{target:b.dataset.mafiaNightTarget}));
  a.querySelectorAll("[data-shot]").forEach(b=>b.onclick=()=>act("battleship-shot",{index:Number(b.dataset.shot)}));
+ a.querySelectorAll("[data-place-cell]").forEach(b=>b.onclick=()=>{if(battleshipPlaceDraft(Number(b.dataset.placeCell)))render();else say("Здесь корабль не помещается или касается другого. Выбери другую клетку.");});
+ document.getElementById("fleetRotate")?.addEventListener("click",()=>{battleshipDraftState().vertical=!battleshipDraftState().vertical;render();});
+ document.getElementById("fleetReset")?.addEventListener("click",()=>{window.battleshipDraft={cells:[],shipIndex:0,vertical:false};render();});
+ document.getElementById("fleetConfirm")?.addEventListener("click",()=>{const d=battleshipDraftState();if(d.shipIndex!==10||d.cells.length!==20){say("Размести все 10 кораблей перед подтверждением.");return;}act("battleship-place-fleet",{cells:d.cells});});
+
  a.querySelectorAll("[data-answer]").forEach(b=>b.onclick=()=>act("generic-answer",{answer:b.dataset.answer}));
  document.getElementById("mafiaVoteStart")?.addEventListener("click",()=>act("mafia-begin-vote"));
  document.getElementById("genericNext")?.addEventListener("click",()=>act("generic-next"));
