@@ -1778,7 +1778,7 @@ export default {
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
-      let page = await env.KAZO_STATIC.get("/games/alias/index-spy-match-v8.html") || await new Response(asset.value).text();
+      let page = await env.KAZO_STATIC.get("/games/alias/index-spy-match-v9.html") || await new Response(asset.value).text();
       page = page.replace('const words=window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[];if(words.length!==1500)throw new Error("Словарь не загрузился полностью.");','const words=(window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[]).slice(0,2500);if(words.length!==2500)throw new Error("Словарь не загрузился полностью.");');
       page = page.replace(
         'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";',
