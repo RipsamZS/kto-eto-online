@@ -391,6 +391,11 @@
         break;
       }
 
+      case "mafia-role-config": {
+        dispatch("mafia-role-config", data);
+        break;
+      }
+
       case "room-settings-updated": {
         API.roomSettings = data;
         dispatch("online-room-settings-updated", data);
