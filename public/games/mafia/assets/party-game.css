@@ -281,3 +281,6 @@ body[data-game="mafia"] .mafia-person-card-owner small{display:none!important}
 body[data-game="mafia"] .mafia-person-card-face strong{margin:auto}
 body[data-game="mafia"] .kazo-room-menu-panel input,
 body[data-game="mafia"] .kazo-room-menu-panel select{margin:6px 0 10px}
+
+/* Strict text cleanup: keep text only on actual buttons */
+body[data-game="mafia"] :is(h1,h2,h3,h4,p,span,b,strong,small,label,em):not(button *):not(.mafia-person-card-avatar):not(.mafia-lobby-card-emblem){display:none!important}
