@@ -1202,3 +1202,15 @@ body[data-game="battleship"] .battleship-lobby .own-cell{background:#1c2d3b}
 .kazo-room-settings input,.kazo-room-settings select{width:100%;min-width:0;padding:10px;border:1px solid #405367;border-radius:8px;background:#0a131d;color:#edf4fa}
 .kazo-room-settings .muted{min-height:16px;font-size:11px}
 @media(max-width:620px){.mafia-lobby-seats{grid-template-columns:repeat(2,minmax(0,1fr))}.battleship-lobby-layout{grid-template-columns:minmax(0,1fr)}.mafia-lobby-seat{min-height:82px}.kazo-room-menu-panel{right:12px;left:12px;width:auto}}
+
+/* Battleship board controls: keep the two tactical grids dark and readable. */
+body[data-game="battleship"] .radar-coords{grid-template-columns:21px repeat(10,minmax(0,1fr));gap:4px;margin-left:0}
+body[data-game="battleship"] .radar-grid{grid-template-columns:21px minmax(0,1fr);gap:4px}
+body[data-game="battleship"] .game-console-redesign .radar-cell,
+body[data-game="battleship"] .game-console-redesign .own-cell{background:#173148!important;border:1px solid #344b61!important;color:#d7e9f7!important}
+body[data-game="battleship"] .game-console-redesign .radar-cell.hit,
+body[data-game="battleship"] .game-console-redesign .own-cell.incoming{background:#7c3541!important;border-color:#f18c91!important;color:#fff!important}
+body[data-game="battleship"] .game-console-redesign .radar-cell.miss{background:#253747!important;border-color:#536b7d!important;color:#a9bfce!important}
+body[data-game="battleship"] .game-console-redesign .own-cell.ship{background:#28666b!important;border-color:#5bc9c2!important;color:#e1ffff!important}
+body[data-game="battleship"] .game-console-redesign button.own-cell{cursor:pointer}
+@media(max-width:520px){body[data-game="battleship"] .radar-coords{grid-template-columns:18px repeat(10,minmax(0,1fr));gap:2px}body[data-game="battleship"] .radar-grid{grid-template-columns:18px minmax(0,1fr);gap:3px}}
