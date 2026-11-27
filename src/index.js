@@ -1760,7 +1760,7 @@ export default {
     headers.set("X-Content-Type-Options", "nosniff");
     const cleanRoomMenuScripts = input => {
       let page = input;
-      for (const prefix of ['<script src="/room-menu.js', '<script src="/room-menu-spy-match-v8.js']) {
+      for (const prefix of ['<script src="/room-menu.js', '<script src="/room-menu-spy-match-v8.js', '<script src="/room-menu-spy-match-v9.js']) {
         while (true) {
           const start = page.indexOf(prefix);
           if (start < 0) break;
@@ -1774,7 +1774,7 @@ export default {
     if ((pathname === "/games/who-is-it" || pathname === "/games/who-is-it/" || pathname === "/games/who-is-it/index.html") && ext === "html") {
       let page = await env.KAZO_STATIC.get("/games/who-is-it/index-spy-entry-v4.html") || await new Response(asset.value).text();
       page = cleanRoomMenuScripts(page);
-      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v9.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
@@ -1800,33 +1800,33 @@ export default {
         'const mark=teamLocked||mine?.team===t?"":"+";'
       );
       page = cleanRoomMenuScripts(page);
-      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v9.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
         if (pathname === "/games/who-am-i" || pathname === "/games/who-am-i/" || pathname === "/games/who-am-i/index.html") {
       const savedPage = await env.KAZO_STATIC.get("/games/who-am-i/index-spy-match-v8.html");
       if (savedPage) {
         let page = cleanRoomMenuScripts(savedPage);
-        page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+        page = page.replace("</body>", '<script src="/room-menu-spy-match-v9.js"></script></body>');
         return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
       }
     }
 if (pathname === "/games/mafia" || pathname === "/games/mafia/" || pathname === "/games/mafia/index.html") {
       let page = await new Response(asset.value).text();
-      page = page.replace("/games/mafia/assets/party-game-role-v3.js?v=20261127e", "/games/mafia/assets/party-game-spy-match-v8.js");
+      page = page.replace("/games/mafia/assets/party-game-role-v3.js?v=20261127e", "/games/mafia/assets/party-game-spy-match-v9.js");
       page = page.replace("/games/mafia/assets/party-game-circle-layout-20261128.css", "/games/mafia/assets/party-game-circle-layout-ringfix-20261128.css");
-      page = page.replace("/games/mafia/assets/party-game-circle-12p-20261128.js", "/games/mafia/assets/party-game-spy-match-v8.js");
+      page = page.replace("/games/mafia/assets/party-game-circle-12p-20261128.js", "/games/mafia/assets/party-game-spy-match-v9.js");
       page = cleanRoomMenuScripts(page);
-      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v9.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     if (pathname.startsWith("/games/") && ext === "html") {
       let page = await new Response(asset.value).text();
       page = page.replace("/games/codenames/assets/codenames-app.js", "/games/codenames/assets/codenames-app-spy-match-v8.js");
-      page = page.replace("/games/imaginarium/assets/party-game.js", "/games/imaginarium/assets/party-game-spy-match-v8.js");
-      page = page.replace("/games/bunker/assets/party-game.js", "/games/bunker/assets/party-game-spy-match-v8.js");
+      page = page.replace("/games/imaginarium/assets/party-game.js", "/games/imaginarium/assets/party-game-spy-match-v9.js");
+      page = page.replace("/games/bunker/assets/party-game.js", "/games/bunker/assets/party-game-spy-match-v9.js");
       page = cleanRoomMenuScripts(page);
-      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v9.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     return new Response(request.method === "HEAD" ? null : asset.value, { status: 200, headers });
