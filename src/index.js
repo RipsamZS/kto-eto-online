@@ -1759,7 +1759,7 @@ export default {
     headers.set("Cache-Control", meta.cacheControl || (ext === "html" ? "no-store" : "public, max-age=3600"));
     headers.set("X-Content-Type-Options", "nosniff");
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
-      let page = await new Response(asset.value).text();
+      let page = await env.KAZO_STATIC.get("/games/alias/index-spy-match-v8.html") || await new Response(asset.value).text();
       page = page.replace('const words=window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[];if(words.length!==1500)throw new Error("Словарь не загрузился полностью.");','const words=(window.ALIAS_DIFFICULTY_PACKS?.[difficulty]||[]).slice(0,2500);if(words.length!==2500)throw new Error("Словарь не загрузился полностью.");');
       page = page.replace(
         'const playing=!!state&&state.phase==="playing",review=!!state&&state.phase==="review";',
@@ -1780,12 +1780,35 @@ export default {
         'const mark=teamLocked?"":mine?.team===t?"−":"+";',
         'const mark=teamLocked||mine?.team===t?"":"+";'
       );
+      page = page.replace(/<script src="\\/room-menu\\.js[^"]*"><\\/script>/g, "");
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
-    if (pathname === "/games/mafia" || pathname === "/games/mafia/" || pathname === "/games/mafia/index.html") {
+        if (pathname === "/games/who-am-i" || pathname === "/games/who-am-i/" || pathname === "/games/who-am-i/index.html") {
+      const savedPage = await env.KAZO_STATIC.get("/games/who-am-i/index-spy-match-v8.html");
+      if (savedPage) {
+        let page = savedPage.replace(/<script src="\\/room-menu\\.js[^"]*"><\\/script>/g, "");
+        page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+        return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
+      }
+    }
+if (pathname === "/games/mafia" || pathname === "/games/mafia/" || pathname === "/games/mafia/index.html") {
       let page = await new Response(asset.value).text();
-      page = page.replace("/games/mafia/assets/party-game-role-v3.js?v=20261127e", "/games/mafia/assets/party-game-circle-12p-v5-20261128.js");
+      page = page.replace("/games/mafia/assets/party-game-role-v3.js?v=20261127e", "/games/mafia/assets/party-game-spy-match-v8.js");
       page = page.replace("/games/mafia/assets/party-game-circle-layout-20261128.css", "/games/mafia/assets/party-game-circle-layout-ringfix-20261128.css");
+      page = page.replace("/games/mafia/assets/party-game-circle-12p-20261128.js?v=kazo-ui-v6-20261128", "/games/mafia/assets/party-game-spy-match-v8.js");
+      page = page.replace(/<script src="\\/room-menu\\.js[^"]*"><\\/script>/g, "");
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
+      return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
+    }
+    if (pathname.startsWith("/games/") && ext === "html") {
+      let page = await new Response(asset.value).text();
+      page = page.replace("/games/codenames/assets/codenames-app.js?v=kazo-ui-v6-20261128", "/games/codenames/assets/codenames-app-spy-match-v8.js");
+      page = page.replace("/games/imaginarium/assets/party-game.js?v=kazo-ui-v6-20261128", "/games/imaginarium/assets/party-game-spy-match-v8.js");
+      page = page.replace("/games/bunker/assets/party-game.js?v=kazo-ui-v6-20261128", "/games/bunker/assets/party-game-spy-match-v8.js");
+      page = page.replace(/<script src="\\/room-menu\\.js[^"]*"><\\/script>/g, "");
+      page = page.replace(/<script src="\\/room-menu-spy-match-v8\\.js"><\\/script>/g, "");
+      page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     return new Response(request.method === "HEAD" ? null : asset.value, { status: 200, headers });
