@@ -292,7 +292,7 @@ function genericGame(a){
   const shots=new Set(state.myShots||[]),hits=new Set(state.myHits||[]),incoming=new Set(state.incoming||[]);
   const axisLetters=["A","B","C","D","E","F","G","H","I","J"].map(x=>'<span>'+x+'</span>').join("");
   const axisNumbers=Array.from({length:10},(_,n)=>'<span>'+(n+1)+'</span>').join("");
-  const opponentId=ids.find(id=>id!==meId),opponentName=state.players?.[opponentId]?.nickname||"Соперник";
+  const opponentId=ids.find(id=>id!==meId),opponentName=state.players?.[opponentId]?.nickname||"Соперник",myName=state.players?.[meId]?.nickname||nickname;
   const opponentGrid=phase==="playing"||phase==="finished"
     ?Array.from({length:100},(_,i)=>'<button class="radar-cell '+(shots.has(i)?(hits.has(i)?"hit":"miss"):"")+'" data-shot="'+i+'" '+(state.activeId!==meId||shots.has(i)||phase==="finished"?"disabled":"")+' aria-label="Координата '+String.fromCharCode(65+(i%10))+(Math.floor(i/10)+1)+'">'+(hits.has(i)?"✦":shots.has(i)?"·":"")+'</button>').join("")
     :Array.from({length:100},()=>'<span class="radar-cell is-hidden-cell"></span>').join("");
@@ -315,7 +315,7 @@ function genericGame(a){
     }
   }
   eyebrow="NAVAL COMMAND / FLEET CONTROL";headline=phase==="finished"?"Операция завершена":"Морской бой";subline=phase==="placement"?"Сначала размести свой флот на нижнем поле. Сверху — сектор соперника.": "Сверху — сектор соперника для выстрелов. Снизу — твой флот и результаты попаданий.";
-  body='<div class="radar-status"><span class="radar-pulse"></span><b>'+topStatus+'</b><span>10 × 10</span></div><div class="naval-layout"><section class="radar-panel"><div class="radar-label">ВЕРХНЕЕ ПОЛЕ · '+esc(opponentName.toUpperCase())+'</div>'+board(opponentGrid)+'<div class="radar-legend"><span>✦ попадание</span><span>· промах</span><span>корабли соперника скрыты</span></div></section><section class="own-radar"><div class="radar-label">НИЖНЕЕ ПОЛЕ · ТВОЙ ФЛОТ</div>'+board(own,true)+placementControls+(phase!=="placement"?'<p>Здесь видны твои корабли и выстрелы соперника</p>':'')+'</section></div>'+(phase==="finished"?'<div class="game-result"><span>ПОБЕДИТЕЛЬ</span><h2>'+(state.winner===meId?"ТЫ ПОБЕДИЛ!":"ПОБЕДИЛ СОПЕРНИК")+'</h2></div>':'');
+  body='<div class="radar-status"><span class="radar-pulse"></span><b>'+topStatus+'</b><span>10 × 10</span></div><div class="naval-layout"><section class="radar-panel"><div class="radar-label">ВЕРХНЕЕ ПОЛЕ · '+esc(opponentName.toUpperCase())+'</div>'+board(opponentGrid)+'<div class="radar-legend"><span>✦ попадание</span><span>· промах</span><span>корабли соперника скрыты</span></div></section><section class="own-radar"><div class="radar-label">НИЖНЕЕ ПОЛЕ · '+esc(myName.toUpperCase())+' · ТВОЙ ФЛОТ</div>'+board(own,true)+placementControls+(phase!=="placement"?'<p>Здесь видны твои корабли и выстрелы соперника</p>':'')+'</section></div>'+(phase==="finished"?'<div class="game-result"><span>ПОБЕДИТЕЛЬ</span><h2>'+(state.winner===meId?"ТЫ ПОБЕДИЛ!":"ПОБЕДИЛ СОПЕРНИК")+'</h2></div>':'');
  }else if(gameId==="quiz"||gameId==="truth"){
   const answered=state.answers?.[meId]!==undefined,answerCount=state.answerCount??Object.keys(state.answers||{}).length,opts=gameId==="quiz"?(state.question?.options||[]):["Правда","Ложь"];
   eyebrow=gameId==="quiz"?"KNOWLEDGE ARENA / LIVE ROUND":"FACT CHECK / TRUE OR FALSE";headline=gameId==="quiz"?"Проверь свою эрудицию":"Факт или вымысел?";subline="Выбери ответ до того, как остальные игроки завершат раунд.";
