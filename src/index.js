@@ -365,11 +365,13 @@ export class GameRoom {
       const shuffled = this.partyShuffle(ids);
       const roles = {};
       let cursor = 0;
-      const config = this.mafiaRoleConfig || {mafia:ids.length >= 6 ? 2 : 1, commissioner:ids.length >= 5 ? 1 : 0, doctor:ids.length >= 6 ? 1 : 0, civilian:ids.length - (ids.length >= 6 ? 4 : (ids.length >= 5 ? 2 : 1))};
-      if (config.mafia + config.commissioner + config.doctor + config.civilian !== ids.length || config.mafia < 1 || config.mafia >= ids.length) return {ok:false,message:"Сначала настрой роли под текущее количество игроков: нужна минимум одна мафия и минимум один житель города."};
+      const config = this.mafiaRoleConfig || {mafia:ids.length >= 6 ? 2 : 1, commissioner:ids.length >= 5 ? 1 : 0, doctor:ids.length >= 6 ? 1 : 0, bodyguard:0, civilian:ids.length - (ids.length >= 6 ? 4 : (ids.length >= 5 ? 2 : 1))};
+      config.bodyguard = Math.max(0, Number(config.bodyguard) || 0);
+      if (config.mafia + config.commissioner + config.doctor + config.bodyguard + config.civilian !== ids.length || config.mafia < 1 || config.mafia >= ids.length) return {ok:false,message:"Сначала настрой роли под текущее количество игроков: нужна минимум одна мафия и минимум один житель города."};
       for (let i = 0; i < config.mafia; i++) roles[shuffled[cursor++]] = "Мафия";
       for (let i = 0; i < config.commissioner; i++) roles[shuffled[cursor++]] = "Комиссар";
       for (let i = 0; i < config.doctor; i++) roles[shuffled[cursor++]] = "Доктор";
+      for (let i = 0; i < config.bodyguard; i++) roles[shuffled[cursor++]] = "Телохранитель";
       for (let i = 0; i < config.civilian; i++) roles[shuffled[cursor++]] = "Мирный житель";
       this.partyState = {
         phase:"night", players:profiles, roles, roleCounts:{...config}, alive:[...ids], votes:{}, nightActions:{},
@@ -448,9 +450,10 @@ export class GameRoom {
       const mafia = Math.max(0, Math.min(6, Math.floor(Number(payload.mafia) || 0)));
       const commissioner = Math.max(0, Math.min(6, Math.floor(Number(payload.commissioner) || 0)));
       const doctor = Math.max(0, Math.min(6, Math.floor(Number(payload.doctor) || 0)));
+      const bodyguard = Math.max(0, Math.min(6, Math.floor(Number(payload.bodyguard) || 0)));
       const civilian = Math.max(0, Math.min(6, Math.floor(Number(payload.civilian) || 0)));
-      if (mafia < 1 || mafia >= this.players.size || mafia + commissioner + doctor + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Нужна минимум одна мафия и минимум один житель города."};
-      this.mafiaRoleConfig = {mafia, commissioner, doctor, civilian};
+      if (mafia < 1 || mafia >= this.players.size || mafia + commissioner + doctor + bodyguard + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Нужна минимум одна мафия и минимум один житель города."};
+      this.mafiaRoleConfig = {mafia, commissioner, doctor, bodyguard, civilian};
       await this.ctx.storage.put("mafiaRoleConfig", this.mafiaRoleConfig);
       this.broadcast("mafia-role-config", {config:this.mafiaRoleConfig, playerCount:this.players.size});
       return {ok:true};
@@ -584,13 +587,13 @@ export class GameRoom {
       if (action === "mafia-night-action") {
         if (s.phase !== "night" || !alive.includes(playerId)) return {ok:false,message:"Сейчас нельзя действовать ночью."};
         const role = s.roles?.[playerId];
-        if (!["Мафия","Доктор","Комиссар"].includes(role)) return {ok:false,message:"У твоей роли нет ночного действия."};
+        if (!["Мафия","Доктор","Комиссар","Телохранитель"].includes(role)) return {ok:false,message:"У твоей роли нет ночного действия."};
         if (s.nightActions[playerId]) return {ok:false,message:"Ты уже сделал ночной выбор."};
         const target = String(payload.target || "");
-        if (!alive.includes(target) || (role === "Мафия" && s.roles[target] === "Мафия") || (role === "Комиссар" && target === playerId)) return {ok:false,message:"Выбери допустимого игрока."};
+        if (!alive.includes(target) || (role === "Мафия" && s.roles[target] === "Мафия") || ((role === "Комиссар" || role === "Телохранитель") && target === playerId)) return {ok:false,message:"Выбери допустимого игрока."};
         s.nightActions[playerId] = {target};
         if (role === "Комиссар") s.investigations[playerId] = {target, isMafia:s.roles[target] === "Мафия", round:s.round};
-        const nightRoles = alive.filter(id => ["Мафия","Доктор","Комиссар"].includes(s.roles?.[id]));
+        const nightRoles = alive.filter(id => ["Мафия","Доктор","Комиссар","Телохранитель"].includes(s.roles?.[id]));
         if (nightRoles.every(id => !!s.nightActions[id])) {
           const mafiaTargets = alive.filter(id => s.roles?.[id] === "Мафия").map(id => s.nightActions[id]?.target).filter(Boolean);
           const tally = {};
@@ -599,9 +602,11 @@ export class GameRoom {
           const victim = ranked.length && (!ranked[1] || ranked[0][1] > ranked[1][1]) ? ranked[0][0] : null;
           const doctors = alive.filter(id => s.roles?.[id] === "Доктор");
           const saved = !!victim && doctors.some(id => s.nightActions[id]?.target === victim);
-          const eliminatedId = victim && !saved ? victim : null;
+          const bodyguards = alive.filter(id => s.roles?.[id] === "Телохранитель");
+          const bodyguardId = victim && !saved ? bodyguards.find(id => s.nightActions[id]?.target === victim) : null;
+          const eliminatedId = victim && !saved ? (bodyguardId || victim) : null;
           if (eliminatedId) { s.alive = alive.filter(id => id !== eliminatedId); s.eliminated.push(eliminatedId); }
-          s.lastNight = {eliminatedId, saved:!!victim && victim === saved, round:s.round};
+          s.lastNight = {eliminatedId, saved:!!saved, guardSacrifice:!!bodyguardId, protectedPlayerId:bodyguardId ? victim : null, round:s.round};
           const mafiaAlive = s.alive.filter(id => s.roles?.[id] === "Мафия").length;
           const townAlive = s.alive.length - mafiaAlive;
           if (mafiaAlive === 0) { s.phase = "finished"; s.winner = "town"; this.ended = true; }
