@@ -234,3 +234,12 @@ body.mafia-lobby-field .room-toolbar .actions{display:none}
  body.mafia-lobby-field .mafia-lobby-foot{font-size:9px}
  body.mafia-lobby-field .room-roster-bar{margin-top:8px}
 }
+
+
+/* Force visible Mafia lobby seat frames; their count follows room settings */
+body[data-game="mafia"] #mafiaLobbySeats,
+body.mafia-lobby-field #mafiaLobbySeats{display:grid!important;visibility:visible!important;opacity:1!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;width:100%!important;min-height:220px!important}
+body[data-game="mafia"] #mafiaLobbySeats>.mafia-lobby-player-card,
+body.mafia-lobby-field #mafiaLobbySeats>.mafia-lobby-player-card{display:flex!important;visibility:visible!important;opacity:1!important;min-height:210px!important}
+body[data-game="mafia"] .mafia-lobby-table{display:block!important;visibility:visible!important;opacity:1!important}
+@media(max-width:650px){body[data-game="mafia"] #mafiaLobbySeats,body.mafia-lobby-field #mafiaLobbySeats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}}
