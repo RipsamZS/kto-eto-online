@@ -287,7 +287,11 @@ export class GameRoom {
         delete view.nightActions;
         delete view.investigations;
       } else if (this.gameId === "battleship") {
+        const opponentId = s.order?.find(other => other !== id);
         view.myShip = [...(s.fleets?.[id] || [])];
+        view.myReady = !!s.placementReady?.[id];
+        view.opponentReady = !!s.placementReady?.[opponentId];
+        view.placementReadyCount = Object.values(s.placementReady || {}).filter(Boolean).length;
         view.myShots = [...(s.shotsByPlayer?.[id] || [])];
         view.myHits = [...(s.hitsByPlayer?.[id] || [])];
         view.incoming = [...(s.incomingByPlayer?.[id] || [])];
@@ -358,33 +362,9 @@ export class GameRoom {
       };
     } else if (this.gameId === "battleship") {
       if (ids.length !== 2) return {ok:false,message:"Для Морского боя нужны ровно 2 игрока."};
-      const placeFleet = () => {
-        const occupied = new Set();
-        const ships = [4,3,3,2,2,2,1,1,1,1];
-        for (const length of ships) {
-          let placed = false;
-          for (let attempt = 0; attempt < 1200 && !placed; attempt++) {
-            const horizontal = Math.random() < 0.5;
-            const row = Math.floor(Math.random() * (horizontal ? 10 : 11 - length));
-            const col = Math.floor(Math.random() * (horizontal ? 11 - length : 10));
-            const cells = Array.from({length}, (_,i) => (row + (horizontal ? 0 : i)) * 10 + col + (horizontal ? i : 0));
-            const clear = cells.every(index => {
-              const r = Math.floor(index / 10), c = index % 10;
-              for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
-                const rr = r + dr, cc = c + dc;
-                if (rr >= 0 && rr < 10 && cc >= 0 && cc < 10 && occupied.has(rr * 10 + cc)) return false;
-              }
-              return true;
-            });
-            if (clear) { cells.forEach(index => occupied.add(index)); placed = true; }
-          }
-          if (!placed) throw new Error("Не удалось разместить флот.");
-        }
-        return [...occupied];
-      };
       this.partyState = {
-        phase:"playing", players:profiles, order:[...ids], activeId:ids[0], turn:1,
-        fleets:{[ids[0]]:placeFleet(),[ids[1]]:placeFleet()},
+        phase:"placement", players:profiles, order:[...ids], activeId:null, turn:0,
+        fleets:{[ids[0]]:[],[ids[1]]:[]}, placementReady:{[ids[0]]:false,[ids[1]]:false},
         shotsByPlayer:{[ids[0]]:[],[ids[1]]:[]},
         hitsByPlayer:{[ids[0]]:[],[ids[1]]:[]},
         incomingByPlayer:{[ids[0]]:[],[ids[1]]:[]},
@@ -607,28 +587,48 @@ export class GameRoom {
         }
       } else return {ok:false,message:"Неизвестное действие."};
     } else if (this.gameId === "battleship") {
-      if (action !== "battleship-shot" || s.phase !== "playing" || playerId !== s.activeId) return {ok:false,message:"Сейчас не твой ход."};
-      const index = Number(payload.index);
-      if (!Number.isInteger(index) || index < 0 || index >= 100) return {ok:false,message:"Выбери координату на поле 10×10."};
-      if (s.shotsByPlayer[playerId].includes(index)) return {ok:false,message:"Эту клетку ты уже проверял."};
-      const opponentId = s.order.find(id => id !== playerId);
-      if (!opponentId) return {ok:false,message:"Соперник не найден."};
-      s.shotsByPlayer[playerId].push(index);
-      const hit = s.fleets[opponentId].includes(index);
-      s.incomingByPlayer[opponentId].push(index);
-      if (hit) {
-        s.hitsByPlayer[playerId].push(index);
-        s.lastShot = {playerId,index,hit:true};
-        if (s.hitsByPlayer[playerId].length >= s.fleets[opponentId].length) {
-          s.phase = "finished";
-          s.winner = playerId;
-          this.ended = true;
+      if (action === "battleship-place-fleet") {
+        if (s.phase !== "placement" || s.placementReady?.[playerId]) return {ok:false,message:"Расстановка уже подтверждена или недоступна."};
+        const cells = Array.isArray(payload.cells) ? payload.cells.map(Number) : [];
+        const required=[4,3,3,2,2,2,1,1,1,1];
+        if (cells.length!==20 || cells.some(x=>!Number.isInteger(x)||x<0||x>=100) || new Set(cells).size!==20) return {ok:false,message:"Нужно разместить ровно 10 кораблей на 20 клетках."};
+        const remaining=new Set(cells),lengths=[];
+        while(remaining.size){
+          const start=[...remaining][0],stack=[start],component=[];remaining.delete(start);
+          while(stack.length){const cur=stack.pop();component.push(cur);const r=Math.floor(cur/10),c=cur%10;for(const next of [r>0?cur-10:-1,r<9?cur+10:-1,c>0?cur-1:-1,c<9?cur+1:-1])if(next>=0&&remaining.has(next)){remaining.delete(next);stack.push(next);}}
+          const rows=component.map(x=>Math.floor(x/10)),cols=component.map(x=>x%10);
+          const straight=rows.every(x=>x===rows[0])||cols.every(x=>x===cols[0]);
+          if(!straight)return {ok:false,message:"Каждый корабль должен стоять одной прямой линией."};
+          const span=rows.every(x=>x===rows[0])?Math.max(...cols)-Math.min(...cols)+1:Math.max(...rows)-Math.min(...rows)+1;
+          if(span!==component.length)return {ok:false,message:"В корабле есть разрыв между клетками."};
+          lengths.push(component.length);
         }
-      } else {
-        s.lastShot = {playerId,index,hit:false};
-        s.activeId = opponentId;
-        s.turn++;
-      }
+        lengths.sort((a,b)=>b-a);const sortedRequired=[...required].sort((a,b)=>b-a);
+        if(lengths.length!==10||lengths.some((x,i)=>x!==sortedRequired[i]))return {ok:false,message:"Флот должен состоять из кораблей: 4, 3, 3, 2, 2, 2, 1, 1, 1, 1."};
+        const occupied=new Set(cells);
+        for(const cell of cells){const r=Math.floor(cell/10),c=cell%10;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const rr=r+dr,cc=c+dc,other=rr*10+cc;if(rr>=0&&rr<10&&cc>=0&&cc<10&&occupied.has(other)&&other!==cell){const sameShip=lengths.length===0;let connected=false;for(const n of [cell-10,cell+10,cell-1,cell+1])if(n===other&&((Math.floor(n/10)===r)||(n%10===c)))connected=true;if(!connected)return {ok:false,message:"Корабли не должны соприкасаться, даже по диагонали."};}}}
+        s.fleets[playerId]=cells;s.placementReady[playerId]=true;
+        if(s.order.every(id=>s.placementReady[id])){s.phase="playing";s.activeId=s.order[0];s.turn=1;}
+      } else if (action === "battleship-shot") {
+        if (s.phase !== "playing" || playerId !== s.activeId) return {ok:false,message:"Сейчас не твой ход."};
+        const index = Number(payload.index);
+        if (!Number.isInteger(index) || index < 0 || index >= 100) return {ok:false,message:"Выбери координату на поле 10×10."};
+        if (s.shotsByPlayer[playerId].includes(index)) return {ok:false,message:"Эту клетку ты уже проверял."};
+        const opponentId = s.order.find(id => id !== playerId);
+        if (!opponentId) return {ok:false,message:"Соперник не найден."};
+        s.shotsByPlayer[playerId].push(index);
+        const hit = s.fleets[opponentId].includes(index);
+        s.incomingByPlayer[opponentId].push(index);
+        if (hit) {
+          s.hitsByPlayer[playerId].push(index);
+          s.lastShot = {playerId,index,hit:true};
+          if (s.hitsByPlayer[playerId].length >= s.fleets[opponentId].length) {
+            s.phase = "finished"; s.winner = playerId; this.ended = true;
+          }
+        } else {
+          s.lastShot = {playerId,index,hit:false}; s.activeId = opponentId; s.turn++;
+        }
+      } else return {ok:false,message:"Неизвестное действие."};
     } else return {ok:false,message:"Неизвестное действие."};
     this.partySendState();
     return {ok:true};
