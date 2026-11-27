@@ -447,11 +447,11 @@ export class GameRoom {
     }
     if (action === "mafia-role-config") {
       if (this.gameId !== "mafia" || playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.partyState) return {ok:false,message:"Настраивать роли может только ведущий до начала игры."};
-      const mafia = Math.max(0, Math.min(6, Math.floor(Number(payload.mafia) || 0)));
-      const commissioner = Math.max(0, Math.min(6, Math.floor(Number(payload.commissioner) || 0)));
-      const doctor = Math.max(0, Math.min(6, Math.floor(Number(payload.doctor) || 0)));
-      const bodyguard = Math.max(0, Math.min(6, Math.floor(Number(payload.bodyguard) || 0)));
-      const civilian = Math.max(0, Math.min(6, Math.floor(Number(payload.civilian) || 0)));
+      const mafia = Math.max(0, Math.min(12, Math.floor(Number(payload.mafia) || 0)));
+      const commissioner = Math.max(0, Math.min(12, Math.floor(Number(payload.commissioner) || 0)));
+      const doctor = Math.max(0, Math.min(12, Math.floor(Number(payload.doctor) || 0)));
+      const bodyguard = Math.max(0, Math.min(12, Math.floor(Number(payload.bodyguard) || 0)));
+      const civilian = Math.max(0, Math.min(12, Math.floor(Number(payload.civilian) || 0)));
       if (mafia < 1 || mafia >= this.players.size || mafia + commissioner + doctor + bodyguard + civilian !== this.players.size) return {ok:false,message:"Количество ролей должно точно совпадать с числом игроков. Нужна минимум одна мафия и минимум один житель города."};
       this.mafiaRoleConfig = {mafia, commissioner, doctor, bodyguard, civilian};
       await this.ctx.storage.put("mafiaRoleConfig", this.mafiaRoleConfig);
@@ -463,7 +463,7 @@ export class GameRoom {
       const required = this.gameId === "codenames" || this.gameId === "bunker" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2);
       const requested = Math.max(1, Math.min(5, Number(payload.count) || required - this.players.size));
       const limit = this.gameId === "who-am-i" ? Math.min(6,this.maxPlayers) : this.maxPlayers;
-      const amount = Math.min(requested, limit - this.players.size, 6 - this.players.size);
+      const amount = Math.min(requested, limit - this.players.size, (this.gameId === "mafia" ? 12 : 6) - this.players.size);
       if (amount <= 0) return {ok:false,message:"В комнате больше нет свободных мест."};
       for (let i=0;i<amount;i++) {
         const id = "test-bot-" + crypto.randomUUID();
@@ -1296,7 +1296,8 @@ export class GameRoom {
       const nextAccess = next.access === "public" ? "public" : "private";
       const nextMax = this.gameId === "who-is-it" ? 2 : Number(next.maxPlayers || this.maxPlayers);
       const nextTimer = Number(next.timerSeconds ?? this.timerSeconds);
-      if (!nextName || ![2,3,4,5,6].includes(nextMax) || ![0,15,30,45,60,90,120].includes(nextTimer) || this.players.size > nextMax) {
+      const allowedMaxPlayers = this.gameId === "mafia" ? [2,3,4,5,6,7,8,9,10,11,12] : [2,3,4,5,6];
+      if (!nextName || !allowedMaxPlayers.includes(nextMax) || ![0,15,30,45,60,90,120].includes(nextTimer) || this.players.size > nextMax) {
         reply({ ok: false, message: "Некорректные настройки комнаты." });
         return;
       }
