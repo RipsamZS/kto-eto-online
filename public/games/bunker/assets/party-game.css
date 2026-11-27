@@ -189,3 +189,12 @@ body[data-game="bunker"] .bunker-player-frame small{color:#a0aa94;font-size:9px;
 body[data-game="bunker"] .bunker-lobby-note{margin-top:12px}
 @media(max-width:620px){body[data-game="bunker"] .bunker-player-frames{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}body[data-game="bunker"] .bunker-player-frame{min-height:164px;padding:12px 8px}body[data-game="bunker"] .bunker-frame-avatar{width:50px;height:50px}}
 @media(max-width:360px){body[data-game="bunker"] .bunker-player-frames{gap:7px}body[data-game="bunker"] .bunker-player-frame{min-height:150px}}
+
+/* Active Bunker match: reuse the same seat frames shown in the lobby */
+body[data-game="bunker"] .bunker-active-player-frames{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+body[data-game="bunker"] .bunker-active-player-frames .bunker-player-frame{min-height:210px}
+body[data-game="bunker"] .bunker-active-player-frames .bunker-player-frame.is-out{opacity:.52;filter:saturate(.55)}
+body[data-game="bunker"] .bunker-frame-reveal{display:grid;gap:4px;width:100%;max-width:100%;margin-top:3px;padding:8px 6px;border-top:1px solid #a9b58b2b;color:#e8eadf;overflow-wrap:anywhere}
+body[data-game="bunker"] .bunker-frame-reveal span{color:#b6c19f;font-size:9px;letter-spacing:.1em}
+body[data-game="bunker"] .bunker-frame-reveal strong{font-size:12px;line-height:1.35;font-weight:750}
+@media(max-width:620px){body[data-game="bunker"] .bunker-active-player-frames{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}body[data-game="bunker"] .bunker-active-player-frames .bunker-player-frame{min-height:195px}}
