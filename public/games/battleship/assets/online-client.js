@@ -1199,4 +1199,35 @@
 
   // Автоматическое восстановление онлайн-комнаты после перезагрузки отключено.
 
+  // Restore the former tap-anywhere fullscreen behavior in room lobbies only.
+  (() => {
+    const visible = element => {
+      if (!element || !element.isConnected) return false;
+      const style = window.getComputedStyle(element);
+      return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
+    };
+    const isLobby = () => {
+      if (window.onlineRoomActive !== true) return false;
+      const start = document.querySelector('#startGame, #startPartyGame, [data-action="start-game"], [data-role="start-game"]');
+      if (visible(start)) return true;
+      const lobby = document.querySelector('#roomLobby, #lobbyScreen, .room-lobby, .lobby-screen.active, .lobby.active, [data-screen="lobby"].active');
+      const game = document.querySelector('#gameScreen.active, .game-screen.active, [data-screen="game"].active');
+      return visible(lobby) && !visible(game);
+    };
+    const enterFullscreen = () => {
+      if (!isLobby() || document.fullscreenElement || document.webkitFullscreenElement) return;
+      const root = document.documentElement;
+      try {
+        if (root.requestFullscreen) {
+          const result = root.requestFullscreen({ navigationUI: 'hide' });
+          if (result && typeof result.catch === 'function') result.catch(() => {});
+        } else if (root.webkitRequestFullscreen) {
+          root.webkitRequestFullscreen();
+        }
+      } catch {}
+    };
+    document.addEventListener('pointerdown', enterFullscreen, { capture: true, passive: true });
+    document.addEventListener('touchend', enterFullscreen, { capture: true, passive: true });
+  })();
+
 })();
