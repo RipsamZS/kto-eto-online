@@ -290,20 +290,7 @@ export class GameRoom {
         delete view.roles;
         delete view.nightActions;
         delete view.investigations;
-      } else if (this.gameId === "bunker") {
-      if (ids.length < 4) return {ok:false,message:"Для игры «Бункер» нужно минимум 4 игрока."};
-      const pick = list => list[Math.floor(Math.random()*list.length)];
-      const decks = {
-        profession:["Врач","Инженер","Учитель","Повар","Биолог","Строитель","Пилот","Фермер","Программист","Спасатель","Археолог","Электрик"],
-        health:["Отличное здоровье","Аллергия на пыльцу","Нужны очки для чтения","Хорошая выносливость","Непереносимость холода","Первая помощь"],
-        hobby:["Садоводство","Ремонт техники","Кулинария","Рисование","Рыбалка","Настольные игры","Походы","Музыка"],
-        baggage:["Набор инструментов","Аптечка","Семена растений","Книги и карты","Запас тёплой одежды","Фильтр для воды","Радиоприёмник"],
-        phobia:["Высота","Замкнутые пространства","Глубокая вода","Насекомые","Темнота","Нет выраженной фобии"],
-        fact:["Умеет чинить генератор","Знает основы ботаники","Говорит на двух языках","Может готовить из простых продуктов","Умеет ориентироваться по звёздам","Хорошо ладит с детьми"]
-      };
-      const cards = Object.fromEntries(ids.map(id=>[id,Object.fromEntries(Object.entries(decks).map(([key,list])=>[key,pick(list)]))]));
-      const disasters=["Глобальное отключение электричества","Сильное загрязнение окружающей среды","Длительная климатическая аномалия","Крупная природная катастрофа","Глобальный сбой связи и инфраструктуры"];
-      this.partyState={phase:"reveal",players:profiles,order:this.partyShuffle(ids),active:[...ids],cards,capacity:Math.max(2,Math.ceil(ids.length/2)),disaster:pick(disasters),revealed:{},votes:{},eliminated:[],round:1,lastEliminated:null,winner:null};
+      }
     } else if (this.gameId === "battleship") {
         const opponentId = s.order?.find(other => other !== id);
         view.myShip = [...(s.fleets?.[id] || [])];
@@ -378,6 +365,20 @@ export class GameRoom {
         phase:"night", players:profiles, roles, alive:[...ids], votes:{}, nightActions:{},
         investigations:{}, round:1, winner:null, eliminated:[], lastNight:null, lastVote:null
       };
+    } else if (this.gameId === "bunker") {
+      if (ids.length < 4) return {ok:false,message:"Для игры «Бункер» нужно минимум 4 игрока."};
+      const pick = list => list[Math.floor(Math.random()*list.length)];
+      const decks = {
+        profession:["Врач","Инженер","Учитель","Повар","Биолог","Строитель","Пилот","Фермер","Программист","Спасатель","Археолог","Электрик"],
+        health:["Отличное здоровье","Аллергия на пыльцу","Нужны очки для чтения","Хорошая выносливость","Непереносимость холода","Первая помощь"],
+        hobby:["Садоводство","Ремонт техники","Кулинария","Рисование","Рыбалка","Настольные игры","Походы","Музыка"],
+        baggage:["Набор инструментов","Аптечка","Семена растений","Книги и карты","Запас тёплой одежды","Фильтр для воды","Радиоприёмник"],
+        phobia:["Высота","Замкнутые пространства","Глубокая вода","Насекомые","Темнота","Нет выраженной фобии"],
+        fact:["Умеет чинить генератор","Знает основы ботаники","Говорит на двух языках","Может готовить из простых продуктов","Умеет ориентироваться по звёздам","Хорошо ладит с детьми"]
+      };
+      const cards = Object.fromEntries(ids.map(id=>[id,Object.fromEntries(Object.entries(decks).map(([key,list])=>[key,pick(list)]))]));
+      const disasters=["Глобальное отключение электричества","Сильное загрязнение окружающей среды","Длительная климатическая аномалия","Крупная природная катастрофа","Глобальный сбой связи и инфраструктуры"];
+      this.partyState={phase:"reveal",players:profiles,order:this.partyShuffle(ids),active:[...ids],cards,capacity:Math.max(2,Math.ceil(ids.length/2)),disaster:pick(disasters),revealed:{},votes:{},eliminated:[],round:1,lastEliminated:null,winner:null};
     } else if (this.gameId === "battleship") {
       if (ids.length !== 2) return {ok:false,message:"Для Морского боя нужны ровно 2 игрока."};
       this.partyState = {
