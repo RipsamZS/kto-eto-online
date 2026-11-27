@@ -439,6 +439,10 @@ export class GameRoom {
 
   async partyHandleAction(playerId, action, payload) {
     const s=this.partyState, ids=[...this.players.keys()];
+    if (action === "mafia-role-config-get") {
+      if (this.gameId !== "mafia") return {ok:false,message:"Настройки ролей доступны только в «Мафии»."};
+      return {ok:true,config:this.mafiaRoleConfig,playerCount:this.players.size};
+    }
     if (action === "mafia-role-config") {
       if (this.gameId !== "mafia" || playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.partyState) return {ok:false,message:"Настраивать роли может только ведущий до начала игры."};
       const mafia = Math.max(0, Math.min(6, Math.floor(Number(payload.mafia) || 0)));
