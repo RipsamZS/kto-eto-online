@@ -1446,7 +1446,7 @@ export class GameRoom {
     }
 
     if (event === "party-start") {
-      const minimum = this.gameId === "alias" ? 1 : (this.gameId === "codenames" || this.gameId === "mafia" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2));
+      const minimum = this.gameId === "alias" ? 1 : (this.gameId === "codenames" || this.gameId === "mafia" || this.gameId === "bunker" ? 4 : (this.gameId === "spy" || this.gameId === "imaginarium" ? 3 : 2));
       if (playerId !== this.hostPlayerId || this.gamePhase !== "lobby" || this.players.size < minimum) {
         reply({ok:false,message:"Для запуска нужно минимум " + minimum + " игрока(ов)."}); return;
       }
@@ -1676,7 +1676,7 @@ export default {
       const roomId = String(url.searchParams.get("id") || "").trim().toUpperCase();
       const gameId = url.searchParams.get("game") || "who-is-it";
 
-      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia"].includes(gameId)) {
+      if (!/^[A-Z0-9_-]{3,16}$/.test(roomId) || !["who-is-it","who-am-i","alias","codenames","spy","imaginarium","mafia","bunker"].includes(gameId)) {
         return new Response("Неверный код комнаты", {
           status: 400
         });
