@@ -1784,7 +1784,7 @@ export default {
     }
     if (pathname === "/games/mafia" || pathname === "/games/mafia/" || pathname === "/games/mafia/index.html") {
       let page = await new Response(asset.value).text();
-      page = page.replace("/games/mafia/assets/party-game-role-v3.js?v=20261127e", "/games/mafia/assets/party-game-circle-12p-20261128.js");
+      page = page.replace("/games/mafia/assets/party-game-role-v3.js?v=20261127e", "/games/mafia/assets/party-game-circle-12p-v2-20261128.js");
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     return new Response(request.method === "HEAD" ? null : asset.value, { status: 200, headers });
