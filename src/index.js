@@ -1772,7 +1772,7 @@ export default {
       return page;
     };
     if ((pathname === "/games/who-is-it" || pathname === "/games/who-is-it/" || pathname === "/games/who-is-it/index.html") && ext === "html") {
-      let page = await env.KAZO_STATIC.get("/games/who-is-it/index-spy-entry-v2.html") || await new Response(asset.value).text();
+      let page = await env.KAZO_STATIC.get("/games/who-is-it/index-spy-entry-v3.html") || await new Response(asset.value).text();
       page = cleanRoomMenuScripts(page);
       page = page.replace("</body>", '<script src="/room-menu-spy-match-v8.js"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
