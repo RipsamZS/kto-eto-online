@@ -1,203 +1,45 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a0d13"><title>Морской бой — Kazo</title><link rel="stylesheet" href="/games/battleship/assets/party-game.css?v=kazo-battleship-coordinate-map-20261127">
-<style id="kazo-archive-type-local-20261121">
-:root{--kazo-ui:"Exo 2",sans-serif;--kazo-display:"Exo 2",sans-serif;--kazo-mono:"Exo 2",sans-serif}
-html,body{font-family:var(--kazo-ui)!important;font-kerning:normal!important;font-variant-numeric:tabular-nums!important}
-body *:not(svg):not(path):not(i):not(canvas):not(.material-icons):not([class*="icon"]):not([class^="fa"]){font-family:var(--kazo-ui)!important}
-body h1,body h2,body h3,body h4,body h5,body h6,body .hero-title,body .page-title,body .section-title,body .game-title,body .room-title,body .modal-title,body .panel-title,body .brand-title,body .logo-text,body .heading,body .display-title{font-family:var(--kazo-display)!important;font-weight:700!important;letter-spacing:-.035em!important;line-height:1.12}
-body .brand,body .logo,body .wordmark{font-family:var(--kazo-display)!important;font-weight:700!important;letter-spacing:.055em!important}
-body button,body input,body textarea,body select,body option,body [role="button"],body .btn,body .button{font-family:var(--kazo-ui)!important;font-weight:700!important;letter-spacing:.045em!important}
-body .eyebrow,body .kicker,body .overline,body .section-label,body .field-label,body .game-type,body .status,body .badge,body .chip,body .tag,body .room-code,body .game-meta{font-family:var(--kazo-mono)!important;font-weight:700!important;letter-spacing:.09em!important;text-transform:uppercase}
-body code,body pre,body kbd,body samp{font-family:var(--kazo-mono)!important}
-body p,body li,body label,body dd,body dt,body small,body .muted,body .hint,body .caption,body .description,body .subtitle,body .meta,body .helper-text{letter-spacing:.012em}
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a1019">
+<title>Морской бой — KAZO</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#0a1019;color:#e8eef7}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:22px;background:radial-gradient(ellipse at 50% -15%,#1b3b4b 0,transparent 55%),linear-gradient(180deg,#0a1019,#101a28)}
+.page{width:min(920px,100%);margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
+.top a{color:#b9d7e5;text-decoration:none;border:1px solid #344c5d;border-radius:8px;padding:9px 13px;background:#142332}
+.brand{font-size:12px;font-weight:900;letter-spacing:.18em;color:#80c5d4}
+header{text-align:center;margin:12px 0 28px}
+.kicker{font-size:11px;letter-spacing:.2em;color:#7fa8b8;font-weight:800}
+h1{font-size:clamp(26px,5vw,42px);margin:9px 0;color:#f0f6fb}
+.subtitle{color:#91a8b8;margin:0}
+.board-panel{padding:clamp(12px,3vw,24px);border:1px solid #2b4354;border-radius:16px;background:linear-gradient(145deg,#142535,#0f1b29);box-shadow:0 22px 60px #0005}
+.board-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;color:#c5d8e4;font-size:12px;letter-spacing:.1em;font-weight:800}
+.board-heading span:last-child{color:#70bdce}
+.board{display:grid;grid-template-columns:34px repeat(10,minmax(0,1fr));gap:5px;width:100%;max-width:760px;margin:0 auto}
+.axis{display:grid;place-items:center;min-width:0;aspect-ratio:1;color:#8ba8b9;font-size:clamp(10px,1.8vw,14px);font-weight:800}
+.cell{display:block;min-width:0;aspect-ratio:1;padding:0;border:1px solid #35556b;border-radius:4px;background:linear-gradient(145deg,#18364a,#122a3b);box-shadow:inset 0 1px #ffffff0a;cursor:default}
+.cell:hover{border-color:#5ca9bd;background:#1d4054}
+.board-note{text-align:center;color:#718b9c;font-size:12px;margin:16px 0 0}
+@media(max-width:520px){body{padding:14px 9px}.top{margin-bottom:25px}.board{gap:3px;grid-template-columns:24px repeat(10,minmax(0,1fr))}.cell{border-radius:2px}.board-panel{padding:10px}.board-heading{font-size:10px}}
 </style>
-<style id="kazo-shared-archive-skin-20261121">
-/* KAZO shared archive lobby skin — 2026-11-21 */
-:root{color-scheme:dark;--kazo-bg:#0d1510;--kazo-panel:#19251c;--kazo-panel2:#202f24;--kazo-border:#667451;--kazo-gold:#c5a66b;--kazo-gold-hi:#e0c78f;--kazo-text:#eee8d8;--kazo-muted:#aeb6a5}
-html,body{background-color:#0d1510!important;color:var(--kazo-text)!important}
-body{background-image:radial-gradient(ellipse at 50% -15%,#344b383d,transparent 55%),linear-gradient(#c5a66b0a 1px,transparent 1px),linear-gradient(90deg,#c5a66b0a 1px,transparent 1px)!important;background-size:auto,32px 32px,32px 32px!important}
-body:before{background:radial-gradient(ellipse at center,#0d151000 35%,#080d09a8 100%)!important;pointer-events:none}
-header,nav,.topbar,.top-bar,.game-header,.page-header,.lobby-header,.toolbar{background:linear-gradient(145deg,#1d2b21ed,#111b14ed)!important;border-color:#667451!important;color:var(--kazo-text)!important;box-shadow:0 8px 24px #0005!important}
-main,.page,.game-page,.app,.shell,.game-shell,.lobby,.lobby-screen,.setup-screen,.room-screen{color:var(--kazo-text)!important}
-.panel,.card,.box,.setup-card,.mode-card,.menu-card,.room-card,.settings-card,.game-panel,.lobby-panel,.modal-content,.dialog,.section-card,.console,.game-console,.setup,.settings,.room-info,.players-panel,.chat-panel{background:linear-gradient(145deg,#202f24f5,#141f18f5)!important;border:1px solid #667451!important;color:var(--kazo-text)!important;box-shadow:0 12px 30px #0005,inset 0 1px #ffffff08!important}
-h1,h2,h3,h4,.title,.heading,.section-title,.panel-title{color:#f0e7d3!important}
-p,label,small,.hint,.muted,.description,.subtitle{color:var(--kazo-muted)}
-input,select,textarea{background:#101a13!important;color:#f0eadc!important;border:1px solid #607258!important;accent-color:#c5a66b}
-input::placeholder,textarea::placeholder{color:#929d8e!important}
-button,.btn,.button,[role=button]{border-radius:3px!important;transition:background .16s,border-color .16s,transform .16s,box-shadow .16s}
-button:not(.primary):not(.main-btn):not(.start-btn):not(.submit-btn):not([data-primary]),.btn:not(.primary),.button:not(.primary){background:linear-gradient(145deg,#29392c,#19261d)!important;color:#eee8d8!important;border:1px solid #667451!important;box-shadow:inset 0 1px #ffffff08!important}
-button:hover,.btn:hover,.button:hover,[role=button]:hover{border-color:#c5a66b!important;filter:brightness(1.08)}
-button.primary,button.main-btn,button.start-btn,button.submit-btn,button[data-primary],.btn.primary,.button.primary,.primary,.main-btn,.start-btn,.submit-btn,a.primary{background:linear-gradient(135deg,#dfc58d,#ad8b50)!important;color:#172018!important;border:1px solid #ead39f!important;box-shadow:0 5px 16px #0005,inset 0 1px #fff6!important}
-a[href="/"],a[href="/index.html"],a.back,a.back-link,.back-button,.btn-back,.home-button,.back-home{background:linear-gradient(145deg,#344735,#202d23)!important;color:#f0dfb9!important;border:1px solid #c5a66b!important;border-radius:3px!important;box-shadow:0 5px 15px #0005!important;text-decoration:none!important}
-hr,.divider{border-color:#667451!important}
-</style><style id="kazo-archive-strong-overrides-20261121">
-/* KAZO archive skin — stronger page-specific overrides */
-html:has(body[data-game]),html:has(body[data-game]) body{min-height:100%;background:#0d1510!important;color:#eee8d8!important}
-body[data-game]{background-color:#0d1510!important;background-image:radial-gradient(ellipse at 50% -15%,#344b3840,transparent 58%),linear-gradient(#c5a66b0b 1px,transparent 1px),linear-gradient(90deg,#c5a66b0b 1px,transparent 1px)!important;background-size:auto,32px 32px,32px 32px!important;color:#eee8d8!important}
-body[data-game] .page{color:#eee8d8!important}
-body[data-game] .top{background:linear-gradient(145deg,#1d2b21,#111b14)!important;border:1px solid #596b50!important;border-radius:4px!important;padding:12px 16px!important;box-shadow:0 8px 24px #0006!important}
-body[data-game] .top a,body[data-game] .top>a,body[data-game] a[href="/"]{display:inline-flex!important;align-items:center;justify-content:center;background:linear-gradient(145deg,#344735,#202d23)!important;color:#f0dfb9!important;border:1px solid #c5a66b!important;border-radius:3px!important;padding:11px 16px!important;text-decoration:none!important;font-weight:800!important;box-shadow:0 5px 15px #0005!important}
-body[data-game] .top a:hover,body[data-game] a[href="/"]:hover{background:linear-gradient(145deg,#40583f,#26382a)!important;border-color:#e0c78f!important}
-body[data-game] .brand{color:#e0c78f!important}
-body[data-game] .hero{color:#eee8d8!important}
-body[data-game] .hero h1,body[data-game] .hero h2{color:#f0dfb9!important}
-body[data-game] .panel,body[data-game] .mode-menu,body[data-game] #modeSubmenu,body[data-game] #setup,body[data-game] .setup-panel,body[data-game] .lobby-panel,body[data-game] .room-panel{background:linear-gradient(145deg,#202f24f7,#141f18f7)!important;border:1px solid #667451!important;border-radius:5px!important;color:#eee8d8!important;box-shadow:0 14px 34px #0006,inset 0 1px #ffffff08!important}
-body[data-game] .panel h2,body[data-game] .panel h3,body[data-game] #setup h2,body[data-game] #setup h3{color:#f0dfb9!important}
-body[data-game] .mode-option,body[data-game] .secondary,body[data-game] .danger,body[data-game] .back,body[data-game] .btn-secondary{background:linear-gradient(145deg,#29392c,#19261d)!important;color:#eee8d8!important;border:1px solid #667451!important;border-radius:3px!important}
-body[data-game] .mode-option:hover,body[data-game] .secondary:hover,body[data-game] .danger:hover{background:#304333!important;border-color:#c5a66b!important}
-body[data-game] .primary,body[data-game] button.primary,body[data-game] .start-btn,body[data-game] .main-btn,body[data-game] .submit-btn{background:linear-gradient(135deg,#dfc58d,#ad8b50)!important;color:#172018!important;border:1px solid #ead39f!important;border-radius:3px!important;box-shadow:0 5px 16px #0005!important}
-body[data-game] input,body[data-game] select,body[data-game] textarea{background:#101a13!important;color:#f0eadc!important;border:1px solid #607258!important}
-body[data-game] .muted,body[data-game] .hint,body[data-game] .field label,body[data-game] .description{color:#aeb6a5!important}
-body[data-game] .status,body[data-game] .badge{border-color:#9b8555!important}
-</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style id="kazo-dark-redesign-v3">
-:root{color-scheme:dark;--kazo-bg:#0a0d13;--kazo-panel:#121925;--kazo-panel-2:#182231;--kazo-border:rgba(177,195,221,.15);--kazo-text:#edf2fa;--kazo-muted:#9baabd;--kazo-accent:#8b7cff;--kazo-accent-2:#43c8d8;--kazo-shadow:0 18px 48px rgba(0,0,0,.28)}
-html{background:#0a0d13!important;color-scheme:dark!important;scroll-behavior:smooth}
-body,body[data-game]{background-color:#0a0d13!important;background-image:radial-gradient(ellipse at 15% 0%,rgba(92,83,190,.16),transparent 42%),radial-gradient(ellipse at 95% 18%,rgba(38,150,171,.10),transparent 35%),linear-gradient(180deg,#0a0d13 0%,#0d121b 100%)!important;color:var(--kazo-text)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
-body:before,body:after{pointer-events:none}
-::selection{background:rgba(139,124,255,.35);color:#fff}
-a{color:#a99eff}
-a:hover{color:#d0caff}
-header,nav,.topbar,.top-bar,.game-header,.page-header,.lobby-header,.toolbar,.top,.site-nav,.navbar{background:rgba(15,21,32,.88)!important;color:var(--kazo-text)!important;border-color:var(--kazo-border)!important;backdrop-filter:blur(16px)}
-main,.page,.container,.app,.game-shell,.content,.layout{color:var(--kazo-text)}
-h1,h2,h3,h4,h5,strong,b,label,legend{color:var(--kazo-text)}
-p,.muted,small,.description,.subtitle,.hint,.eyebrow,.meta,.secondary-text{color:var(--kazo-muted)}
-.panel,.card,.game-card,.mode-card,.room-card,.setting-card,.modal,.dialog,.sheet,.lobby,.game-info,.game-table,.board,.chat,.chat-panel,.settings-panel,.section-card,.game-panel,.room-panel,.menu-panel,.result-panel,.score-panel,.player-card,.character-card,.alias-word-card,.codenames-chat,.codenames-board-wrap{background:linear-gradient(155deg,rgba(25,34,49,.98),rgba(17,24,36,.98))!important;color:var(--kazo-text)!important;border:1px solid var(--kazo-border)!important;border-radius:18px!important;box-shadow:var(--kazo-shadow)!important}
-.game-card,.mode-card,.room-card,.player-card,.character-card{transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
-.game-card:hover,.mode-card:hover,.room-card:hover{transform:translateY(-3px);border-color:rgba(139,124,255,.5)!important;box-shadow:0 22px 48px rgba(0,0,0,.34)!important}
-button,.button,.btn,a.button,.primary,.secondary,.play,.action-button,input[type=button],input[type=submit]{font:inherit!important;font-weight:650!important;letter-spacing:.01em;border-radius:12px!important;transition:transform .16s ease,filter .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease}
-button,.button,.btn,.secondary,.play,.action-button,input[type=button]{background:#202b3c!important;color:#eaf0fa!important;border:1px solid rgba(177,195,221,.18)!important;box-shadow:none!important}
-button:hover,.button:hover,.btn:hover,.secondary:hover,.play:hover,.action-button:hover{background:#2b3850!important;border-color:rgba(139,124,255,.5)!important;transform:translateY(-1px)}
-button:active,.button:active,.btn:active{transform:translateY(0) scale(.985)}
-.primary,input[type=submit],.primary-button{background:linear-gradient(135deg,#7868ee,#5c9ee9)!important;color:#fff!important;border:1px solid rgba(190,181,255,.45)!important;box-shadow:0 8px 24px rgba(102,91,219,.22)!important}
-.primary:hover,input[type=submit]:hover,.primary-button:hover{filter:brightness(1.12);box-shadow:0 10px 28px rgba(102,91,219,.32)!important}
-button:disabled,.button:disabled{opacity:.42!important;filter:saturate(.5);cursor:not-allowed}
-input,textarea,select{background:#0d1420!important;color:#edf2fa!important;border:1px solid rgba(177,195,221,.2)!important;border-radius:11px!important;box-shadow:inset 0 1px 2px rgba(0,0,0,.18)!important}
-input::placeholder,textarea::placeholder{color:#728197!important}
-input:focus,textarea:focus,select:focus{outline:none!important;border-color:#8b7cff!important;box-shadow:0 0 0 3px rgba(139,124,255,.16)!important}
-hr,.divider,.separator{border-color:var(--kazo-border)!important}
-table{color:var(--kazo-text)!important;border-color:var(--kazo-border)!important}
-th,td{border-color:var(--kazo-border)!important}
-tr:nth-child(even){background:rgba(255,255,255,.025)!important}
-.badge,.tag,.chip,.game-tag,.players,.pill,.status{border:1px solid var(--kazo-border)!important;border-radius:999px!important;background:rgba(139,124,255,.10)!important;color:#c7c0ff!important}
-.modal-backdrop,.overlay,.backdrop{background:rgba(3,6,11,.78)!important;backdrop-filter:blur(8px)}
-.modal,.dialog{background:#151e2b!important}
-.game-art,.hero-art,.visual,.game-visual,.tile{border-radius:16px!important;overflow:hidden}
-.game-art{background:linear-gradient(145deg,#1b2740,#182331)!important;border:1px solid var(--kazo-border)!important}
-.game-number,.game-symbol{color:#d9d5ff!important}
-.card,.game-card,.mode-card{overflow:hidden}
-.game-board,.board-grid,.character-board,.cards-grid,.codenames-board{gap:10px}
-.word-card,.card-tile,.character-tile,.game-cell,.board-cell,.alias-card,.memory-card{background:linear-gradient(145deg,#202c3e,#172130)!important;color:#edf2fa!important;border:1px solid rgba(177,195,221,.2)!important;border-radius:12px!important;box-shadow:0 5px 16px rgba(0,0,0,.18)!important}
-.word-card:hover,.card-tile:hover,.character-tile:hover,.game-cell:hover{border-color:rgba(139,124,255,.62)!important;filter:brightness(1.08)}
-.word-card.is-flashing{animation:kazo-dark-flash .38s ease-in-out 3}
-@keyframes kazo-dark-flash{50%{outline:3px solid #f2c46b;outline-offset:2px;filter:brightness(1.35)}}
-.codenames-team--red{background:rgba(201,77,96,.13)!important;border-color:rgba(232,104,121,.45)!important}
-.codenames-team--blue{background:rgba(72,129,213,.15)!important;border-color:rgba(105,164,245,.48)!important}
-.codenames-turn-timer,.codenames-progress,.codenames-chat{background:#141e2b!important;color:var(--kazo-text)!important;border-color:var(--kazo-border)!important}
-.codenames-chat-log{background:#0d1420!important;color:var(--kazo-text)!important}
-.team-won-red{background-color:#25141d!important}.team-won-blue{background-color:#111f32!important}
-footer,.footer{color:var(--kazo-muted)!important;border-color:var(--kazo-border)!important}
-@media(max-width:700px){.panel,.card,.game-card,.mode-card,.modal,.dialog{border-radius:14px!important}.game-card:hover,.mode-card:hover{transform:none}}
-</style><style id="kazo-unified-ui-v4">
-
-:root{color-scheme:dark!important;--kazo-bg:#0b1019;--kazo-panel:#141d2b;--kazo-panel-2:#1b2738;--kazo-border:rgba(174,190,220,.16);--kazo-text:#f1f4fb;--kazo-muted:#a2aec2;--kazo-accent:#8b7cff;--kazo-accent-2:#4e9df5;--kazo-shadow:0 18px 48px rgba(0,0,0,.3)}
-html{background:#0b1019!important;color-scheme:dark!important}
-body,body[data-game]{background:#0b1019!important;background-image:radial-gradient(ellipse at 12% 0%,rgba(105,91,214,.14),transparent 42%),radial-gradient(ellipse at 94% 12%,rgba(43,150,190,.09),transparent 34%),linear-gradient(180deg,#0b1019 0%,#101827 100%)!important;color:var(--kazo-text)!important;font-family:Inter,"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
-body[data-game] .page{width:min(1120px,100%)!important;margin:0 auto!important}
-body[data-game] .top,body[data-game] .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px}
-body[data-game] .top a,body[data-game] .topbar a{background:#182335!important;color:#e9edfa!important;border:1px solid var(--kazo-border)!important;border-radius:12px!important;padding:10px 15px!important;text-decoration:none!important}
-body[data-game] .brand{color:#e8eaff!important;letter-spacing:.08em}
-body[data-game] .hero{background:linear-gradient(145deg,rgba(29,40,61,.92),rgba(17,26,41,.88))!important;border:1px solid var(--kazo-border)!important;border-radius:24px!important;padding:clamp(24px,4vw,42px)!important;margin:20px 0!important;box-shadow:var(--kazo-shadow)!important}
-body[data-game] .hero h1{color:#f4f5ff!important;letter-spacing:-.04em!important}
-body[data-game] .hero p,body[data-game] .muted,body[data-game] .field label{color:var(--kazo-muted)!important}
-body[data-game] .panel,body[data-game] .card,body[data-game] .mode-menu,body[data-game] .modal,body[data-game] .dialog,body[data-game] .lobby-panel,body[data-game] .room-panel,body[data-game] .game-panel,body[data-game] .settings-panel,body[data-game] .section-card,body[data-game] .players-panel{background:linear-gradient(155deg,#172235,#121b29)!important;color:var(--kazo-text)!important;border:1px solid var(--kazo-border)!important;border-radius:18px!important;box-shadow:var(--kazo-shadow)!important}
-body[data-game] .mode-option,body[data-game] .mode-card{background:linear-gradient(145deg,#1c2a3e,#162234)!important;color:var(--kazo-text)!important;border:1px solid var(--kazo-border)!important;border-radius:16px!important;box-shadow:0 10px 28px rgba(0,0,0,.18)!important}
-body[data-game] .mode-option:hover,body[data-game] .mode-card:hover{border-color:rgba(139,124,255,.58)!important;transform:translateY(-2px)}
-body[data-game] button,body[data-game] .btn,body[data-game] .primary,body[data-game] .secondary,body[data-game] .action-button{min-height:44px;border-radius:12px!important;font-family:inherit!important;font-weight:750!important;letter-spacing:0!important;box-shadow:none}
-body[data-game] .primary,body[data-game] button.primary,body[data-game] .btn-primary,body[data-game] .action-primary{background:linear-gradient(135deg,#8b7cff,#5877ec)!important;color:#fff!important;border:1px solid rgba(190,183,255,.26)!important;box-shadow:0 8px 22px rgba(103,94,222,.25)!important}
-body[data-game] .secondary,body[data-game] button.secondary,body[data-game] .btn-secondary{background:#202d40!important;color:#e8edfa!important;border:1px solid var(--kazo-border)!important}
-body[data-game] input,body[data-game] select,body[data-game] textarea{background:#0e1725!important;color:#f1f4fb!important;border:1px solid rgba(174,190,220,.2)!important;border-radius:12px!important;box-shadow:none!important}
-body[data-game] input:focus,body[data-game] select:focus,body[data-game] textarea:focus{border-color:#8b7cff!important;outline:2px solid rgba(139,124,255,.18)!important}
-body[data-game] .status,body[data-game] .notice,body[data-game] .room-code,body[data-game] .code-box{background:#111d2d!important;color:#e8edfa!important;border:1px solid var(--kazo-border)!important;border-radius:14px!important}
-body[data-game] .game-board,body[data-game] .board-grid,body[data-game] .character-board,body[data-game] .cards-grid,body[data-game] .codenames-board,body[data-game] .board-wrap{background:#0e1725!important;border:1px solid var(--kazo-border)!important;border-radius:18px!important;padding:12px!important}
-body[data-game] .word-card,body[data-game] .card-tile,body[data-game] .character-tile,body[data-game] .game-cell,body[data-game] .board-cell,body[data-game] .alias-card,body[data-game] .memory-card{background:linear-gradient(145deg,#24334a,#1a2739)!important;color:#f0f3fb!important;border:1px solid rgba(174,190,220,.2)!important;border-radius:12px!important;box-shadow:0 5px 16px rgba(0,0,0,.2)!important}
-body[data-game] .word-card:hover,body[data-game] .card-tile:hover,body[data-game] .character-tile:hover,body[data-game] .game-cell:hover{border-color:rgba(139,124,255,.7)!important;filter:brightness(1.08)}
-body[data-game="codenames"] .codenames-team--red{background:rgba(201,77,96,.14)!important;border-color:rgba(232,104,121,.48)!important}
-body[data-game="codenames"] .codenames-team--blue{background:rgba(72,129,213,.16)!important;border-color:rgba(105,164,245,.5)!important}
-body[data-game="codenames"] .codenames-turn-timer,body[data-game="codenames"] .codenames-progress,body[data-game="codenames"] .codenames-chat{background:#141f30!important;color:var(--kazo-text)!important;border-color:var(--kazo-border)!important}
-body[data-game] .hidden{display:none!important}
-body[data-game] a{color:#b8b1ff}
-body[data-game] footer,body[data-game] .footer{color:var(--kazo-muted)!important;border-color:var(--kazo-border)!important}
-body:not([data-game]) .nav{background:rgba(14,21,33,.82)!important;border:1px solid var(--kazo-border)!important;border-radius:18px!important;backdrop-filter:blur(16px)!important}
-body:not([data-game]) .brand,body:not([data-game]) .nav-link{color:#edf1fb!important}
-body:not([data-game]) .hero{background:linear-gradient(145deg,rgba(27,39,59,.96),rgba(15,24,39,.92))!important;border:1px solid var(--kazo-border)!important;border-radius:26px!important;box-shadow:var(--kazo-shadow)!important}
-body:not([data-game]) .hero h1,body:not([data-game]) .hero p{color:#f2f5fc!important}
-body:not([data-game]) .game-card{background:linear-gradient(155deg,#182438,#111b2a)!important;color:#f0f3fb!important;border:1px solid var(--kazo-border)!important;border-radius:20px!important;box-shadow:0 12px 30px rgba(0,0,0,.22)!important;overflow:hidden}
-body:not([data-game]) .game-card:hover{transform:translateY(-4px)!important;border-color:rgba(139,124,255,.55)!important;box-shadow:0 18px 36px rgba(0,0,0,.3)!important}
-body:not([data-game]) .game-card h3,body:not([data-game]) .game-card .game-type{color:#f0f3fb!important}
-body:not([data-game]) .game-card .game-number{color:#b8b1ff!important}
-body:not([data-game]) .game-card .play,body:not([data-game]) a.play,body:not([data-game]) .btn-primary{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;min-height:44px!important;padding:11px 18px!important;border-radius:12px!important;background:linear-gradient(135deg,#8b7cff,#5877ec)!important;color:#fff!important;border:1px solid rgba(190,183,255,.25)!important;text-decoration:none!important;font-weight:800!important;box-shadow:0 8px 22px rgba(103,94,222,.24)!important}
-body:not([data-game]) .game-card span.play{background:#263248!important;color:#a8b2c5!important;box-shadow:none!important}
-body:not([data-game]) .filter,body:not([data-game]) .btn-ghost{background:#1c293b!important;color:#e8edfa!important;border:1px solid var(--kazo-border)!important;border-radius:12px!important}
-body:not([data-game]) .game-art{background:linear-gradient(145deg,#202d43,#131e2e)!important}
-body:not([data-game]) .game-card p{color:var(--kazo-muted)!important}
-@media(max-width:700px){body[data-game] .panel,body[data-game] .hero,body:not([data-game]) .game-card{border-radius:16px!important}body[data-game] .hero{padding:22px 16px!important}body:not([data-game]) .game-card:hover{transform:none!important}}
-
-</style><style id="kazo-minimal-interface-v5">
-:root{color-scheme:dark!important;--kazo-bg:#0e1117;--kazo-panel:#151b24;--kazo-panel-2:#1a222d;--kazo-border:#2a3441;--kazo-text:#e8edf4;--kazo-muted:#9ba7b7;--kazo-accent:#788cff;--kazo-accent-2:#788cff;--kazo-shadow:none!important}
-html,body{background:#0e1117!important;background-image:none!important;color:#e8edf4!important;color-scheme:dark!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
-body{background-color:#0e1117!important}
-*,*:before,*:after{box-shadow:none!important;text-shadow:none!important}
-body:before,body:after{background-image:none!important}
-h1,h2,h3,h4,h5,h6{color:#eef2f7!important;font-family:inherit!important;letter-spacing:-.02em!important}
-p,small,label,.muted,.description,.subtitle{color:#9ba7b7!important}
-a{color:#aebcff}
-button,.btn,.primary,.secondary,.danger,[role=button]{min-height:40px!important;border-radius:7px!important;box-shadow:none!important;font-family:inherit!important;font-weight:650!important;letter-spacing:0!important;transition:background .12s,border-color .12s!important}
-button:hover:not(:disabled),.btn:hover{transform:none!important;filter:brightness(1.08)}
-button.primary,.primary,.btn-primary{background:#687ee8!important;color:#fff!important;border:1px solid #687ee8!important}
-button.secondary,.secondary,.btn-secondary{background:#1c2531!important;color:#e5eaf2!important;border:1px solid #303b49!important}
-button.danger,.danger{background:#342027!important;color:#f2d9de!important;border:1px solid #65404b!important}
-input,select,textarea{background:#111923!important;color:#edf1f7!important;border:1px solid #303b49!important;border-radius:7px!important;box-shadow:none!important}
-input:focus,select:focus,textarea:focus{border-color:#788cff!important;outline:1px solid #788cff!important;box-shadow:none!important}
-.panel,.card,.modal,.dialog,.sheet,.lobby,.section-card,.game-panel,.room-panel,.menu-panel,.result-panel,.score-panel,.player-card,.character-card,.settings-panel,.game-console,.game-board-shell,.game-title-panel,.mode-menu,.game-card{border:0!important;border-radius:8px!important;box-shadow:none!important}
-.panel,.card,.modal,.dialog,.sheet,.lobby,.section-card,.game-panel,.room-panel,.menu-panel,.result-panel,.score-panel,.player-card,.character-card,.settings-panel,.game-console,.game-board-shell,.mode-menu{background:#141a23!important;color:#e8edf4!important}
-.game-card{background:transparent!important;border-bottom:1px solid #27313d!important;padding:14px 0!important}
-.game-card:hover{transform:none!important;border-color:#3a4655!important}
-.game-card p,body:not([data-game]) .hero p,.game-title-copy p{display:none!important}
-.game-title-emblem,.game-title-kicker,.setup-kicker,.hero .emoji,.hero-art,.game-art,.game-symbol,.game-number,.game-type,.board-preview-icon,.eyebrow,.overline,.ornament,.decorative,.section-kicker{display:none!important}
-.game-title-panel{padding:0!important;margin:0 0 14px!important;background:transparent!important}
-.game-title-copy h2{margin:0!important;font-size:22px!important}
-.hero{padding:18px 0!important;background:transparent!important;border:0!important;text-align:left!important}
-.hero h1{font-size:clamp(26px,4vw,38px)!important;margin:0!important}
-.nav,.top a,.brand{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
-.nav{backdrop-filter:none!important}
-.panel{padding:16px!important;margin:10px 0!important}
-.mode-options{gap:8px!important}
-.mode-option{background:#171e28!important;border:0!important;border-bottom:1px solid #2b3542!important;border-radius:6px!important;box-shadow:none!important}
-.mode-option:hover{transform:none!important}
-.mode-option small{color:#9ba7b7!important}
-.status,.notice,.room-code,.code-box{background:#171f2a!important;color:#dfe6f0!important;border:0!important;border-radius:6px!important;box-shadow:none!important}
-.players .player,.player,.chatline{background:transparent!important;border:0!important;border-bottom:1px solid #28323e!important;border-radius:0!important;box-shadow:none!important}
-.room-toolbar{border:0!important}
-.game-board,.board-grid,.character-board,.cards-grid,.board-wrap{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-.word-card,.card-tile,.character-tile,.game-cell,.board-cell,.alias-card,.memory-card{border:1px solid #303b49!important;border-radius:6px!important;background:#1a222d!important;color:#edf1f7!important;box-shadow:none!important}
-.word-card:hover,.card-tile:hover,.character-tile:hover,.game-cell:hover{transform:none!important;filter:brightness(1.08)}
-.alias-team,.codenames-team,.codenames-team-rail,.team-a,.team-b{background:#151b24!important;border:0!important;border-radius:7px!important;box-shadow:none!important}
-.alias-team.team-a,.alias-team.team-b,.team-a,.team-b{border-left:3px solid #596a8e!important;border-top:0!important}
-.alias-team-heading,.alias-team-heading strong{color:#e8edf4!important}
-footer,.footer{display:none!important}
-hr{border:0!important;border-top:1px solid #2a3441!important}
-#onlineEditRoomModal>div{background:#151b24!important;border:1px solid #303b49!important;border-radius:8px!important;color:#e8edf4!important}
-#onlineEditRoomModal button{border-radius:7px!important}
-@media(max-width:650px){body{padding:12px!important}.panel{padding:12px!important}.game-title-copy h2{font-size:19px!important}}
-
-body[data-game="codenames"] .codenames-world{display:grid;grid-template-columns:minmax(150px,.9fr) minmax(0,3.4fr) minmax(150px,.9fr);gap:18px;align-items:start}
-body[data-game="codenames"] .codenames-team{background:#151b24!important;border:0!important;border-radius:8px!important;color:#eef2f7!important}
-body[data-game="codenames"] .codenames-team--red{border-left:3px solid #d16b78!important}
-body[data-game="codenames"] .codenames-team--blue{border-left:3px solid #679be0!important}
-body[data-game="codenames"] .codenames-team-label,body[data-game="codenames"] .codenames-member{color:#f0f3f8!important}
-body[data-game="codenames"] .codenames-turn-timer{background:transparent!important;border:0!important;color:#eef2f7!important}
-body[data-game="codenames"] .codenames-progress{display:none!important}
-body[data-game="codenames"] .codenames-chat{border:0!important;background:transparent!important}
-body[data-game="codenames"] .word-card{min-height:clamp(78px,9.5vw,118px)!important;background:#1a2330!important;color:#f0f3f8!important;border:1px solid #303a48!important;border-radius:7px!important}
-body[data-game="codenames"] .word-card.is-flashing{animation:kazo-card-flash-once .38s ease-in-out 1!important}
-@media(max-width:850px){body[data-game="codenames"] .codenames-world{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}body[data-game="codenames"] .codenames-center{grid-column:1/-1;grid-row:2}}</style></head><body data-game="battleship"><main class="page"><div class="top"><a href="/">← В Playroom</a><span class="brand">PLAYROOM</span></div><header class="hero"><div class="emoji">🚢</div><h1>Морской бой</h1><p>Расставляй корабли, делай ходы и первым найди флот соперника.</p></header><div id="partyApp"></div></main><script src="/games/battleship/assets/online-client.js?v=kazo-multiplayer-fix-20261127"></script><script>window.ROOM_GAME_ID="battleship";</script><script src="/games/battleship/assets/party-game.js?v=kazo-mafia-battleship-roomboard-20261127d"></script>
-</body></html>
+</head>
+<body>
+<main class="page">
+<div class="top"><a href="/">← В KAZO HUB</a><span class="brand">KAZO</span></div>
+<header><div class="kicker">ИГРОВОЕ ПОЛЕ</div><h1>Морской бой</h1><p class="subtitle">Координатная карта 10 × 10</p></header>
+<section class="board-panel" aria-label="Игровая карта">
+<div class="board-heading"><span>КООРДИНАТНАЯ СЕТКА</span><span>10 × 10</span></div>
+<div class="board" role="grid" aria-label="Поле от A1 до J10">
+<span class="axis"></span><span class="axis column-axis">A</span><span class="axis column-axis">B</span><span class="axis column-axis">C</span><span class="axis column-axis">D</span><span class="axis column-axis">E</span><span class="axis column-axis">F</span><span class="axis column-axis">G</span><span class="axis column-axis">H</span><span class="axis column-axis">I</span><span class="axis column-axis">J</span>
+<span class="axis row-axis">1</span><button class="cell" type="button" aria-label="Клетка A1" data-coordinate="A1"></button><button class="cell" type="button" aria-label="Клетка B1" data-coordinate="B1"></button><button class="cell" type="button" aria-label="Клетка C1" data-coordinate="C1"></button><button class="cell" type="button" aria-label="Клетка D1" data-coordinate="D1"></button><button class="cell" type="button" aria-label="Клетка E1" data-coordinate="E1"></button><button class="cell" type="button" aria-label="Клетка F1" data-coordinate="F1"></button><button class="cell" type="button" aria-label="Клетка G1" data-coordinate="G1"></button><button class="cell" type="button" aria-label="Клетка H1" data-coordinate="H1"></button><button class="cell" type="button" aria-label="Клетка I1" data-coordinate="I1"></button><button class="cell" type="button" aria-label="Клетка J1" data-coordinate="J1"></button><span class="axis row-axis">2</span><button class="cell" type="button" aria-label="Клетка A2" data-coordinate="A2"></button><button class="cell" type="button" aria-label="Клетка B2" data-coordinate="B2"></button><button class="cell" type="button" aria-label="Клетка C2" data-coordinate="C2"></button><button class="cell" type="button" aria-label="Клетка D2" data-coordinate="D2"></button><button class="cell" type="button" aria-label="Клетка E2" data-coordinate="E2"></button><button class="cell" type="button" aria-label="Клетка F2" data-coordinate="F2"></button><button class="cell" type="button" aria-label="Клетка G2" data-coordinate="G2"></button><button class="cell" type="button" aria-label="Клетка H2" data-coordinate="H2"></button><button class="cell" type="button" aria-label="Клетка I2" data-coordinate="I2"></button><button class="cell" type="button" aria-label="Клетка J2" data-coordinate="J2"></button><span class="axis row-axis">3</span><button class="cell" type="button" aria-label="Клетка A3" data-coordinate="A3"></button><button class="cell" type="button" aria-label="Клетка B3" data-coordinate="B3"></button><button class="cell" type="button" aria-label="Клетка C3" data-coordinate="C3"></button><button class="cell" type="button" aria-label="Клетка D3" data-coordinate="D3"></button><button class="cell" type="button" aria-label="Клетка E3" data-coordinate="E3"></button><button class="cell" type="button" aria-label="Клетка F3" data-coordinate="F3"></button><button class="cell" type="button" aria-label="Клетка G3" data-coordinate="G3"></button><button class="cell" type="button" aria-label="Клетка H3" data-coordinate="H3"></button><button class="cell" type="button" aria-label="Клетка I3" data-coordinate="I3"></button><button class="cell" type="button" aria-label="Клетка J3" data-coordinate="J3"></button><span class="axis row-axis">4</span><button class="cell" type="button" aria-label="Клетка A4" data-coordinate="A4"></button><button class="cell" type="button" aria-label="Клетка B4" data-coordinate="B4"></button><button class="cell" type="button" aria-label="Клетка C4" data-coordinate="C4"></button><button class="cell" type="button" aria-label="Клетка D4" data-coordinate="D4"></button><button class="cell" type="button" aria-label="Клетка E4" data-coordinate="E4"></button><button class="cell" type="button" aria-label="Клетка F4" data-coordinate="F4"></button><button class="cell" type="button" aria-label="Клетка G4" data-coordinate="G4"></button><button class="cell" type="button" aria-label="Клетка H4" data-coordinate="H4"></button><button class="cell" type="button" aria-label="Клетка I4" data-coordinate="I4"></button><button class="cell" type="button" aria-label="Клетка J4" data-coordinate="J4"></button><span class="axis row-axis">5</span><button class="cell" type="button" aria-label="Клетка A5" data-coordinate="A5"></button><button class="cell" type="button" aria-label="Клетка B5" data-coordinate="B5"></button><button class="cell" type="button" aria-label="Клетка C5" data-coordinate="C5"></button><button class="cell" type="button" aria-label="Клетка D5" data-coordinate="D5"></button><button class="cell" type="button" aria-label="Клетка E5" data-coordinate="E5"></button><button class="cell" type="button" aria-label="Клетка F5" data-coordinate="F5"></button><button class="cell" type="button" aria-label="Клетка G5" data-coordinate="G5"></button><button class="cell" type="button" aria-label="Клетка H5" data-coordinate="H5"></button><button class="cell" type="button" aria-label="Клетка I5" data-coordinate="I5"></button><button class="cell" type="button" aria-label="Клетка J5" data-coordinate="J5"></button><span class="axis row-axis">6</span><button class="cell" type="button" aria-label="Клетка A6" data-coordinate="A6"></button><button class="cell" type="button" aria-label="Клетка B6" data-coordinate="B6"></button><button class="cell" type="button" aria-label="Клетка C6" data-coordinate="C6"></button><button class="cell" type="button" aria-label="Клетка D6" data-coordinate="D6"></button><button class="cell" type="button" aria-label="Клетка E6" data-coordinate="E6"></button><button class="cell" type="button" aria-label="Клетка F6" data-coordinate="F6"></button><button class="cell" type="button" aria-label="Клетка G6" data-coordinate="G6"></button><button class="cell" type="button" aria-label="Клетка H6" data-coordinate="H6"></button><button class="cell" type="button" aria-label="Клетка I6" data-coordinate="I6"></button><button class="cell" type="button" aria-label="Клетка J6" data-coordinate="J6"></button><span class="axis row-axis">7</span><button class="cell" type="button" aria-label="Клетка A7" data-coordinate="A7"></button><button class="cell" type="button" aria-label="Клетка B7" data-coordinate="B7"></button><button class="cell" type="button" aria-label="Клетка C7" data-coordinate="C7"></button><button class="cell" type="button" aria-label="Клетка D7" data-coordinate="D7"></button><button class="cell" type="button" aria-label="Клетка E7" data-coordinate="E7"></button><button class="cell" type="button" aria-label="Клетка F7" data-coordinate="F7"></button><button class="cell" type="button" aria-label="Клетка G7" data-coordinate="G7"></button><button class="cell" type="button" aria-label="Клетка H7" data-coordinate="H7"></button><button class="cell" type="button" aria-label="Клетка I7" data-coordinate="I7"></button><button class="cell" type="button" aria-label="Клетка J7" data-coordinate="J7"></button><span class="axis row-axis">8</span><button class="cell" type="button" aria-label="Клетка A8" data-coordinate="A8"></button><button class="cell" type="button" aria-label="Клетка B8" data-coordinate="B8"></button><button class="cell" type="button" aria-label="Клетка C8" data-coordinate="C8"></button><button class="cell" type="button" aria-label="Клетка D8" data-coordinate="D8"></button><button class="cell" type="button" aria-label="Клетка E8" data-coordinate="E8"></button><button class="cell" type="button" aria-label="Клетка F8" data-coordinate="F8"></button><button class="cell" type="button" aria-label="Клетка G8" data-coordinate="G8"></button><button class="cell" type="button" aria-label="Клетка H8" data-coordinate="H8"></button><button class="cell" type="button" aria-label="Клетка I8" data-coordinate="I8"></button><button class="cell" type="button" aria-label="Клетка J8" data-coordinate="J8"></button><span class="axis row-axis">9</span><button class="cell" type="button" aria-label="Клетка A9" data-coordinate="A9"></button><button class="cell" type="button" aria-label="Клетка B9" data-coordinate="B9"></button><button class="cell" type="button" aria-label="Клетка C9" data-coordinate="C9"></button><button class="cell" type="button" aria-label="Клетка D9" data-coordinate="D9"></button><button class="cell" type="button" aria-label="Клетка E9" data-coordinate="E9"></button><button class="cell" type="button" aria-label="Клетка F9" data-coordinate="F9"></button><button class="cell" type="button" aria-label="Клетка G9" data-coordinate="G9"></button><button class="cell" type="button" aria-label="Клетка H9" data-coordinate="H9"></button><button class="cell" type="button" aria-label="Клетка I9" data-coordinate="I9"></button><button class="cell" type="button" aria-label="Клетка J9" data-coordinate="J9"></button><span class="axis row-axis">10</span><button class="cell" type="button" aria-label="Клетка A10" data-coordinate="A10"></button><button class="cell" type="button" aria-label="Клетка B10" data-coordinate="B10"></button><button class="cell" type="button" aria-label="Клетка C10" data-coordinate="C10"></button><button class="cell" type="button" aria-label="Клетка D10" data-coordinate="D10"></button><button class="cell" type="button" aria-label="Клетка E10" data-coordinate="E10"></button><button class="cell" type="button" aria-label="Клетка F10" data-coordinate="F10"></button><button class="cell" type="button" aria-label="Клетка G10" data-coordinate="G10"></button><button class="cell" type="button" aria-label="Клетка H10" data-coordinate="H10"></button><button class="cell" type="button" aria-label="Клетка I10" data-coordinate="I10"></button><button class="cell" type="button" aria-label="Клетка J10" data-coordinate="J10"></button>
+</div>
+<p class="board-note">Столбцы A–J · строки 1–10</p>
+</section>
+</main>
+</body>
+</html>
