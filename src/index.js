@@ -1829,6 +1829,11 @@ if (pathname === "/games/mafia" || pathname === "/games/mafia/" || pathname === 
       page = page.replace("</body>", '<script src="/room-menu-spy-match-v10.js"></script><script src="/room-entry-buttons-v1.js?v=20261128-buttons"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
+    if ((pathname === "/" || pathname === "/index.html") && ext === "html") {
+      let page = await new Response(asset.value).text();
+      page = page.replace("</body>", '<script src="/kazo-lobby-actions-v1.js?v=20261128"></script></body>');
+      return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
+    }
     return new Response(request.method === "HEAD" ? null : asset.value, { status: 200, headers });
   }
 };
