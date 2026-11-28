@@ -1773,8 +1773,8 @@ export default {
     };
     if ((pathname === "/games/who-is-it" || pathname === "/games/who-is-it/" || pathname === "/games/who-is-it/index.html") && ext === "html") {
       let page = await env.KAZO_STATIC.get("/games/who-is-it/index-spy-entry-v4.html") || await new Response(asset.value).text();
-      page = cleanRoomMenuScripts(page);
-      page = page.replace("</body>", '<script src="/room-menu-spy-match-v10.js"></script><script src="/room-entry-buttons-v1.js?v=20261128-buttons"></script></body>');
+      // Keep the original game-specific room menu on "Кто это?"; only add button styling.
+      page = page.replace("</body>", '<script src="/room-entry-buttons-v1.js?v=20261128-buttons"></script></body>');
       return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
     }
     if ((pathname === "/games/alias" || pathname === "/games/alias/" || pathname === "/games/alias/index.html") && ext === "html") {
